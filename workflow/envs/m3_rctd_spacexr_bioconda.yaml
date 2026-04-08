@@ -9,5 +9,5 @@ dependencies:
   - r-base>=4.3,<5
   - r-jsonlite
   - r-remotes
-  # Prefer build 0; build 1 was marked broken on Anaconda.org for this version.
-  - "r-spacexr=2.2.1=*_0"
+  # Pin version; avoid strict build match (micromamba/libmamba can fail on *_0 on some repodata).
+  - r-spacexr=2.2.1

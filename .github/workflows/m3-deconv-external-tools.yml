@@ -141,7 +141,8 @@ jobs:
     timeout-minutes: 90
     defaults:
       run:
-        shell: bash -leo pipefail {0}
+        # Non-login shell: avoid -l resetting or shadowing env vars Snakemake needs for DATA_ROOT.
+        shell: bash -eo pipefail {0}
     env:
       CONDA_CHANNEL_PRIORITY: flexible
     steps:
@@ -169,18 +170,24 @@ jobs:
         run: pip install "snakemake>=8.0" pyyaml anndata numpy
 
       - name: Stage data, then Snakemake (Cell2location validate + RCTD)
+        env:
+          # Inject via GHA (always set); avoids empty RUNNER_TEMP + set -u and guarantees Snakemake sees DATA_ROOT.
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/m3_deconv_smoke_data
+          GLIOMA_TARGET_M3_C2L_CONDA_ENV: light
+          GLIOMA_TARGET_M3_RCTD_BUNDLE_SPACEXR: "1"
+          GLIOMA_TARGET_RCTD_TEST_MODE: "1"
+          GLIOMA_TARGET_RCTD_FALLBACK_TEST_MODE: "1"
+          M3_RCTD_PRESMOKE: ${{ runner.temp }}/m3_rctd_presmoke
         run: |
-          set -euxo pipefail
-          export GLIOMA_TARGET_DATA_ROOT="${RUNNER_TEMP}/m3_deconv_smoke_data"
-          export GLIOMA_TARGET_M3_C2L_CONDA_ENV=light
-          export GLIOMA_TARGET_M3_RCTD_BUNDLE_SPACEXR=1
-          export GLIOMA_TARGET_RCTD_TEST_MODE=1
-          export GLIOMA_TARGET_RCTD_FALLBACK_TEST_MODE=1
+          set -exo pipefail
+          echo "GLIOMA_TARGET_DATA_ROOT=${GLIOMA_TARGET_DATA_ROOT}"
+          test -n "${GLIOMA_TARGET_DATA_ROOT}"
           mkdir -p "${GLIOMA_TARGET_DATA_ROOT}"
           python scripts/m3_ci_stage_minimal_h5ad.py --data-root "${GLIOMA_TARGET_DATA_ROOT}"
-          micromamba create -y -p "${RUNNER_TEMP}/m3_rctd_presmoke" -f workflow/envs/m3_rctd_spacexr_bioconda.yaml
-          micromamba run -p "${RUNNER_TEMP}/m3_rctd_presmoke" Rscript -e "stopifnot(requireNamespace('spacexr', quietly=TRUE))"
-          micromamba run -p "${RUNNER_TEMP}/m3_rctd_presmoke" Rscript scripts/m3_ci_stage_minimal_rctd_rds.R "${GLIOMA_TARGET_DATA_ROOT}"
+          micromamba create -y -p "${M3_RCTD_PRESMOKE}" -f workflow/envs/m3_rctd_spacexr_bioconda.yaml
+          micromamba run -p "${M3_RCTD_PRESMOKE}" Rscript -e "stopifnot(requireNamespace('spacexr', quietly=TRUE))"
+          micromamba run -p "${M3_RCTD_PRESMOKE}" Rscript scripts/m3_ci_stage_minimal_rctd_rds.R "${GLIOMA_TARGET_DATA_ROOT}"
+          python -c "import os; from pathlib import Path; dr=os.environ.get('GLIOMA_TARGET_DATA_ROOT',''); assert dr; p=Path(dr)/'m3_spatial_deconv/cell2location/reference_scRNA.h5ad'; assert p.is_file(), p"
           snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_cell2location_run
           snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_rctd_run
           test -f results/module3/m3_deconvolution_cell2location/cell2location_run.flag
@@ -226,11 +233,13 @@ jobs:
         run: pip install "snakemake>=8.0" pyyaml anndata numpy
 
       - name: Full Cell2location training (minimal epochs, CPU thread cap)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/m3_deconv_train_data
+          GLIOMA_TARGET_M3_CELL2LOCATION_CONFIG: ${{ github.workspace }}/config/m3_deconvolution_cell2location_inputs_ci_train.yaml
         run: |
-          set -euxo pipefail
-          export GLIOMA_TARGET_DATA_ROOT="${RUNNER_TEMP}/m3_deconv_train_data"
-          export GLIOMA_TARGET_M3_CELL2LOCATION_CONFIG="${GITHUB_WORKSPACE}/config/m3_deconvolution_cell2location_inputs_ci_train.yaml"
-          unset GLIOMA_TARGET_M3_C2L_CONDA_ENV || true
+          set -exo pipefail
+          echo "GLIOMA_TARGET_DATA_ROOT=${GLIOMA_TARGET_DATA_ROOT}"
+          test -n "${GLIOMA_TARGET_DATA_ROOT}"
           mkdir -p "${GLIOMA_TARGET_DATA_ROOT}"
           python scripts/m3_ci_stage_minimal_h5ad.py --data-root "${GLIOMA_TARGET_DATA_ROOT}"
           snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_cell2location_run
