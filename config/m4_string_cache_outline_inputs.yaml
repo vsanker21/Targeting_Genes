@@ -1,0 +1,41 @@
+# Outline M4: optional STRING API response / offline PPI edge cache under GLIOMA_TARGET_DATA_ROOT.
+# Complements m4_string_api_network and BioGRID-style staging; no STRING HTTP in-repo from these paths.
+
+m4_string_cache_path_checks:
+  enabled: true
+  output_json: "results/module4/m4_string_cache_paths_status.json"
+  done_flag: "results/module4/m4_string_cache_paths_status.flag"
+  groups:
+    - id: string_api_response_cache
+      summary: "Archived STRING REST JSON or tabular API outputs (per job / gene list)"
+      path_checks:
+        - name: "Directory of STRING network API JSON responses (cached)"
+          path_template: "{data_root}/networks/string_api_json_cache"
+        - name: "Optional request URL / parameter manifest for replay"
+          path_template: "{data_root}/networks/string_api_request_manifest"
+    - id: string_edge_list_exports
+      summary: "Offline edge lists (TSV/graphml) derived from STRING or merged PPI"
+      path_checks:
+        - name: "TSV edge list exports (protein1, protein2, score)"
+          path_template: "{data_root}/networks/string_edge_tsv_exports"
+        - name: "Optional graphml or igraph pickle for offline layouts"
+          path_template: "{data_root}/networks/string_graph_exports"
+    - id: string_protein_alias_map
+      summary: "Protein name / Ensembl / STRING ID crosswalks for cached edges"
+      path_checks:
+        - name: "STRING protein alias or preferred name mapping table"
+          path_template: "{data_root}/networks/string_protein_alias_map"
+        - name: "Optional species-specific identifier bridge (HGNC â†” STRING)"
+          path_template: "{data_root}/networks/string_species_id_bridge"
+    - id: string_version_or_metadata
+      summary: "STRING version pins and download metadata for reproducibility"
+      path_checks:
+        - name: "STRING version or release manifest (YAML/JSON)"
+          path_template: "{data_root}/networks/string_version_manifest"
+        - name: "Optional checksum list for cached response files"
+          path_template: "{data_root}/networks/string_cache_checksums"
+
+m4_string_cache_integration_stub:
+  enabled: true
+  output_json: "results/module4/m4_string_cache_integration_stub.json"
+  done_flag: "results/module4/m4_string_cache_integration_stub.flag"

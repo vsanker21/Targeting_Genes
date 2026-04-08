@@ -1,0 +1,41 @@
+﻿# Outline Module 6: optional CNS / off-tumor / organ toxicity staging under GLIOMA_TARGET_DATA_ROOT.
+# Complements structure tooling + ADMET gap stub; no toxicity assays or models in-repo.
+
+m6_toxicity_path_checks:
+  enabled: true
+  output_json: "results/module6/m6_toxicity_paths_status.json"
+  done_flag: "results/module6/m6_toxicity_paths_status.flag"
+  groups:
+    - id: cns_penetration_safety
+      summary: "BBB / CNS penetration and CNS safety gene panels or curated lists"
+      path_checks:
+        - name: "CNS safety or BBB-relevant gene panel directory (TSV/YAML)"
+          path_template: "{data_root}/toxicity/cns_safety_panels"
+        - name: "Optional small-molecule CNS MPO or permeability score export staging"
+          path_template: "{data_root}/toxicity/cns_mpo_or_permeability_exports"
+    - id: off_tumor_expression_reference
+      summary: "Healthy or off-tumor expression references for target safety context"
+      path_checks:
+        - name: "Off-tumor or GTEx-style expression summary staging (genes x tissues)"
+          path_template: "{data_root}/toxicity/off_tumor_expression_reference"
+        - name: "Optional essential gene or pan-tissue lethality panel"
+          path_template: "{data_root}/toxicity/essential_gene_panels"
+    - id: organ_toxicity_panels
+      summary: "Organ-specific toxicity pathway or DILI gene sets"
+      path_checks:
+        - name: "Hepatotoxicity / DILI gene or pathway panel staging"
+          path_template: "{data_root}/toxicity/organ_hepatotoxicity_panels"
+        - name: "Cardiac or hERG-related target list staging (optional)"
+          path_template: "{data_root}/toxicity/organ_cardiac_panels"
+    - id: computational_admet_exports
+      summary: "Batch ADMET prediction outputs from external tools"
+      path_checks:
+        - name: "Directory of batch ADMET prediction CSV/TSV (e.g. SwissADME-like)"
+          path_template: "{data_root}/toxicity/admet_batch_exports"
+        - name: "Optional SMILES to compound ID map used for ADMET batches"
+          path_template: "{data_root}/toxicity/admet_compound_id_map"
+
+m6_toxicity_integration_stub:
+  enabled: true
+  output_json: "results/module6/m6_toxicity_integration_stub.json"
+  done_flag: "results/module6/m6_toxicity_integration_stub.flag"

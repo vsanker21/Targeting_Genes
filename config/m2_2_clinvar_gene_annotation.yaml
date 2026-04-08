@@ -1,0 +1,12 @@
+# M2.2 — Chosen path: **ClinVar gene-level summary** (not MutSig2CV, not OncoKB API, not VEP+variant-level ClinVar).
+# Joins cohort MAF gene summary (Ensembl gene_id) to ClinVar via HGNC gene symbol.
+
+clinvar:
+  tab_delimited_url: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/gene_specific_summary.txt
+  cache_relative: references/clinvar/gene_specific_summary.txt
+
+hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+maf_gene_summary_tsv: results/module3/tcga_gbm_maf_gene_summary.tsv
+
+output_tsv: results/module3/m2_2_clinvar/maf_genes_with_clinvar_gene_summary.tsv
+provenance_json: results/module3/m2_2_clinvar/clinvar_gene_annotation_provenance.json

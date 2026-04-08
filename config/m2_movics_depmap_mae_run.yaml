@@ -1,0 +1,11 @@
+# MOVICS::getIntNMF on three DepMap-derived views under data_root (after fetch_movics_staging_data).
+# Matrix paths and filenames come from config/m2_movics_data_fetch.yaml (depmap_gbm_mae.out_dir + filenames).
+# Rows = gene symbols; columns = ModelID — same layout as scripts/fetch_movics_staging_data.py.
+# Views: expression (log1p TPM, Gaussian), copy number (log2 ratio → row-min shifted for non-neg NMF), mutation (0/1, binomial).
+# Snakemake: m2_movics_intnmf_depmap_mae  |  Optional rule all: GLIOMA_TARGET_INCLUDE_MOVICS_DEPMAP_MAE=1
+
+movics_intnmf_depmap_mae:
+  max_genes: 1500
+  n_clust: 4
+  output_clusters_tsv: results/module3/m2_movics_intnmf_depmap_mae/movics_depmap_mae_clusters.tsv
+  output_provenance_json: results/module3/m2_movics_intnmf_depmap_mae/movics_depmap_mae_provenance.json

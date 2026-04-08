@@ -1,0 +1,39 @@
+# Outline M3: Dryad spatial multi-omics bundle + SRA-derived GSE57872 paths (config/data_sources.yaml).
+# Complements module3_public_inputs_status single-path checks with grouped modality roots.
+
+m3_dryad_sra_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_dryad_sra_paths_status.json"
+  done_flag: "results/module3/m3_dryad_sra_paths_status.flag"
+  groups:
+    - id: dryad_spatial_gbm_bundle
+      summary: "Ravi et al. Dryad spatial GBM (Visium, scRNA, methylation, IMC, MALDI)"
+      path_checks:
+        - name: "Dryad spatial GBM bundle root"
+          path_template: "{data_root}/dryad/spatial_gbm"
+        - name: "10X Visium subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/10XVisium 2"
+        - name: "scRNA tumor tissue subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/scTumor_Tissue"
+        - name: "scRNA environment slices subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/scSlices_Environment"
+        - name: "Methylation subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/Methylation"
+        - name: "IMC subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/IMC_1"
+        - name: "MALDI subdirectory"
+          path_template: "{data_root}/dryad/spatial_gbm/MALDI_1"
+    - id: sra_gse57872_derived
+      summary: "SRA download / alignment outputs for GSE57872 (public scRNA cohort)"
+      path_checks:
+        - name: "SRA GSE57872 root"
+          path_template: "{data_root}/sra/GSE57872"
+        - name: "FASTQ staging"
+          path_template: "{data_root}/sra/GSE57872/fastq"
+        - name: "Counts or alignment outputs"
+          path_template: "{data_root}/sra/GSE57872/counts"
+
+m3_dryad_sra_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_dryad_sra_integration_stub.json"
+  done_flag: "results/module3/m3_dryad_sra_integration_stub.flag"

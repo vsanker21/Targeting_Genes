@@ -1,0 +1,41 @@
+﻿# Outline Module 7: optional external validation / benchmark staging under GLIOMA_TARGET_DATA_ROOT.
+# Complements GTS stub tables; no scoring, benchmarking, or statistical validation jobs in-repo.
+
+m7_validation_path_checks:
+  enabled: true
+  output_json: "results/module7/m7_validation_paths_status.json"
+  done_flag: "results/module7/m7_validation_paths_status.flag"
+  groups:
+    - id: external_expression_holdout
+      summary: "Independent cohort expression or count matrices reserved for validation (not DEA training)"
+      path_checks:
+        - name: "External validation expression matrix or h5ad/loom staging"
+          path_template: "{data_root}/validation/external_cohort_expression"
+        - name: "External cohort sample manifest with batch and tissue metadata"
+          path_template: "{data_root}/validation/external_cohort_sample_meta"
+    - id: external_outcome_labels
+      summary: "Outcome, treatment response, or survival labels for held-out or external samples"
+      path_checks:
+        - name: "Clinical outcome or PFS/OS table keyed to sample IDs"
+          path_template: "{data_root}/validation/external_outcomes_labels"
+        - name: "Optional IHC or protein validation readout staging"
+          path_template: "{data_root}/validation/ihc_or_protein_validation"
+    - id: benchmark_reference_topn
+      summary: "Frozen top-N target lists or ranks from prior pipeline runs for regression-style diff"
+      path_checks:
+        - name: "Directory of reference top-N gene lists (TSV/JSON) per modality"
+          path_template: "{data_root}/validation/benchmark_topn_reference"
+        - name: "Optional checksum or manifest of frozen benchmark inputs"
+          path_template: "{data_root}/validation/benchmark_input_manifest"
+    - id: reproducibility_manifests
+      summary: "Pipeline version pins, conda lockfiles, or run manifests for reproducible evaluation"
+      path_checks:
+        - name: "Reproducibility or audit manifest directory (env locks, git SHAs)"
+          path_template: "{data_root}/validation/reproducibility_manifests"
+        - name: "Optional CI benchmark result archive from prior runs"
+          path_template: "{data_root}/validation/ci_benchmark_archive"
+
+m7_validation_integration_stub:
+  enabled: true
+  output_json: "results/module7/m7_validation_integration_stub.json"
+  done_flag: "results/module7/m7_validation_integration_stub.flag"

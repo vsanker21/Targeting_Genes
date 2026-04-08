@@ -1,0 +1,50 @@
+# Outline M3: in-repo Module 6 structure druggability bridge TSVs and provenance under results/module6.
+# Aligns with export_module6_structure_druggability_bridge.py and structure_admet_integration_stub.
+
+m3_repo_module6_structure_bridge_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_module6_structure_bridge_paths_status.json"
+  done_flag: "results/module3/m3_repo_module6_structure_bridge_paths_status.flag"
+  groups:
+    - id: module6_structure_druggability_bridge_repo_outputs
+      summary: "Global and stratified GTS→UniProt/AlphaFold bridge TSVs, provenance, flags under results/module6"
+      path_checks:
+        - name: structure_druggability_bridge_welch_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_welch.tsv"
+        - name: structure_druggability_bridge_ols_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_ols.tsv"
+        - name: structure_druggability_bridge_recount3_pydeseq2_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_recount3_pydeseq2.tsv"
+        - name: structure_druggability_bridge_recount3_edger_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_recount3_edger.tsv"
+        - name: structure_druggability_bridge_provenance_json
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_provenance.json"
+        - name: structure_druggability_bridge_flag
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge.flag"
+        - name: structure_druggability_bridge_stratified_flag
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified.flag"
+        - name: bridge_stratified_welch_classical_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/welch_integrated/dea_welch_subtype_Classical_structure_bridge.tsv"
+        - name: bridge_stratified_welch_mesenchymal_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/welch_integrated/dea_welch_subtype_Mesenchymal_structure_bridge.tsv"
+        - name: bridge_stratified_welch_neural_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/welch_integrated/dea_welch_subtype_Neural_structure_bridge.tsv"
+        - name: bridge_stratified_welch_proneural_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/welch_integrated/dea_welch_subtype_Proneural_structure_bridge.tsv"
+        - name: bridge_stratified_ols_classical_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/ols_integrated/dea_ols_subtype_Classical_structure_bridge.tsv"
+        - name: bridge_stratified_ols_mesenchymal_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/ols_integrated/dea_ols_subtype_Mesenchymal_structure_bridge.tsv"
+        - name: bridge_stratified_ols_neural_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/ols_integrated/dea_ols_subtype_Neural_structure_bridge.tsv"
+        - name: bridge_stratified_ols_proneural_tsv
+          path_template: "{repo_root}/results/module6/structure_druggability_bridge_stratified/ols_integrated/dea_ols_subtype_Proneural_structure_bridge.tsv"
+        - name: structure_admet_integration_stub_json
+          path_template: "{repo_root}/results/module6/structure_admet_integration_stub.json"
+        - name: structure_admet_integration_stub_flag
+          path_template: "{repo_root}/results/module6/structure_admet_integration_stub.flag"
+
+m3_repo_module6_structure_bridge_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_module6_structure_bridge_integration_stub.json"
+  done_flag: "results/module3/m3_repo_module6_structure_bridge_integration_stub.flag"

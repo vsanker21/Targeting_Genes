@@ -1,0 +1,13 @@
+# RCTD with spacexr from Bioconda (noarch package on Anaconda Cloud; reproducible on ubuntu-latest).
+# Pin exact version so CI solves stay stable across Bioconda repodata updates.
+# Windows: use m3_rctd.yaml and install spacexr via R. CI sets GLIOMA_TARGET_M3_RCTD_BUNDLE_SPACEXR=1.
+name: m3_rctd_spacexr_bioconda
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base>=4.3,<5
+  - r-jsonlite
+  - r-remotes
+  # Prefer build 0; build 1 was marked broken on Anaconda.org for this version.
+  - "r-spacexr=2.2.1=*_0"

@@ -1,0 +1,34 @@
+# Outline M4: optional KEGG and Reactome pathway mirrors under data_root/pathways (presence only).
+# Complements m4_gsea_mirror (MSigDB GMT and fgsea output staging); no pathway API or enrichment jobs in-repo.
+
+m4_pathway_database_mirror_path_checks:
+  enabled: true
+  output_json: "results/module4/m4_pathway_database_mirror_paths_status.json"
+  done_flag: "results/module4/m4_pathway_database_mirror_paths_status.flag"
+  groups:
+    - id: kegg_pathway_mirror
+      summary: "KEGG pathway KGML, gene-to-pathway tables, or REST cache mirrors"
+      path_checks:
+        - name: "KEGG pathway archive or KGML staging root"
+          path_template: "{data_root}/pathways/kegg/kgml_or_pathway_mirror"
+        - name: "KEGG gene-to-pathway or ortholog mapping tables"
+          path_template: "{data_root}/pathways/kegg/gene_pathway_tables"
+    - id: reactome_pathway_mirror
+      summary: "Reactome pathway gene sets, BioPAX, or identifier mapping mirrors"
+      path_checks:
+        - name: "Reactome pathway gene-set or GMT mirror root"
+          path_template: "{data_root}/pathways/reactome/pathway_gene_sets_mirror"
+        - name: "Reactome UniProt or Entrez identifier mapping tables"
+          path_template: "{data_root}/pathways/reactome/id_mapping_mirror"
+    - id: supplementary_open_pathway_gmts
+      summary: "WikiPathways + PathwayCommons GMT mirrors (download_supplementary_reference_resources.py)"
+      path_checks:
+        - name: "WikiPathways Homo sapiens GMT"
+          path_template: "{data_root}/references/pathways/wikipathways-Homo_sapiens.gmt"
+        - name: "PathwayCommons All hgnc GMT (gzip)"
+          path_template: "{data_root}/references/pathways/PathwayCommons12.All.hgnc.gmt.gz"
+
+m4_pathway_database_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module4/m4_pathway_database_mirror_integration_stub.json"
+  done_flag: "results/module4/m4_pathway_database_mirror_integration_stub.flag"

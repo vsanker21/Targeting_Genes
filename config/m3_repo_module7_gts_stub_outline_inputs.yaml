@@ -1,0 +1,52 @@
+# Outline M3: in-repo Module 7 GTS candidate stub TSVs, provenance, stratified tables, and validation gap checklist under results/module7.
+# Aligns with export_gts_candidate_table.py and module7_gts_validation_integration_stub.py.
+
+m3_repo_module7_gts_stub_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_module7_gts_stub_paths_status.json"
+  done_flag: "results/module3/m3_repo_module7_gts_stub_paths_status.flag"
+  groups:
+    - id: module7_gts_candidate_stub_repo_outputs
+      summary: "Global and stratified GTS stub tables, provenance, flags, and gts_validation_integration_stub under results/module7"
+      path_checks:
+        - name: gts_candidate_table_welch_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_table_welch_stub.tsv"
+        - name: glioma_target_tier1_welch_tsv
+          path_template: "{repo_root}/results/module7/glioma_target_tier1_welch.tsv"
+        - name: gts_candidate_table_ols_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_table_ols_stub.tsv"
+        - name: gts_candidate_table_recount3_pydeseq2_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_table_recount3_pydeseq2_stub.tsv"
+        - name: gts_candidate_table_recount3_edger_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_table_recount3_edger_stub.tsv"
+        - name: gts_candidate_stub_provenance_json
+          path_template: "{repo_root}/results/module7/gts_candidate_stub_provenance.json"
+        - name: gts_candidate_stub_flag
+          path_template: "{repo_root}/results/module7/gts_candidate_stub.flag"
+        - name: gts_stratified_candidate_stub_flag
+          path_template: "{repo_root}/results/module7/gts_stratified_candidate_stub.flag"
+        - name: gts_stratified_welch_classical_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/welch_integrated/dea_welch_subtype_Classical_gts_stub.tsv"
+        - name: gts_stratified_welch_mesenchymal_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/welch_integrated/dea_welch_subtype_Mesenchymal_gts_stub.tsv"
+        - name: gts_stratified_welch_neural_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/welch_integrated/dea_welch_subtype_Neural_gts_stub.tsv"
+        - name: gts_stratified_welch_proneural_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/welch_integrated/dea_welch_subtype_Proneural_gts_stub.tsv"
+        - name: gts_stratified_ols_classical_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/ols_integrated/dea_ols_subtype_Classical_gts_stub.tsv"
+        - name: gts_stratified_ols_mesenchymal_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/ols_integrated/dea_ols_subtype_Mesenchymal_gts_stub.tsv"
+        - name: gts_stratified_ols_neural_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/ols_integrated/dea_ols_subtype_Neural_gts_stub.tsv"
+        - name: gts_stratified_ols_proneural_stub_tsv
+          path_template: "{repo_root}/results/module7/gts_candidate_stratified/ols_integrated/dea_ols_subtype_Proneural_gts_stub.tsv"
+        - name: gts_validation_integration_stub_json
+          path_template: "{repo_root}/results/module7/gts_validation_integration_stub.json"
+        - name: gts_validation_integration_stub_flag
+          path_template: "{repo_root}/results/module7/gts_validation_integration_stub.flag"
+
+m3_repo_module7_gts_stub_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_module7_gts_stub_integration_stub.json"
+  done_flag: "results/module3/m3_repo_module7_gts_stub_integration_stub.flag"

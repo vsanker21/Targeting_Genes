@@ -1,0 +1,58 @@
+# Optional: R + MOVICS + Snakemake m2_movics_intnmf_depmap_mae on synthetic MAE fixtures (no DepMap download).
+# Heavy (CRAN/GitHub R packages). Trigger manually or on workflow file changes.
+name: MOVICS DepMap MAE R smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/movics-depmap-r-smoke.yml"
+      - "scripts/write_min_movics_mae_fixtures.py"
+      - "scripts/m2_movics_intnmf_depmap_mae.R"
+      - "scripts/install_movics_pkgs.R"
+      - "scripts/install_r_movics_dependencies.py"
+      - "Snakefile"
+      - "config/m2_movics_depmap_mae_run.yaml"
+      - "config/m2_movics_data_fetch.yaml"
+      - "scripts/m2_depmap_intnmf_cluster_summary.py"
+
+jobs:
+  movics-depmap-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.4"
+
+      - name: System libraries for R package builds
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+      - name: Python tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pyyaml snakemake
+
+      - name: Synthetic MAE under GLIOMA_TARGET_DATA_ROOT
+        run: python scripts/write_min_movics_mae_fixtures.py "${{ runner.temp }}/movics_mae"
+
+      - name: Install MOVICS R stack
+        run: python scripts/install_r_movics_dependencies.py
+
+      - name: Snakemake three-view IntNMF (fixture data_root)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/movics_mae
+        run: snakemake -c1 m2_movics_intnmf_depmap_mae
+
+      - name: Characterize DepMap IntNMF clusters (fixture Model.csv + CRISPR stub)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/movics_mae
+        run: snakemake -c1 m2_movics_depmap_intnmf_characterize

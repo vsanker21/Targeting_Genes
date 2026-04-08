@@ -1,0 +1,21 @@
+# Outline M3: in-repo cross-assay bulk effect correlation (TOIL TPM DEA vs recount3 count-model DEA).
+# Output from scripts/compare_toil_bulk_vs_recount3_effects.py (Snakemake m2_toil_welch_vs_recount3_bulk_effect_correlation).
+# Second path is the PyDESeq2 vs edgeR concordance consumed alongside the same recount3 TSVs.
+
+m3_repo_toil_vs_recount3_correlation_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_toil_vs_recount3_correlation_paths_status.json"
+  done_flag: "results/module3/m3_repo_toil_vs_recount3_correlation_paths_status.flag"
+  groups:
+    - id: toil_vs_recount3_cross_assay_outputs
+      summary: "TOIL vs recount3 LFC correlation JSON and recount3 model concordance JSON"
+      path_checks:
+        - name: "TOIL Welch and OLS vs recount3 bulk effect correlation JSON"
+          path_template: "{repo_root}/results/module3/toil_welch_vs_recount3_bulk_effect_correlation.json"
+        - name: "Recount3 PyDESeq2 vs edgeR concordance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_vs_edger_concordance.json"
+
+m3_repo_toil_vs_recount3_correlation_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_toil_vs_recount3_correlation_integration_stub.json"
+  done_flag: "results/module3/m3_repo_toil_vs_recount3_correlation_integration_stub.flag"

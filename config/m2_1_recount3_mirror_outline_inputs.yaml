@@ -1,0 +1,32 @@
+# Outline M2.1: optional local recount3 harmonized-count / RSE mirror trees under GLIOMA_TARGET_DATA_ROOT.
+# Complements m2_1_star_pairing_* (GDC/GTEx STAR file mirrors) and in-repo recount3 DEA under results/module3/.
+
+m2_1_recount3_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_1_recount3_mirror_paths_status.json"
+  done_flag: "results/module3/m2_1_recount3_mirror_paths_status.flag"
+  groups:
+    - id: recount3_rse_download_cache
+      summary: "Recount3 RSE / HDF5 / compressed download staging (external recount3 R or Python pulls)"
+      path_checks:
+        - name: "Recount3 RSE or assay cache root (per-project downloads)"
+          path_template: "{data_root}/recount3/rse_download_cache"
+        - name: "Optional recount3 sqlite or local recount3 cache directory"
+          path_template: "{data_root}/recount3/recount3_engine_cache"
+    - id: recount3_g029_gene_manifests
+      summary: "User-staged sample manifests, gene ID maps, or column lists for G029 harmonized counts"
+      path_checks:
+        - name: "TCGA-GBM vs GTEx brain sample manifest or barcode map (TSV/YAML)"
+          path_template: "{data_root}/recount3/g029_sample_manifests"
+        - name: "ENSG/GENCODE gene list or intersection table aligned to STAR matrix bases"
+          path_template: "{data_root}/recount3/gene_id_maps_g029"
+    - id: recount3_parquet_or_matrix_mirror
+      summary: "Optional mirror of harmonized count matrix parquet outside results/ (air-gapped or HPC scratch)"
+      path_checks:
+        - name: "Local mirror directory for recount3 DE count matrix parquet (e.g. copy of recount3_de_counts_matrix.parquet tree)"
+          path_template: "{data_root}/recount3/g029_de_matrix_mirror"
+
+m2_1_recount3_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_1_recount3_mirror_integration_stub.json"
+  done_flag: "results/module3/m2_1_recount3_mirror_integration_stub.flag"

@@ -1,0 +1,27 @@
+# Outline M1 optional ComBat-Seq or other batch-corrected count mirrors under GLIOMA_TARGET_DATA_ROOT.
+# Complements m1_harmony_batch_* (Harmony or Scanpy staging) and in-repo combat_seq_tcga_gbm_primary (results/module1/).
+
+m1_batch_correction_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m1_batch_correction_mirror_paths_status.json"
+  done_flag: "results/module3/m1_batch_correction_mirror_paths_status.flag"
+  groups:
+    - id: combat_seq_or_limma_staging
+      summary: "Mirrored R ComBat-Seq, limma voom, or similar adjusted matrix exports (not in-repo R execution)"
+      path_checks:
+        - name: "ComBat or limma adjusted count or TPM matrix staging"
+          path_template: "{data_root}/batch_correction/adjusted_matrix_exports"
+        - name: "Batch design or covariate tables used with external correction"
+          path_template: "{data_root}/batch_correction/design_or_covariate_tables"
+    - id: cross_cohort_integrated_counts
+      summary: "Merged multi-study count matrices after external harmonization"
+      path_checks:
+        - name: "Cross-cohort harmonized count or pseudo-count parquet or RDS tree"
+          path_template: "{data_root}/batch_correction/cross_cohort_harmonized_counts"
+        - name: "Sample-to-study or batch key TSV staging"
+          path_template: "{data_root}/batch_correction/sample_batch_maps"
+
+m1_batch_correction_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m1_batch_correction_mirror_integration_stub.json"
+  done_flag: "results/module3/m1_batch_correction_mirror_integration_stub.flag"

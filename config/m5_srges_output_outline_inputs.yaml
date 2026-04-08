@@ -1,0 +1,32 @@
+﻿# Outline M5 supplement: optional staging for user-run sRGES scores, compound priors, and L1000 pathway projections.
+# Complements m5_l1000_data_outline_inputs (GCTX/CLUE mirrors) and srges_integration_stub (no in-repo scoring).
+
+m5_srges_output_path_checks:
+  enabled: true
+  output_json: "results/module5/m5_srges_output_paths_status.json"
+  done_flag: "results/module5/m5_srges_output_paths_status.flag"
+  groups:
+    - id: srges_rank_and_score_exports
+      summary: "Saved sRGES, reverse connectivity, or disease-drug score tables from external code"
+      path_checks:
+        - name: "Directory of sRGES or reverse-GE compound rank TSV/CSV exports"
+          path_template: "{data_root}/lincs/srges_rank_score_exports"
+        - name: "Optional run manifest or provenance JSON per sRGES batch"
+          path_template: "{data_root}/lincs/srges_provenance_manifests"
+    - id: compound_prior_metadata
+      summary: "Curated drug lists, MOA priors, or perturbagen subsets for sRGES-style scoring"
+      path_checks:
+        - name: "Compound MOA or target prior tables (TSV/CSV)"
+          path_template: "{data_root}/lincs/compound_moa_prior_tables"
+        - name: "Optional hand-curated L1000 perturbagen ID allowlist"
+          path_template: "{data_root}/lincs/l1000_perturbagen_subset_lists"
+    - id: pathway_projection_followup
+      summary: "Pathway enrichment or projection outputs built on connectivity scores (external GSEA etc.)"
+      path_checks:
+        - name: "Pathway projection or enrichment result directory"
+          path_template: "{data_root}/lincs/l1000_pathway_projection_outputs"
+
+m5_srges_output_integration_stub:
+  enabled: true
+  output_json: "results/module5/m5_srges_output_integration_stub.json"
+  done_flag: "results/module5/m5_srges_output_integration_stub.flag"

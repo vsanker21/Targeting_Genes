@@ -1,0 +1,16 @@
+# Conda env for M3 Cell2location / AnnData validation. Full training is GPU-heavy;
+# extend this env or use a dedicated PyTorch build for production runs.
+# Orchestrator writes cell2location_run.flag only on exit 0; training_failed removes a stale flag (Snakemake job fails).
+name: m3_cell2location
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scanpy
+  - anndata
+  - pip:
+    - cell2location

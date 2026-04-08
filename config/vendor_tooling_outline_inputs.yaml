@@ -1,0 +1,35 @@
+# Cross-cutting: optional vendor / conda install trees for 10x Cell Ranger, Space Ranger, GNINA.
+# Complements config/third_party_tooling.yaml (PATH discovery) and module6 structure tooling paths.
+
+vendor_tooling_path_checks:
+  enabled: true
+  output_json: "results/tooling/vendor_tooling_paths_status.json"
+  done_flag: "results/tooling/vendor_tooling_paths_status.flag"
+  groups:
+    - id: cell_ranger_vendor_tree
+      summary: "Unpacked Cell Ranger install under data_root (optional local mirror)"
+      path_checks:
+        - name: "Cell Ranger unpack root (see third_party_tooling optional_path_checks)"
+          path_template: "{data_root}/tools/cellranger"
+        - name: "Optional Cell Ranger reference genomes or mkref outputs"
+          path_template: "{data_root}/tools/cellranger_references"
+    - id: space_ranger_vendor_tree
+      summary: "Space Ranger install or Visium spaceranger-only tree"
+      path_checks:
+        - name: "Space Ranger unpack root (if separate from cellranger)"
+          path_template: "{data_root}/tools/spaceranger"
+    - id: gnina_data_root_markers
+      summary: "GNINA readiness markers under data_root (when binary not on PATH)"
+      path_checks:
+        - name: "GNINA ready flag (module6_inputs / third_party_tooling)"
+          path_template: "{data_root}/tools/gnina_ready.flag"
+    - id: repo_conda_gnina_bootstrap
+      summary: "Repo-local conda prefix used by ensure_optional_third_party_functional --bootstrap-gnina"
+      path_checks:
+        - name: "Conda env prefix .conda_envs/gnina (under repository root)"
+          path_template: "{repo_root}/.conda_envs/gnina"
+
+vendor_tooling_integration_stub:
+  enabled: true
+  output_json: "results/tooling/vendor_tooling_integration_stub.json"
+  done_flag: "results/tooling/vendor_tooling_integration_stub.flag"

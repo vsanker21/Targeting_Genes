@@ -1,0 +1,78 @@
+# Module 7 outline scaffolding: integrated candidate table + GLIOMA-TARGET Score v1.1.
+# scripts/export_gts_candidate_table.py
+# Composite score: config/glioma_target_score.yaml (E + M + D + N; S/T reserved).
+
+glioma_target_score_config: "config/glioma_target_score.yaml"
+
+gts_candidate_stub:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  pvalue_floor: 1.0e-300
+  fdr_max: 0.05
+  # When outline_m21_high_confidence_screen is absent (e.g. some OLS exports), "strong DE" uses FDR + |effect|.
+  abs_effect_min: 1.5
+  depmap_crispr_col: depmap_crispr_median_gbm
+  depmap_dependency_at_or_below: -0.5
+  provenance_json: "results/module7/gts_candidate_stub_provenance.json"
+  done_flag: "results/module7/gts_candidate_stub.flag"
+  # Subset of Welch GTS table: glioma_target_tier == 1 only (written with global Welch job).
+  welch_tier1_output_tsv: "results/module7/glioma_target_tier1_welch.tsv"
+  jobs:
+    - tag: welch_depmap_outline
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_depmap_crispr_outline_drivers.tsv"
+      effect_col: delta_log2_expression
+      p_col: pvalue
+      output_tsv: "results/module7/gts_candidate_table_welch_stub.tsv"
+      # DepMap-gated STRING list (M2.1 + CRISPR median ≤ -0.5); drives GTS N sub-score (v1.1).
+      string_symbol_list_txt: "results/module3/dea_welch_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+    - tag: ols_depmap_outline
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr_outline_drivers.tsv"
+      effect_col: beta_tumor_vs_ref_normal
+      p_col: pvalue
+      output_tsv: "results/module7/gts_candidate_table_ols_stub.tsv"
+      string_symbol_list_txt: "results/module3/dea_ols_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+    - tag: recount3_pydeseq2_depmap_outline
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr_outline_drivers.tsv"
+      effect_col: log2FoldChange
+      p_col: pvalue
+      output_tsv: "results/module7/gts_candidate_table_recount3_pydeseq2_stub.tsv"
+      string_symbol_list_txt: "results/module3/dea_recount3_pydeseq2_string_depmap_crispr_median_lte_minus0p5.txt"
+    - tag: recount3_edger_depmap_outline
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr_outline_drivers.tsv"
+      effect_col: logFC
+      p_col: PValue
+      output_tsv: "results/module7/gts_candidate_table_recount3_edger_stub.tsv"
+      string_symbol_list_txt: "results/module3/dea_recount3_edger_string_depmap_crispr_median_lte_minus0p5.txt"
+  # Integrated stratified DEA (outline subtype-matched prioritization); skips summary / *_outline_drivers*.
+  stratified_glob_jobs:
+    - job_tag: welch_integrated
+      glob_input: "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+      effect_col: delta_log2_expression
+      p_col: pvalue
+      stratified_string_list_template: "results/module4/stratified_string/welch_integrated_m21_depmap/{stem}_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+    - job_tag: ols_integrated
+      glob_input: "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+      effect_col: beta_tumor_vs_ref_normal
+      p_col: pvalue
+      stratified_string_list_template: "results/module4/stratified_string/ols_integrated_m21_depmap/{stem}_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+  stratified_output_suffix: "_gts_stub.tsv"
+  stratified_done_flag: "results/module7/gts_stratified_candidate_stub.flag"
+
+# Full GTS / validation gap (no scoring) — scripts/module7_gts_validation_integration_stub.py
+gts_validation_integration_stub:
+  enabled: true
+  output_json: "results/module7/gts_validation_integration_stub.json"
+  done_flag: "results/module7/gts_validation_integration_stub.flag"
+
+# M7 artifact inventory for manifests / pipeline index — scripts/write_module7_export_manifest.py
+module7_export_manifest:
+  enabled: true
+  output_json: "results/module7/module7_export_manifest.json"
+  # Matplotlib UHD outputs (m7_visualize_gts_results) may be absent until optional viz rule runs.
+  optional_tags:
+    - viz.composite_png
+    - viz.composite_pdf
+    - viz.flag
+    - viz.panel
+    - m7.docx_report
+    - m7.deliverables.flag

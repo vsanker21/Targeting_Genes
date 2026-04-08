@@ -1,0 +1,24 @@
+# Optional: LINCS / cmap connectivity (not required for core Snakemake DEA to M7 stub DAG).
+# Install:  python scripts/install_optional_third_party.py
+# Functional: python scripts/ensure_optional_third_party_functional.py
+# Report:   python scripts/verify_optional_third_party_tooling.py
+cmapPy>=4.0,<5
+# Count-based DE (PyDESeq2) — TCGA GDC STAR + recount3 TCGA-GBM vs GTEx brain (dea_deseq2_recount3_tcga_gbm_vs_gtex_brain.py)
+# edgeR on same recount3 matrix: scripts/edger_recount3_tcga_gbm_vs_gtex_brain.R — or python scripts/run_edger_recount3.py (uses scripts/rscript_resolve.py)
+#   pip install -r requirements-optional.txt
+pydeseq2>=0.5,<0.6
+# edgeR glmQLF (R, Bioconductor) — scripts/edger_tcga_gbm_two_group.R, Snakemake m2_edger_*
+#   R + path:  python scripts/install_r_for_snakemake.py [--upgrade]   |   python scripts/configure_r_for_snakemake.py
+#   R packages:  python scripts/install_r_edger_dependencies.py   (runs scripts/install_edger_pkgs.R)
+# Or set R_HOME / RSCRIPT / rscript: in config/config.yaml. Windows silent R install often needs Administrator.
+# ComBat-Seq (M1 stub, sva):  python scripts/install_r_combat_dependencies.py  — Snakemake m1_combat_seq_tcga_gbm_primary
+# MOVICS (M2.3 IntNMF):  python scripts/install_r_movics_dependencies.py  — m2_movics_intnmf_tcga_gbm (GLIOMA_TARGET_INCLUDE_MOVICS=1); m2_movics_intnmf_depmap_mae three-view on omics/multi_omics_mae/*.tsv.gz (GLIOMA_TARGET_INCLUDE_MOVICS_DEPMAP_MAE=1)
+# M3 scRNA (GSE57872 Scanpy):  pip install scanpy anndata leidenalg igraph  — Snakemake m3_gse57872_scanpy_qc_cluster (optional GLIOMA_TARGET_INCLUDE_M3_SCANPY=1; real h5ad/counts under data_root)
+# M3 S2 NNLS deconvolution uses numpy/scipy only (requirements.txt) — m3_deconvolution_s2_nnls; full run GLIOMA_TARGET_INCLUDE_M3_DECONV_S2=1
+# M2.2 ClinVar join optional rule all: GLIOMA_TARGET_INCLUDE_CLINVAR=1
+scanpy>=1.9,<2
+anndata>=0.10,<1
+leidenalg>=0.10
+igraph>=0.11
+# ARCHS4 / recount HDF5 summaries (scripts/archs4_recount_h5_summarize.py)
+h5py>=3.10,<4

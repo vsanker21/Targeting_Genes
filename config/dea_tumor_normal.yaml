@@ -1,0 +1,52 @@
+# Tumor vs normal DEA using TOIL RSEM gene TPM (single quantification pipeline for tumor + GTEx).
+# See docs/DEA_METHODOLOGY.md
+
+toil:
+  tpm_gz: "{data_root}/gtex/xena_toil/TcgaTargetGtex_rsem_gene_tpm.gz"
+  phenotype_gz: "{data_root}/gtex/xena_toil/TcgaTargetGTEX_phenotype.txt.gz"
+  # UCSC TOIL hub "gene tpm" columns are log2(TPM + pseudo), not linear TPM (negative values possible).
+  expression_scale: log2_tpm_plus_pseudo
+  log_pseudo: 0.001
+
+# GTEx cerebral cortex normals (avoid mixing cerebellum vs cortex in one normal pool — strong region effects).
+# For cerebellum-matched controls, add "Brain - Cerebellum" / "Brain - Cerebellar Hemisphere" here.
+gtex_brain_detailed_categories:
+  - "Brain - Frontal Cortex (Ba9)"
+  - "Brain - Cortex"
+  - "Brain - Anterior Cingulate Cortex (Ba24)"
+
+tumor:
+  study: "TCGA"
+  primary_site: "Brain"
+  detailed_category_substring: "Glioblastoma"
+  sample_type: "Primary Tumor"
+
+# Expression filter before testing (reduces noise; TPM scale).
+filters:
+  min_tpm: 2.0
+  min_fraction_expressing: 0.2  # in either group (Welch); see OLS filter_mode below
+
+# Multiple testing correction for all gene-level p-values (statsmodels multipletests).
+multiple_testing:
+  method: fdr_bh  # Benjamini–Hochberg FDR
+
+# Project outline §2.1 (DEA): FDR and |log2FC| gates — applied as reporting columns on TOIL hub
+# contrasts (approximate to DESeq2 LFC until count-based DE is wired). See docs/PIPELINE_ALIGNMENT.md
+outline_module2:
+  dea_reporting:
+    enabled: true
+    fdr_alpha: 0.05
+    min_abs_log2_fold_change: 1.5
+
+# OLS on the same log matrix: y ~ tumor + GTEx detailed_category dummies (reference region = one normal type).
+ols_region_covariate:
+  reference_normal_subregion: "Brain - Cortex"
+  # contrast_aligned: filter requires tumor OR reference-normal subgroup to pass thresholds (matches tumor-vs-ref estimand).
+  # pooled_normal: same filter as Welch (either tumor or any pooled normal); use for direct comparison to Welch gene sets.
+  filter_mode: contrast_aligned
+  output_dea: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+
+output:
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  dea_table: "results/module3/dea_gbm_vs_gtex_brain.tsv"

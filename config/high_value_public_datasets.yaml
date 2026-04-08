@@ -1,0 +1,65 @@
+# High-value public layers for TCGA+DepMap+GEO-style glioma work (see docs/GBM_DETECTION_AND_OPEN_DATA.md).
+# Run: python scripts/download_high_value_public_datasets.py
+# Or:  python scripts/download_all_required.py ... --with-high-value-datasets
+#
+# CGGA: no stable open bulk URL — add HTTPS rows under config/m2_movics_data_fetch.yaml (cgga_http),
+#       then enable cgga.invoke_movics_fetch below so the same GET path runs.
+
+gdsc_fitted_dose_response:
+  enabled: true
+  dest_dir: pharmacogenomics/gdsc
+  files:
+    - url: "https://cog.sanger.ac.uk/cancerrxgene/GDSC_release8.5/GDSC1_fitted_dose_response_27Oct23.csv"
+      filename: "GDSC1_fitted_dose_response_27Oct23.csv"
+    - url: "https://cog.sanger.ac.uk/cancerrxgene/GDSC_release8.5/GDSC2_fitted_dose_response_27Oct23.csv"
+      filename: "GDSC2_fitted_dose_response_27Oct23.csv"
+
+# PRISM primary screen files are resolved from DepMap's public files CSV (release column + Figshare URLs).
+prism_depmap_primary:
+  enabled: true
+  dest_dir: pharmacogenomics/prism_depmap/primary
+  release_contains: "PRISM Primary Repurposing DepMap Public"
+  filename_substrings:
+    - "LFC_COLLAPSED.csv"
+    - "Cell_Line_Meta_Data.csv"
+    - "Treatment_Meta_Data.csv"
+    - "Readme.txt"
+
+# Secondary screen (dose-response / collapsed LFC) — older DepMap "release" bucket, still useful.
+prism_depmap_secondary:
+  enabled: true
+  dest_dir: pharmacogenomics/prism_depmap/secondary
+  release_contains: "PRISM Secondary Repurposing"
+  filename_substrings:
+    - "secondary-screen-replicate-collapsed-logfold-change.csv"
+    - "secondary-screen-dose-response-curve-parameters.csv"
+    - "secondary-screen-cell-line-info.csv"
+    - "secondary-screen-readme.txt"
+
+# Open Targets Platform — single targets JSON shard (~3–4 MB) for gene/target metadata.
+# Update platform_version if EBI retires a release; see https://ftp.ebi.ac.uk/pub/databases/opentargets/platform/
+open_targets:
+  enabled: true
+  dest_dir: pharmacogenomics/open_targets
+  platform_version: "24.09"
+  target_json_basename: "part-00064-69c5ec3c-99f2-4d62-a552-4ce30eb14bdb-c000.json"
+
+# GDC open TCGA-GBM methylation beta TXT (Illumina arrays; sesame level-3 betas).
+gdc_tcga_gbm_methylation_beta:
+  enabled: true
+  subdir: gdc/tcga_gbm_open_methylation_beta
+
+# CELLxGENE Census public S3 mirror (no credentials). Paths follow census release layout.
+cellxgene_census_h5ad:
+  enabled: true
+  dest_dir: references/scrna_cellxgene_census
+  s3_base_url: "https://cellxgene-data-public.s3.us-west-2.amazonaws.com/cell-census/2023-07-25/h5ads"
+  datasets:
+    # ~8k cells; Nature Neuroscience 2020 (vulnerability / neural context) — compact reference for tooling smoke tests.
+    - dataset_id: "f9ad5649-f372-43e1-a3a8-423383e5a8a2"
+      filename: "f9ad5649-f372-43e1-a3a8-423383e5a8a2.h5ad"
+
+cgga:
+  enabled: true
+  # Invokes scripts/fetch_movics_staging_data.py --skip-depmap --skip-cbttc (requires cgga_http URLs).
+  invoke_movics_fetch: true

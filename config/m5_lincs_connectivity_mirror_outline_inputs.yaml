@@ -1,0 +1,27 @@
+# Outline M5 optional cmapPy or CLUE connectivity query results under GLIOMA_TARGET_DATA_ROOT/lincs.
+# Complements m5_l1000_data_* (raw GCTX or CLUE cache) and m5_srges_output_* (saved rank tables).
+
+m5_lincs_connectivity_mirror_path_checks:
+  enabled: true
+  output_json: "results/module5/m5_lincs_connectivity_mirror_paths_status.json"
+  done_flag: "results/module5/m5_lincs_connectivity_mirror_paths_status.flag"
+  groups:
+    - id: cmap_query_response_mirror
+      summary: "Saved cmapPy query outputs or CLUE API JSON or CSV exports (not in-repo cmapPy execution)"
+      path_checks:
+        - name: "cmap or cmapPy response cache root"
+          path_template: "{data_root}/lincs/cmap_query_response_cache"
+        - name: "CLUE or LINCS web export JSON or TSV staging"
+          path_template: "{data_root}/lincs/clue_connectivity_exports"
+    - id: connectivity_matrix_staging
+      summary: "Full or partial connectivity matrices or GCTX slices saved after external batch jobs"
+      path_checks:
+        - name: "Connectivity matrix or score table export directory"
+          path_template: "{data_root}/lincs/connectivity_matrix_exports"
+        - name: "Batch query manifest or run log staging"
+          path_template: "{data_root}/lincs/connectivity_batch_manifests"
+
+m5_lincs_connectivity_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module5/m5_lincs_connectivity_mirror_integration_stub.json"
+  done_flag: "results/module5/m5_lincs_connectivity_mirror_integration_stub.flag"

@@ -1,0 +1,27 @@
+# Outline M6 optional ChEMBL, PubChem, or docking-ready ligand libraries under GLIOMA_TARGET_DATA_ROOT.
+# Input-side complement to m6_docking_output_* (pose exports) and structure tooling (GNINA binaries).
+
+m6_compound_library_mirror_path_checks:
+  enabled: true
+  output_json: "results/module6/m6_compound_library_mirror_paths_status.json"
+  done_flag: "results/module6/m6_compound_library_mirror_paths_status.flag"
+  groups:
+    - id: chembl_pubchem_staging
+      summary: "Small-molecule structures or identifiers from ChEMBL, PubChem, or vendor SDF trees"
+      path_checks:
+        - name: "ChEMBL or vendor SDF or mol2 mirror root"
+          path_template: "{data_root}/compounds/chembl_or_vendor_sdf_mirror"
+        - name: "PubChem CID subset or bulk compound table staging"
+          path_template: "{data_root}/compounds/pubchem_subset_staging"
+    - id: docking_ready_ligand_sets
+      summary: "Ligands prepared for GNINA, Glide, or Vina (charges, conformers, SMILES lists)"
+      path_checks:
+        - name: "Docking-ready ligand library directory (SDF, PDBQT, or mol2)"
+          path_template: "{data_root}/compounds/docking_ready_ligand_library"
+        - name: "Optional ligand manifest or SMILES TSV for batch screens"
+          path_template: "{data_root}/compounds/ligand_screen_manifests"
+
+m6_compound_library_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module6/m6_compound_library_mirror_integration_stub.json"
+  done_flag: "results/module6/m6_compound_library_mirror_integration_stub.flag"

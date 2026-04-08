@@ -1,0 +1,25 @@
+# Join MutSig (e.g. MutSig2CV) gene-level output onto DEA tables. Paths may be under GLIOMA_TARGET_DATA_ROOT.
+# Leave mutsig_gene_tsv empty to skip (outputs still written with NaN mutsig columns + provenance).
+
+mutsig_gene_tsv: ""
+
+# Column names in the MutSig table (case-sensitive after read). Common: gene, q, p, rank
+gene_column: "gene"
+q_value_column: "q"
+p_value_column: "p"
+rank_column: ""
+
+# If true, read CSV with sep=None (engine='python') for whitespace-heavy MutSig exports
+whitespace_split: false
+
+hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+
+dea_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+dea_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+output_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain_mutsig.tsv"
+output_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_mutsig.tsv"
+extra_dea_pairs:
+  - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+    output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_mutsig.tsv"
+  - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+    output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_mutsig.tsv"

@@ -1,0 +1,31 @@
+# Outline M3: in-repo stratified Welch/OLS DEA provenance, integration, and outline-driver flags under results/module3.
+# Aligns with config/stratified_dea.yaml, module2_integration.yaml stratified_dea_integration and outline_driver_flags glob_targets.
+# summary.tsv files are outputs of m2_stratified_dea_by_subtype / m2_stratified_ols_by_subtype (inputs to m2_stratified_dea_integration).
+
+m3_repo_stratified_bulk_dea_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_stratified_bulk_dea_paths_status.json"
+  done_flag: "results/module3/m3_repo_stratified_bulk_dea_paths_status.flag"
+  groups:
+    - id: stratified_bulk_dea_repo_outputs
+      summary: "Stratified Welch and OLS provenance and summary TSVs, integration provenance and flag, integrated outline-drivers flag"
+      path_checks:
+        - name: "Stratified Welch DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/stratified_dea/stratified_dea_provenance.json"
+        - name: "Stratified OLS DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/stratified_ols_dea/stratified_ols_dea_provenance.json"
+        - name: "Stratified DEA integration provenance JSON"
+          path_template: "{repo_root}/results/module3/stratified_dea_integration_provenance.json"
+        - name: "Stratified DEA integration done flag"
+          path_template: "{repo_root}/results/module3/stratified_dea_integration.flag"
+        - name: "Stratified integrated outline drivers done flag"
+          path_template: "{repo_root}/results/module3/stratified_integrated_outline_drivers.flag"
+        - name: "Stratified Welch DEA subtype summary TSV"
+          path_template: "{repo_root}/results/module3/stratified_dea/summary.tsv"
+        - name: "Stratified OLS DEA subtype summary TSV"
+          path_template: "{repo_root}/results/module3/stratified_ols_dea/summary.tsv"
+
+m3_repo_stratified_bulk_dea_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_stratified_bulk_dea_integration_stub.json"
+  done_flag: "results/module3/m3_repo_stratified_bulk_dea_integration_stub.flag"

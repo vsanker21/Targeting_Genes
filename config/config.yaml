@@ -1,0 +1,15 @@
+# GLIOMA-TARGET — local configuration
+# Override with: snakemake --configfile path/to/custom.yaml
+# Or set environment variable GLIOMA_TARGET_DATA_ROOT (see data_sources.yaml).
+
+data_sources: "config/data_sources.yaml"
+
+# Full path to Rscript(.exe) if not on PATH (Windows). Alternatively set R_HOME or RSCRIPT in the environment.
+# Example: rscript: "C:/Program Files/R/R-4.4.2/bin/Rscript.exe"
+rscript: null
+
+# Module 1+ defaults (extend as pipelines are implemented)
+reference:
+  genome_fasta: null  # set when running alignment (e.g. GRCh38)
+
+output_dir: "results"

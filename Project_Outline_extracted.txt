@@ -1,0 +1,338 @@
+GLIOMA-TARGET: A Groundbreaking Computational Pipeline for Therapeutic Target Discovery in High-Grade Gliomas
+Executive Summary
+High-grade gliomas (HGG) — including glioblastoma multiforme (GBM, WHO Grade IV), IDH-wildtype diffuse astrocytoma, and diffuse midline gliomas (DMG/DIPG) — remain among the most lethal human malignancies, with GBM carrying a median survival of just 12–15 months despite maximal surgical resection and chemoradiotherapy. The central barrier to therapeutic progress is not a lack of candidate targets, but rather a failure to systematically integrate the diverse biological signals — genomic, transcriptomic, proteomic, epigenomic, and spatial — that together define true, clinically actionable vulnerabilities.
+This document outlines GLIOMA-TARGET (Gene-Level Integrative Oncogenomic Multi-omic Assessment for Targeted Antigen and Receptor Gene Expression Therapy), a comprehensive 7-module computational pipeline designed to identify, prioritize, and translate high-confidence therapeutic targets across three therapeutic modalities: targeted small-molecule/kinase inhibitor therapy, chemotherapy sensitization, and CAR-T/CAR-NK cell immunotherapy. The pipeline leverages the latest advances in multi-omics integration, single-cell and spatial transcriptomics, network medicine, large language model–guided literature mining, and AI-driven structural pharmacology.
+Biological Rationale and Problem Statement
+GBM is stratified by TCGA into four transcriptional subtypes — Proneural, Neural, Classical, and Mesenchymal — each with distinct genetic and epigenetic signatures. Yet, this classification fails to capture the profound intratumoral heterogeneity that drives therapeutic resistance. Single-cell RNA sequencing (scRNA-seq) studies reveal that within a single tumor, GBM cells cycle through multiple transcriptional states — neural progenitor-like (NPC-like), oligodendrocyte-precursor-like (OPC-like), mesenchymal-like, and astrocyte-like — enabling phenotypic plasticity and antigen escape under therapy. Spatially, the tumor core and invasive periphery harbor distinct cell state compositions and metabolic programs, meaning that bulk-sequencing–derived targets may be spatially restricted and clinically insufficient.
+For DMG/DIPG, the H3K27M mutation in H3F3A or HIST1H3B drives global hypomethylation of H3K27me3, reprogramming the epigenomic and transcriptional landscape and creating unique tumor-specific vulnerabilities — including dependency on BET bromodomain proteins and ONC201-targetable DRD2/SIGMAR1 signaling. The antigenic landscape of H3K27M-mutant DMG differs substantially from GBM and must be analyzed separately.
+Effective target discovery therefore requires a framework that simultaneously accounts for:
+Inter- and intratumoral heterogeneity at single-cell and spatial resolution
+Tumor-subtype specificity (GBM vs. DMG vs. IDH-mutant HGG)
+Therapeutic modality requirements (surface expression for CAR-T vs. kinase druggability for small molecules)
+CNS-specific constraints (blood-brain barrier penetration, on-target/off-tumor toxicity in normal brain)
+Resistance mechanisms through longitudinal and evolutionary modeling
+Pipeline Architecture Overview
+The GLIOMA-TARGET pipeline is organized into seven sequential but iterative computational modules, each feeding prioritized candidates into the next:
+text
+Module 1: Multi-Omics Data Harmonization & Cohort Construction
+    ↓
+Module 2: Differential Expression, Mutation Landscape & Subtype Stratification
+    ↓
+Module 3: Single-Cell & Spatial Transcriptomics Decomposition
+    ↓
+Module 4: Gene Regulatory Network & Co-Expression Analysis
+    ↓
+Module 5: Therapeutic Modality–Specific Target Prioritization
+    ↓
+Module 6: Structural Biology, Druggability & Toxicity Filtering
+    ↓
+Module 7: Experimental Validation Roadmap & Clinical Translation
+Each module generates a scored, ranked candidate list that is intersected with outputs from adjacent modules, producing a final high-confidence target matrix stratified by therapeutic class, tumor subtype, and evidence tier.
+Module 1: Multi-Omics Data Harmonization and Cohort Construction
+Data Sources
+The pipeline ingests data from all publicly available HGG omics repositories:
+Dataset
+Data Type
+Sample Size (approx.)
+TCGA-GBM / TCGA-LGG
+Bulk RNA-seq, WES, CNV, methylation
+702 GBM, 534 LGG
+CGGA mRNAseq-325 / mRNAseq-693
+Bulk RNA-seq
+693 samples
+CPTAC-GBM
+Proteomics + transcriptomics
+~100 GBM
+GEO (GSE4290, GSE7696, GSE50161, GSE68848)
+Microarray expression
+510+ samples
+pHGG single-cell atlases (Neftel, Tirosh, Bhaduri)
+scRNA-seq
+Thousands of cells
+CBTTC / pHGG pediatric cohorts
+H3K27M DMG WGS, RNA-seq
+200+ pediatric HGG
+GTEx (frontal lobe, cerebellum, cortex)
+Normal brain expression
+120+ samples
+Preprocessing and Normalization
+All RNA-seq data is uniformly processed through a Snakemake pipeline:
+Alignment via STAR (v2.7+), quantification via Salmon/kallisto for speed
+TMM/TPM normalization via edgeR/DESeq2; batch correction via ComBat-Seq or Harmony
+Somatic variant calling: GATK4 Mutect2 with panel-of-normals filtering
+Copy number: GISTIC2 for focal amplification/deletion calling
+DNA methylation: minfi for IDAT-level normalization, DMPFINDER for DMR analysis
+Proteomics (CPTAC): MaxQuant → Perseus for protein-level quantification
+A harmonized GBM multi-omics matrix is constructed integrating expression, CNV, mutation, and methylation layers per sample, building on the multi-omics integration frameworks recently validated for GBM subtype discovery.
+Module 2: Differential Expression, Mutation Landscape, and Subtype Stratification
+2.1 Differential Expression Analysis (DEA)
+Tumor-vs.-normal DEA is performed comparing TCGA/CGGA tumor samples against GTEx normal frontal lobe and cerebellum controls. This approach was validated by NCATS scientists who identified 318 genes expressed abnormally in GBM cells through multi-omics analysis of patient samples.
+Tool: DESeq2, edgeR with multiple correction (FDR < 0.05, |log2FC| > 1.5)
+Protein-level validation: Cross-reference DEA hits against CPTAC-GBM proteomics for mRNA-protein concordance
+Methylation silencing filter: Exclude genes downregulated solely through promoter hypermethylation in tumor (to focus on stable targets)
+2.2 Mutation Landscape and Driver Identification
+MutSig2CV for significantly mutated gene (SMG) identification across GBM cohorts
+CADD/REVEL scoring for variant pathogenicity prioritization
+dN/dS analysis (dNdScv) to identify genes under positive selection
+OncoKB + ClinVar annotation for clinical actionability of identified mutations
+Key known drivers automatically flagged: EGFR, PTEN, TP53, IDH1/2, NF1, PIK3CA, ATRX, TERT, CDKN2A/B, RB1
+2.3 Subtype Stratification
+Consensus clustering is performed across 10 algorithms (k-means, NMF, hierarchical, etc.) integrated via the MOVICS R package, reproducing and extending multi-omics GBM subtype identification. Subtypes are assigned per sample and all downstream analyses are stratified accordingly. For pediatric HGGs, H3K27M mutation status and PDGFRA amplification are used as primary strata.
+Module 3: Single-Cell and Spatial Transcriptomics Decomposition
+This is the most innovative module, addressing the single greatest limitation of previous bulk-omics pipelines: the inability to resolve intratumoral heterogeneity.
+3.1 Single-Cell RNA-seq Analysis
+Cell state mapping:
+Pre-processed scRNA-seq data from published GBM atlases (Seurat v5/Scanpy) are integrated with in-house or cohort-derived data via Harmony/scVI
+Cells are annotated using reference-based classification (CellTypist, SingleR) and marker-driven Leiden clustering
+The GBM cellular states program (NPC-like, OPC-like, AC-like, MES-like, cycling, TAM, T cell, endothelial) is reproduced and validated
+Cell-state–specific differential expression identifies targets uniquely upregulated in each state — enabling cell-state targeting strategies
+Trajectory and pseudotime analysis:
+Monocle3/PAGA to map state transitions and identify genes that are consistently upregulated along malignant trajectories regardless of state (pan-state targets)
+Longitudinal state shift analysis using primary–recurrent paired snRNA-seq data identifies resistance-associated state transitions under temozolomide
+3.2 Spatial Transcriptomics Integration
+Published and public spatial transcriptomics datasets (10X Visium, SLIDE-seq, Xenium) of GBM and DMG are integrated:
+Spatial deconvolution (RCTD, SPOTlight, cell2location) maps single-cell states to spatial coordinates
+Niche-specific gene expression is computed for tumor core, leading edge, perivascular, necrotic, and infiltrative zones
+Spatially variable genes (SpatialDE, NNSVG) are identified per niche — prioritizing targets present throughout the tumor bulk rather than spatially restricted
+Cell–cell communication analysis (CellChat, NicheNet) maps ligand–receptor interactions between tumor cells and the immunosuppressive TME, revealing co-target opportunities (e.g., tumor cell surface target + immunosuppressive checkpoint)
+3.3 Cell-State–Targeting CAR-T Strategy
+Building on the Weizmann Institute approach of designing CAR-T cells against defined GBM cellular states, surface targets identified as upregulated in specific cell states are prioritized for immunotherapy, ensuring even heterogeneous tumors are targeted by a panel of CAR-T constructs. This addresses the critical problem that single-antigen CAR-T approaches face: antigen escape due to GBM plasticity.
+Module 4: Gene Regulatory Network and Co-Expression Analysis
+4.1 Weighted Gene Co-Expression Network Analysis (WGCNA)
+WGCNA is applied to bulk and pseudo-bulk expression data from all cohorts to identify co-expression modules correlated with:
+Tumor grade (LGG vs. HGG)
+IDH mutation status
+Survival outcome (univariate Cox regression)
+Immune infiltration scores (ESTIMATE, ssGSEA)
+Drug response phenotypes
+Hub genes within survival-associated modules are identified as high-priority targets, mirroring approaches that identified DLGAP5, CDCA8, NCAPH, and CCNB2 as hub genes overexpressed in high-grade glioma. Prior multi-omics network analyses have identified 178 prognostic genes whose combined activity states predict outcomes beyond conventional markers like IDH1 or PTEN.
+4.2 Single-Cell Gene Regulatory Network (GRN) Inference
+SCENIC+ (single-cell SCENIC) integrates scRNA-seq with scATAC-seq/ATAC data to reconstruct transcription factor (TF) regulons active in each tumor cell state:
+Identifies master transcription factors driving each malignant state (e.g., SOX2, OLIG2, ZEB1, NF-κB)
+TF regulon activity scores are computed per cell and aggregated per state
+TF targets that are also surface proteins are prioritized for immunotherapy; TFs themselves are prioritized for epigenetic targeting
+4.3 Protein–Protein Interaction Network Analysis
+The STRING/BioGRID human interactome is used to embed all DEG candidates into a network medicine framework:
+Network proximity analysis: Distance between candidate gene and known GBM disease module quantifies target relevance
+Betweenness/hub centrality scoring: Identifies bottleneck nodes in GBM signaling networks — high-value targets whose inhibition disrupts multiple pathways simultaneously
+Synthetic lethality prediction: Integration with DepMap CRISPR/Cas9 KO viability screens across GBM cell lines (ACH lines) identifies synthetic lethal gene pairs — particularly valuable for PTEN-null and TP53-mutant GBM backgrounds
+Module 5: Therapeutic Modality–Specific Target Prioritization
+This module diverges into three parallel tracks, each scoring candidates through modality-specific criteria.
+5A: Track 1 — Targeted Therapy (Small Molecules / Kinase Inhibitors)
+Scoring criteria:
+Criterion
+Tool/Database
+Weight
+Overexpression in tumor vs. normal brain
+DESeq2 log2FC
+High
+Driver mutation / amplification
+GISTIC2 / MutSig
+High
+Kinase/enzyme druggability
+DGIdb, ChEMBL, OpenTargets
+High
+Network centrality in GBM PPI
+STRING betweenness score
+Medium
+Synthetic lethality with GBM driver (e.g., PTEN-loss)
+DepMap / SLAYER
+High
+BBB penetration of known inhibitors
+CNS-MPO score
+High
+Existing FDA-approved drug or clinical candidate
+DGIdb, DrugBank
+Medium
+Drug repurposing via LINCS/L1000:The summarized Reversal Gene Expression Score (sRGES) approach is applied to the GBM gene expression profile (GGEP) constructed from Module 2. Compounds in LINCS L1000 whose transcriptional signatures most strongly oppose the GBM disease signature are ranked — this approach has demonstrated significant correlations with GBM cell line drug sensitivity (r = 0.37, p < .001 in ChEMBL; r = 0.35, p < .001 in CTRP). This mirrors the NCATS pipeline that identified 318 suspect GBM genes and matched reversal compounds.
+Recent work validates repurposed targets including: TYRO3 (targeted by Vandetanib), CDK4/6 pathway genes, and Hsp90 inhibitor XL888 identified through STRING-Cytoscape and SEA analysis of phenotypic screening hits.
+Subtype-specific prioritization:Drug repurposing is repeated separately for each GBM subtype (Classical, Mesenchymal, Proneural) and for H3K27M-mutant DMG, enabling subtype-matched target nomination. For DMG, the ONC201/dordaviprone-sensitizing pathway (DRD2, SIGMAR1, ClpP) and the trametinib/everolimus (RAS-MAPK/PI3K-AKT-mTOR) axis are automatically evaluated.
+5B: Track 2 — Chemotherapy Sensitization (TMZ Resistance Reversal)
+The standard of care chemotherapy, temozolomide (TMZ), fails in most GBM patients due to MGMT promoter methylation status and diverse resistance mechanisms. This track specifically targets genes whose inhibition restores TMZ sensitivity:
+MGMT methylation stratification: Samples split by MGMT promoter methylation; resistance-associated DEGs identified in MGMT-unmethylated tumors
+TMZ-resistant cell state identification: scRNA-seq-based identification of cell populations that expand under TMZ (from longitudinal snRNA-seq data)
+CRISPR sensitization screen integration: Published genome-wide CRISPR KO screens in TMZ-resistant GBM lines (DepMap, Project SCORE) are integrated to identify essential genes in TMZ-resistant cells
+DNA damage response (DDR) synthetic lethality: Genes in the DDR network that are synthetic lethal with TMZ-induced damage are prioritized (e.g., PARP1, ATR, WEE1, RAD51, PRMT5/MAT2A axis)
+Glial-mesenchymal transition (GMT) reversal: GMT-driving transcription factors identified via SCENIC+ are targeted with compounds that reverse the GMT gene expression program — the JNK inhibitor SP600125 represents a recently validated example
+5C: Track 3 — CAR-T / CAR-NK Cell Therapy (Surface Antigen Discovery)
+This is the most novel and technically demanding track. Surface antigen prioritization follows a systematic funnel:
+Step 1 — Surface proteome mining:
+Integration of mass spectrometry–based surface proteomics datasets (published GBM surfaceomics) with RNA expression
+Cell Surface Protein Atlas (CSPA) database filtering: only proteins with confirmed surface localization
+scRNA-seq–derived surface protein expression quantified using tools like CITE-seq integration where available
+Step 2 — IMMUNOTAR scoring:The recently published IMMUNOTAR framework is applied to score each surface protein candidate across:
+Tumor-specific expression (tumor/normal ratio)
+Cell line expression fidelity
+Surface localization evidence strength
+Literature precedent for immunotherapy targeting
+Step 3 — Cell-state coverage analysis:For each antigen candidate, the fraction of GBM cell states in which it is expressed above threshold is computed ("state coverage score"). Targets with >70% cell-state coverage are classified as pan-state targets (highest priority); targets restricted to one state enter a combination targeting panel.
+Step 4 — On-target/off-tumor safety scoring:Expression in GTEx normal CNS tissues (frontal lobe, cerebellum, hippocampus, spinal cord) and peripheral organs is computed. Targets expressed at high levels in critical normal tissues are down-scored or flagged for epitope-selective CAR design (e.g., mAb806-like tumor-restricted epitopes for EGFR).
+Priority CAR-T antigen classes based on current evidence:
+Antigen
+Expression Frequency
+Cell-State Coverage
+Clinical Stage
+Key Challenge
+IL13Rα2
+>75% GBMs
+Moderate
+Phase 1 (NCT02208362)
+Antigen escape
+EGFRvIII
+~25–40% GBMs
+Low (mosaic)
+Phase 1 (NCT01454596)
+Clonal heterogeneity
+EGFR (mAb806 epitope)
+~60% amplified
+High
+Phase 1 (NCT05168423)
+On-target/off-tumor
+B7-H3 (CD276)
+High in GBM
+High
+Preclinical → early clinical
+Limited specificity
+PTGFRN
+GBM-specific
+TBD
+Preclinical
+Novel; needs validation
+HER2
+GBM-expressed
+Moderate
+Phase 1
+On-tumor expression variability
+GD2 (disialoganglioside)
+Pediatric HGG/DMG
+High in DMG
+Phase 1/2 (pediatric)
+Normal tissue expression
+H3K27M neoantigen peptide
+100% of H3K27M DMG
+N/A (peptide)
+Preclinical
+MHC restriction, peptide delivery
+Step 5 — Dual/multi-antigen panel design:Using the scRNA-seq cell-state heterogeneity map, the pipeline designs optimal 2–3 antigen combinations that together achieve >95% tumor cell coverage while minimizing normal tissue co-expression. This is the computational foundation for next-generation synNotch prime-and-kill and bivalent CAR-T constructs.
+Module 6: Structural Biology, Druggability, and Toxicity Filtering
+6.1 AI-Driven 3D Structure Prediction and Druggability Assessment
+For all candidates passing Module 5 scoring thresholds:
+AlphaFold3 / RoseTTAFold2 structure prediction for proteins lacking experimental structures
+AutoSite / DoGSiteScorer / SiteMap for binding pocket identification and druggability scoring
+AI-accelerated druggability assessment frameworks identify allosteric sites and cryptic pockets not detectable by classical methods
+Molecular docking (Glide, AutoDock-GPU, GNINA) of drug candidates against predicted structures; docking validated by molecular dynamics (GROMACS/AMBER)
+Molecular docking of repurposed drugs against key GBM targets has already identified candidates such as Vandetanib against TYRO3, validating this approach.
+6.2 CNS Pharmacokinetic Filtering
+A critical filter unique to brain tumor drug discovery:
+CNS Multi-Parameter Optimization (CNS-MPO) scoring for all small molecule candidates
+BBB permeability prediction (SwissADME, pkCSM, DeepBBB neural net)
+P-glycoprotein efflux liability prediction to identify compounds likely to be pumped out of the CNS
+Compounds failing BBB penetration criteria are flagged for alternative delivery strategies (convection-enhanced delivery, nanoparticle formulation, intratumoral infusion)
+6.3 Toxicity and Off-Target Profiling
+ProTox-3.0 / admetSAR for hepatotoxicity, cardiotoxicity, and organ-specific toxicity prediction
+OffsideDB / SIDER for known adverse event profiles of repurposed drugs
+Normal brain cell-type toxicity modeling: Expression of targets in scRNA-seq atlases of normal human brain (Allen Brain Atlas, Human Cell Atlas) quantified to flag neurotoxicity risk
+For CAR-T targets, antigen density ratios (tumor:normal) are computed with thresholds derived from published clinical safety data (IL13Rα2 precedent: tumor/normal ratio >10-fold required)
+Module 7: Integrated Scoring, Prioritization Matrix, and Experimental Validation Roadmap
+7.1 The GLIOMA-TARGET Scoring System
+Each candidate gene/target receives a composite GLIOMA-TARGET Score (GTS) computed as:
+GTS=w1⋅E+w2⋅M+w3⋅S+w4⋅D+w5⋅N+w6⋅TGTS=w1​⋅E+w2​⋅M+w3​⋅S+w4​⋅D+w5​⋅N+w6​⋅T
+Where:
+\(E\) = Expression specificity score (tumor/normal log2FC, cross-platform consistency)
+\(M\) = Mutation/dependency score (driver status, DepMap essentiality in HGG lines)
+\(S\) = Spatial/single-cell coverage score (fraction of cell states and spatial niches expressing target)
+\(D\) = Druggability score (structural pocket score + existing drug/antibody availability)
+\(N\) = Network centrality score (PPI hub score, synthetic lethality evidence)
+\(T\) = Toxicity safety score (inverse of off-tumor expression in critical normal tissues)
+Weights w1w1​–w6w6​ are modality-specific and optimized through cross-validation against known validated targets (IL13Rα2, EGFRvIII, EGFR for CAR-T; temozolomide-sensitizing targets for chemo track; EGFR/PDGFRA for targeted therapy).
+7.2 Output: Three Tiered Target Lists
+Tier 1 (High Confidence, Immediately Actionable): GTS > 0.75; validated in ≥3 independent cohorts; existing drug/antibody available; no significant normal CNS expression
+Tier 2 (Moderate Confidence, Requires Target Validation): GTS 0.50–0.75; validated in ≥2 cohorts; druggable structure predicted; manageable safety profile
+Tier 3 (Exploratory / Novel): GTS < 0.50; single-cohort signal; requires de novo antibody/drug development; novel biology hypothesis
+7.3 Experimental Validation Roadmap
+The pipeline outputs a structured validation roadmap:
+In vitro validation (Tier 1 & 2 targets):
+Patient-derived GBM stem cell (GSC) lines — confirm target expression by flow cytometry / IHC / WB
+CRISPR KO / CRISPRi knockdown in GSC lines + viability, invasion, stemness assays
+Drug sensitivity assays (Tier 1 repurposed drugs, EC50 in GSC panel)
+CAR-T co-culture assays: target-expressing vs. non-expressing tumor lines; IL-2/IFN-γ ELISA
+Patient-derived GBM organoid system for 3D CAR-T efficacy testing
+In vivo validation:
+Orthotopic xenograft (NSG mice) with patient-derived GSCs
+Intracranial CAR-T injection for locoregional delivery modeling (established as superior to systemic delivery)
+Bioluminescent tumor monitoring; survival endpoint
+Immune competent syngeneic model (GL261) for CAR-T + TME combination studies
+Translational readouts:
+scRNA-seq of treated organoids/tumors to detect antigen escape and state-shift under treatment
+Proteomics of treated vs. untreated tumors to validate downstream pathway modulation
+CSF biomarker profiling for validated targets (informing clinical trial monitoring endpoints)
+Groundbreaking and Novel Features
+1. Unified Multi-Modal Data Fusion with Spatial Resolution
+Unlike existing pipelines that operate on bulk RNA-seq alone, GLIOMA-TARGET integrates spatial transcriptomics to define where within the tumor each target is expressed, addressing the fundamental challenge that spatially restricted targets may leave substantial tumor burden untouched.
+2. Cell-State–Aware CAR-T Panel Design
+By modeling GBM as a collection of dynamic cell states rather than a static tumor, the pipeline designs multi-antigen CAR-T panels that achieve pan-state coverage — directly addressing antigen escape and phenotypic plasticity. This is directly aligned with the most advanced CAR-T design concepts currently being tested clinically (synNotch, bivalent constructs).
+3. Subtype-Stratified Drug Repurposing via Signature Reversal
+The LINCS/L1000-based sRGES approach is applied not to a single GBM "disease signature" but to subtype-specific and cell-state–specific signatures, generating subtype-matched drug recommendations that are more likely to be effective in molecularly defined patient populations.
+4. Synthetic Lethality Integration for Chemotherapy Sensitization
+By integrating genome-wide CRISPR KO screens with driver mutation landscapes, the pipeline identifies genes that, when inhibited, render TMZ-resistant GBM cells selectively vulnerable — offering a rational combination partner for standard-of-care chemotherapy without requiring the discovery of de novo drug targets.
+5. Pediatric HGG / DMG–Specific Arm
+Most computational target discovery pipelines focus exclusively on adult GBM. GLIOMA-TARGET explicitly includes an H3K27M-stratified pediatric DMG arm, leveraging the distinct epigenomic landscape and the recently demonstrated human brain organoid models of DMG to discover targets unique to this uniformly fatal pediatric disease.
+6. AI-Accelerated Structural Druggability with AlphaFold3
+The integration of AlphaFold3-predicted structures with AI-guided pocket identification allows the pipeline to evaluate the druggability of proteins that have no experimental crystal structure — dramatically expanding the targetable space beyond classical kinase domains to include previously "undruggable" transcription factors, scaffolding proteins, and novel surface receptors.
+7. scFOCAL-Inspired Drug–Cell-State Matching
+Inspired by the Georgetown scFOCAL algorithm, the pipeline matches drug sensitivity profiles from DepMap/PRISM against cell-state–specific transcriptional signatures, identifying drugs that selectively target drug-sensitive cell populations while predicting which populations will be resistant — enabling rational sequential or combination treatment design.
+Implementation Stack and Reproducibility
+Pipeline Component
+Primary Tools
+Workflow management
+Snakemake / Nextflow (nf-core)
+Bulk RNA-seq processing
+STAR, Salmon, DESeq2, edgeR, ComBat-Seq
+scRNA-seq analysis
+Seurat v5, Scanpy, Harmony, scVI, SCENIC+
+Spatial transcriptomics
+RCTD, SPOTlight, cell2location, SpatialDE
+Network analysis
+igraph, NetworkX, STRING API, BioGRID
+WGCNA / co-expression
+WGCNA (R), hdWGCNA (single-cell)
+Drug repurposing / LINCS
+CLUE platform, sRGES scoring, CMAPr
+Structural biology
+AlphaFold3, AutoDock-GPU, GNINA, Glide
+ML / scoring
+scikit-learn, PyTorch (GTS model training)
+Survival analysis
+survival, survminer, lifelines
+Visualization
+ggplot2, Seurat plots, Squidpy (spatial)
+Containerization
+Docker / Singularity for HPC deployment
+All code is designed for deployment on HPC clusters or cloud environments (AWS/GCP) with Singularity containers, ensuring reproducibility across computational environments.
+Anticipated High-Priority Candidate Categories
+Based on the current literature integrated into this pipeline design, the following target categories are most likely to emerge as top-ranked candidates:
+Targeted Therapy Track:
+RTK amplifications with druggable structure: EGFR, PDGFRA, MET, FGFR1/3
+PI3K-AKT-mTOR axis: PIK3CA, AKT1/2, mTOR (especially in PTEN-null tumors)
+RAS/MAPK pathway: NF1, KRAS, MAP2K1 (particularly in H3K27M-DMG)
+Epigenetic writers/readers: EZH2, BRD4, DNMT3A (BET inhibitors for H3K27M)
+Metabolic targets: IDH1/2 (IDH-mutant LGG/Grade III), glutaminase, fatty acid synthase
+Chemotherapy Sensitization Track:
+MGMT expression regulators (to sensitize TMZ-resistant MGMT-unmethylated GBM)
+DDR pathway: ATR, WEE1, PARP1 (synthetic lethality with TMZ-induced DSBs)
+MES-state drivers mediating acquired resistance: ZEB1, TWIST1, CD44
+PRMT5/MAT2A axis (synthetic lethal in MTAP-deleted GBM)
+CDKN2A-deleted cells: CDK4/6 inhibitors (palbociclib, ribociclib) as TMZ sensitizers
+CAR-T/CAR-NK Track:
+Highest priority: IL13Rα2 (>75% GBM, validated clinical activity), B7-H3 (high, broad expression), PTGFRN (GBM-specific)
+Mosaic/combination: EGFRvIII + EGFR-806 (bivalent; 62% regression rate), EphA2
+Pediatric DMG: GD2, H3K27M neoantigen peptide/MHC complex, B7-H3
+Novel surfaceome candidates: CADM1, and additional candidates from IMMUNOTAR-scored GBM surface proteomics
+Limitations and Key Unknowns
+Translational gap: Computational target prediction cannot replace experimental validation; the pipeline generates hypotheses, not proofs. All Tier 1–3 targets require rigorous in vitro/in vivo validation before clinical translation.
+Data completeness: Matched multi-omics data (RNA + protein + spatial + single-cell) from the same patient tumors remains limited. As CPTAC-GBM and spatial omics cohorts grow, pipeline performance will improve.
+Immune microenvironment modeling: While the pipeline models TME cell types, it cannot fully predict the suppressive impact of GBM's immunosuppressive TME on CAR-T efficacy in vivo — a limitation requiring experimental models.
+BBB prediction accuracy: In silico CNS-MPO scoring has imperfect specificity; compounds passing computational filters may still fail CNS delivery in vivo.
+Tumor evolution: Clonal dynamics under treatment are modeled using available longitudinal data, but the pipeline cannot predict de novo resistance mutations that arise post-treatment in individual patients.
+Conclusion
+GLIOMA-TARGET represents a fundamentally new approach to therapeutic target discovery for high-grade gliomas — one that moves beyond single-omics, single-modality, and single-subtype analyses to deliver a comprehensive, integrative, and clinically translatable target landscape. By exploiting the convergence of spatial transcriptomics, single-cell cell-state mapping, network medicine, synthetic lethality, and AI-driven structural biology, this pipeline is positioned to identify high-confidence targets that are simultaneously tumor-specific, spatially ubiquitous, druggable, CNS-penetrable, and resistant to escape — the five criteria that all prior approaches have failed to satisfy simultaneously. The structured three-track output directly maps onto actionable therapeutic modalities, enabling parallel experimental validation and accelerating the path from computational discovery to clinical trial.

@@ -1,0 +1,6 @@
+# Optional: SLURM cluster execution for Snakemake 8+.
+# Install alongside the main stack (do not use this file alone — it does not list snakemake):
+#   pip install -r requirements.txt -r requirements-hpc.txt
+#
+# Pin bumps with snakemake major releases; see PyPI release notes if DAG submission breaks.
+snakemake-executor-plugin-slurm==2.6.0

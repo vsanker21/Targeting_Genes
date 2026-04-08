@@ -1,0 +1,18 @@
+# Symbols named in Project_Outline_extracted.txt Module 2.2 as "key known drivers" for GBM.
+# Used only to flag rows in DEA tables (outline_m22_known_gbm_driver); not variant-level calls.
+
+gene_symbols:
+  - EGFR
+  - PTEN
+  - TP53
+  - IDH1
+  - IDH2
+  - NF1
+  - PIK3CA
+  - ATRX
+  - TERT
+  - CDKN2A
+  - CDKN2B
+  - RB1
+
+citation_note: "Verbatim list from Project_Outline_extracted.txt (Module 2.2 mutation landscape)."

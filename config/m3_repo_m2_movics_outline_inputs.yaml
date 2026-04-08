@@ -1,0 +1,24 @@
+# Outline M2: M3 export manifest slice for m2_movics quartet under results/module3.
+
+
+m3_repo_m2_movics_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_m2_movics_paths_status.json"
+  done_flag: "results/module3/m3_repo_m2_movics_paths_status.flag"
+  groups:
+    - id: module3_m2_movics_repo_outline_outputs
+      summary: "m2_movics outline artifacts (paths_status + integration_stub) under results/module3"
+      path_checks:
+        - name: m2_movics_paths_status_json
+          path_template: "{repo_root}/results/module3/m2_movics_paths_status.json"
+        - name: m2_movics_paths_status_flag
+          path_template: "{repo_root}/results/module3/m2_movics_paths_status.flag"
+        - name: m2_movics_integration_stub_json
+          path_template: "{repo_root}/results/module3/m2_movics_integration_stub.json"
+        - name: m2_movics_integration_stub_flag
+          path_template: "{repo_root}/results/module3/m2_movics_integration_stub.flag"
+
+m3_repo_m2_movics_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_m2_movics_integration_stub.json"
+  done_flag: "results/module3/m3_repo_m2_movics_integration_stub.flag"

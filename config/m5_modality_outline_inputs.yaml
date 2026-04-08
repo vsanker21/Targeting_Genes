@@ -1,0 +1,31 @@
+# Outline Module 5: optional TMZ / CAR-T staging paths under GLIOMA_TARGET_DATA_ROOT (presence only).
+# Complements LINCS/sRGES scaffolding; no treatment-response modeling or antigen ranking in-repo.
+
+m5_modality_path_checks:
+  enabled: true
+  output_json: "results/module5/m5_modality_paths_status.json"
+  done_flag: "results/module5/m5_modality_paths_status.flag"
+  groups:
+    - id: tmz_sensitization
+      summary: "TMZ / MGMT and DNA-repair context for alkylator sensitivity (staging only)"
+      path_checks:
+        - name: "MGMT promoter methylation or merged beta table staging"
+          path_template: "{data_root}/therapeutics/mgmt_methylation"
+        - name: "TMZ or alkylator response / outcome table (clinical or trial)"
+          path_template: "{data_root}/therapeutics/tmz_response_clinical"
+        - name: "DNA repair / HRD scores or gene-level repair panel export"
+          path_template: "{data_root}/therapeutics/dna_repair_scores"
+    - id: cart_surface_funnel
+      summary: "CAR-T surface antigen and immunotherapy staging (lists, sc-derived exports)"
+      path_checks:
+        - name: "Curated surface antigen target panel (TSV/CSV)"
+          path_template: "{data_root}/therapeutics/cart_surface_antigen_panel"
+        - name: "scRNA or CITE-seq derived surface candidate export directory"
+          path_template: "{data_root}/therapeutics/cart_sc_derived_candidates"
+        - name: "HLA typing or neoantigen prediction staging (optional for CAR design)"
+          path_template: "{data_root}/therapeutics/hla_neoantigen_staging"
+
+m5_modality_integration_stub:
+  enabled: true
+  output_json: "results/module5/m5_modality_integration_stub.json"
+  done_flag: "results/module5/m5_modality_integration_stub.flag"

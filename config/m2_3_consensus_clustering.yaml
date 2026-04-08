@@ -1,0 +1,24 @@
+# M2.3 — Simpler multi-omic consensus (in-repo): **Monti-style consensus clustering** on one view (GDC STAR counts).
+# Full MOVICS IntNMF (two views): config/m2_movics_run.yaml + rule m2_movics_intnmf_tcga_gbm (optional rule all: GLIOMA_TARGET_INCLUDE_MOVICS=1).
+
+consensus_star_primary:
+  method_name: "Monti-style consensus clustering (repeated k-means co-association + hierarchical cut; sklearn/scipy)"
+  movics_reference_note: >
+    MOVICS (Bioconductor) fits multi-omic integrative clustering; this repo runs a **single-omics** consensus
+    baseline on the same STAR count matrix family for reproducibility without R MOVICS installs.
+  counts_matrix: results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet
+  sample_meta: results/module2/tcga_gbm_sample_meta.tsv
+  meta_column_matrix: column_name
+  sample_type_col: sample_type
+  filter_sample_types:
+    - Primary Tumor
+  n_top_variable_genes: 2000
+  pca_components: 30
+  n_kmeans_runs: 40
+  kmeans_n_init: 10
+  k_min: 2
+  k_max: 6
+  random_seed_base: 42
+  output_dir: results/module3/m2_3_consensus_star_primary
+
+method_contrast_report_json: results/module3/m2_3_movics_vs_consensus_method_contrast.json

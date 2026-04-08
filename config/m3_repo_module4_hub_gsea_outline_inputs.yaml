@@ -1,0 +1,68 @@
+# Outline M3: in-repo Module 4 WGCNA hub TPM exports, GSEA prerank bundle, and stratified STRING export provenance under results/module4.
+# Aligns with export_wgcna_hub_subset.py, export_wgcna_sample_traits.py, export_dea_gsea_prerank_rnk.py, export_stratified_dea_string_lists.py.
+
+m3_repo_module4_hub_gsea_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_module4_hub_gsea_paths_status.json"
+  done_flag: "results/module3/m3_repo_module4_hub_gsea_paths_status.flag"
+  groups:
+    - id: module4_wgcna_gsea_stratified_string_repo_outputs
+      summary: "WGCNA hub parquets and traits, gene overlap, GSEA .rnk + provenance, stratified STRING provenance under results/module4"
+      path_checks:
+        - name: wgcna_hub_expr_subset_parquet
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset.parquet"
+        - name: wgcna_hub_expr_subset_long_tsv
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset_long.tsv"
+        - name: wgcna_hub_expr_subset_provenance_json
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset_provenance.json"
+        - name: wgcna_hub_expr_subset_recount3_only_parquet
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset_recount3_only.parquet"
+        - name: wgcna_hub_expr_subset_recount3_only_long_tsv
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset_recount3_only_long.tsv"
+        - name: wgcna_hub_expr_subset_recount3_only_provenance_json
+          path_template: "{repo_root}/results/module4/wgcna_hub_expr_subset_recount3_only_provenance.json"
+        - name: wgcna_hub_sample_traits_tsv
+          path_template: "{repo_root}/results/module4/wgcna_hub_sample_traits.tsv"
+        - name: wgcna_hub_sample_traits_provenance_json
+          path_template: "{repo_root}/results/module4/wgcna_hub_sample_traits_provenance.json"
+        - name: wgcna_hub_sample_traits_recount3_only_tsv
+          path_template: "{repo_root}/results/module4/wgcna_hub_sample_traits_recount3_only.tsv"
+        - name: wgcna_hub_sample_traits_recount3_only_provenance_json
+          path_template: "{repo_root}/results/module4/wgcna_hub_sample_traits_recount3_only_provenance.json"
+        - name: wgcna_hub_gene_overlap_summary_json
+          path_template: "{repo_root}/results/module4/wgcna_hub_gene_overlap_summary.json"
+        - name: stratified_string_export_provenance_json
+          path_template: "{repo_root}/results/module4/stratified_string_export_provenance.json"
+        - name: gsea_dea_welch_signed_neg_log10_p_rnk
+          path_template: "{repo_root}/results/module4/gsea/dea_welch_signed_neg_log10_p.rnk"
+        - name: gsea_dea_ols_signed_neg_log10_p_rnk
+          path_template: "{repo_root}/results/module4/gsea/dea_ols_signed_neg_log10_p.rnk"
+        - name: gsea_recount3_pydeseq2_signed_neg_log10_p_rnk
+          path_template: "{repo_root}/results/module4/gsea/recount3_pydeseq2_signed_neg_log10_p.rnk"
+        - name: gsea_recount3_edger_signed_neg_log10_p_rnk
+          path_template: "{repo_root}/results/module4/gsea/recount3_edger_signed_neg_log10_p.rnk"
+        - name: gsea_prerank_export_provenance_json
+          path_template: "{repo_root}/results/module4/gsea_prerank_export_provenance.json"
+        - name: gsea_stratified_prerank_flag
+          path_template: "{repo_root}/results/module4/gsea_stratified_prerank.flag"
+        - name: gsea_stratified_welch_classical_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/welch_integrated/dea_welch_subtype_Classical_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_welch_mesenchymal_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/welch_integrated/dea_welch_subtype_Mesenchymal_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_welch_neural_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/welch_integrated/dea_welch_subtype_Neural_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_welch_proneural_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/welch_integrated/dea_welch_subtype_Proneural_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_ols_classical_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/ols_integrated/dea_ols_subtype_Classical_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_ols_mesenchymal_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/ols_integrated/dea_ols_subtype_Mesenchymal_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_ols_neural_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/ols_integrated/dea_ols_subtype_Neural_signed_neg_log10_p.rnk"
+        - name: gsea_stratified_ols_proneural_rnk
+          path_template: "{repo_root}/results/module4/gsea/stratified/ols_integrated/dea_ols_subtype_Proneural_signed_neg_log10_p.rnk"
+
+m3_repo_module4_hub_gsea_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_module4_hub_gsea_integration_stub.json"
+  done_flag: "results/module3/m3_repo_module4_hub_gsea_integration_stub.flag"

@@ -1,0 +1,39 @@
+# Outline Module 1: optional data staging paths under GLIOMA_TARGET_DATA_ROOT (presence only).
+# Groups map to planned bullets — FASTQ reprocessing, external cohorts, harmonized multi-omics.
+
+m1_outline_path_checks:
+  enabled: true
+  output_json: "results/module3/m1_outline_paths_status.json"
+  done_flag: "results/module3/m1_outline_paths_status.flag"
+  groups:
+    - id: external_cohorts
+      summary: "CGGA / CPTAC portal mirrors / CBTTC (controlled access)"
+      path_checks:
+        - name: "CGGA bundle or expression staging"
+          path_template: "{data_root}/cohorts/cgga"
+        - name: "CPTAC portal download mirror (proteome/aux)"
+          path_template: "{data_root}/cohorts/cptac_portal"
+        - name: "CBTTC or pediatric brain tumor data root"
+          path_template: "{data_root}/cohorts/cbttc"
+    - id: fastq_reprocessing
+      summary: "FASTQ → quant reprocessing (STAR/Salmon/nf-core)"
+      path_checks:
+        - name: "Raw FASTQ staging (TCGA or internal)"
+          path_template: "{data_root}/fastq/tcga_gbm"
+        - name: "nf-core/rnaseq or Nextflow work directory (optional)"
+          path_template: "{data_root}/pipelines/nfcore_rnaseq_work"
+        - name: "Salmon transcript index or selective alignment cache"
+          path_template: "{data_root}/references/salmon_index_gencode"
+    - id: harmonized_multi_omics
+      summary: "Per-sample mutation + CNV + methylation matrix"
+      path_checks:
+        - name: "Harmonized multi-omics table or MAE (samples × features)"
+          path_template: "{data_root}/omics/harmonized_multi_omics"
+        - name: "Sample ID map (UUID / barcode / patient) for assay merge"
+          path_template: "{data_root}/omics/sample_id_map"
+
+# Planning JSON vs ComBat-Seq partial — scripts/module1_outline_integration_stub.py
+m1_outline_integration_stub:
+  enabled: true
+  output_json: "results/module3/m1_outline_integration_stub.json"
+  done_flag: "results/module3/m1_outline_integration_stub.flag"

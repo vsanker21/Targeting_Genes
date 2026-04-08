@@ -1,0 +1,31 @@
+# M3 — Public scRNA dataset **GSE57872** (see config/data_sources.yaml: geo.scrna_seq.GSE57872, sra.GSE57872).
+# Target output: QC metrics + **Leiden** graph clustering (Scanpy), with provenance JSON.
+
+dataset:
+  geo_accession: GSE57872
+  description: "Immune microenvironment scRNA (outline / data_sources); stage H5AD or counts under data_root."
+
+# First existing path wins (relative to GLIOMA_TARGET_DATA_ROOT / data_root).
+input_search_globs:
+  - "geo/scrna_seq/GSE57872/**/*.h5ad"
+  - "sra/GSE57872/counts/**/*.h5ad"
+  - "sra/GSE57872/counts/**/*.csv.gz"
+  - "geo/scrna_seq/GSE57872/**/*.csv.gz"
+
+# If non-null, use this path relative to data_root instead of globs (for explicit overrides).
+input_override_relative: null
+
+qc:
+  min_genes: 200
+  min_counts: 500
+  max_pct_mito: 20.0
+  mito_prefix: "MT-"
+
+processing:
+  n_top_genes_hvg: 2000
+  n_pcs: 15
+  n_neighbors: 15
+  leiden_resolution: 0.5
+  random_seed: 0
+
+output_dir: results/module3/scrna_gse57872_scanpy

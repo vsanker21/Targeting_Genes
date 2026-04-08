@@ -1,0 +1,56 @@
+# Module 6 outline scaffolding: bridge GTS candidates → UniProt / AlphaFold DB URLs (manual DGIdb, ChEMBL, etc.).
+# scripts/export_module6_structure_druggability_bridge.py
+
+# Optional install trees for pocket / docking tools (outline §6); presence only — scripts/module6_structure_tooling_paths_status.py
+structure_tooling_path_checks:
+  enabled: true
+  output_json: "results/module6/module6_structure_tooling_paths_status.json"
+  done_flag: "results/module6/module6_structure_tooling_paths_status.flag"
+  path_checks:
+    - name: "P2Rank (optional checkout)"
+      path_template: "{data_root}/tools/p2rank"
+    - name: "fpocket (optional checkout)"
+      path_template: "{data_root}/tools/fpocket"
+    - name: "GNINA / docking conda env stub (optional marker file)"
+      path_template: "{data_root}/tools/gnina_ready.flag"
+
+structure_druggability_bridge:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  # Include GTS rows with gts_evidence_tier <= this value (1 = strongest).
+  max_evidence_tier: 2
+  max_rows_per_job: 800
+  hgnc_status_approved_only: true
+  provenance_json: "results/module6/structure_druggability_bridge_provenance.json"
+  done_flag: "results/module6/structure_druggability_bridge.flag"
+  jobs:
+    - tag: welch
+      gts_candidate_tsv: "results/module7/gts_candidate_table_welch_stub.tsv"
+      output_tsv: "results/module6/structure_druggability_bridge_welch.tsv"
+    - tag: ols
+      gts_candidate_tsv: "results/module7/gts_candidate_table_ols_stub.tsv"
+      output_tsv: "results/module6/structure_druggability_bridge_ols.tsv"
+    - tag: recount3_pydeseq2
+      gts_candidate_tsv: "results/module7/gts_candidate_table_recount3_pydeseq2_stub.tsv"
+      output_tsv: "results/module6/structure_druggability_bridge_recount3_pydeseq2.tsv"
+    - tag: recount3_edger
+      gts_candidate_tsv: "results/module7/gts_candidate_table_recount3_edger_stub.tsv"
+      output_tsv: "results/module6/structure_druggability_bridge_recount3_edger.tsv"
+  stratified_glob_jobs:
+    - job_tag: welch_integrated
+      glob_input: "results/module7/gts_candidate_stratified/welch_integrated/dea_welch_subtype_*_gts_stub.tsv"
+    - job_tag: ols_integrated
+      glob_input: "results/module7/gts_candidate_stratified/ols_integrated/dea_ols_subtype_*_gts_stub.tsv"
+  stratified_done_flag: "results/module6/structure_druggability_bridge_stratified.flag"
+
+# M6 pocket / ADMET / docking gap (no runs) — scripts/module6_structure_admet_integration_stub.py
+structure_admet_integration_stub:
+  enabled: true
+  output_json: "results/module6/structure_admet_integration_stub.json"
+  done_flag: "results/module6/structure_admet_integration_stub.flag"
+
+# M6 artifact inventory for manifests / pipeline index — scripts/write_module6_export_manifest.py
+module6_export_manifest:
+  enabled: true
+  output_json: "results/module6/module6_export_manifest.json"
+  optional_tags: []

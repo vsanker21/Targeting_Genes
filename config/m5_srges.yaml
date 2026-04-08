@@ -1,0 +1,13 @@
+# Module 5: compound ranking vs Entrez disease signature using a real long-format perturbation table.
+# Requires GLIOMA_TARGET_INCLUDE_M5_SRGES_RUN=1 on rule all and a user-staged TSV under data_root.
+# Script: scripts/run_m5_srges.py — rule m5_srges_run
+
+m5_srges_run:
+  enabled: true
+  signature_job_tag: welch
+  signature_tsv: null
+  # Long TSV under data_root: compound_id, entrez_id, z_score (tabs). No synthetic fallback.
+  perturbation_tsv: "{data_root}/lincs/perturbation_entrez_long.tsv"
+  rank_tsv: results/module5/m5_srges_compound_ranks.tsv
+  provenance_json: results/module5/m5_srges_run_provenance.json
+  done_flag: results/module5/m5_srges_run.flag

@@ -1,0 +1,13 @@
+# Lightweight env for Cell2location orchestrator when training.enabled is false (validate h5ad only).
+# Full training needs workflow/envs/m3_cell2location.yaml (pip cell2location + PyTorch).
+# CI / quick smoke: GLIOMA_TARGET_M3_C2L_CONDA_ENV=light snakemake --use-conda -c1 m3_deconvolution_cell2location_run
+name: m3_cell2location_light
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - pyyaml
+  - anndata

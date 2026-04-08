@@ -1,0 +1,34 @@
+# Outline M3: optional user-run Cell Ranger (and related) processed outputs under GLIOMA_TARGET_DATA_ROOT.
+# Complements vendor_tooling_paths_status (binaries), module3_sc_workflow_paths_status (tool roots), and m3_deconvolution_*.
+
+m3_cellranger_output_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_cellranger_output_paths_status.json"
+  done_flag: "results/module3/m3_cellranger_output_paths_status.flag"
+  groups:
+    - id: cellranger_count_matrices
+      summary: "cellranger count outs/ trees (filtered_feature_bc_matrix, raw_feature_bc_matrix, metrics)"
+      path_checks:
+        - name: "Cell Ranger count output root (per-sample or batched outs directories)"
+          path_template: "{data_root}/scrna/cellranger_count_outs"
+        - name: "Optional per-project count run manifest or sample table (TSV/YAML)"
+          path_template: "{data_root}/scrna/cellranger_count_sample_map"
+    - id: cellranger_aggr_or_multi
+      summary: "cellranger aggr / multi library merged matrices and cloupe"
+      path_checks:
+        - name: "cellranger aggr or multi combined outs root"
+          path_template: "{data_root}/scrna/cellranger_aggr_outs"
+        - name: "Optional Space Ranger visium outs root (tissue-aligned)"
+          path_template: "{data_root}/spatial/spaceranger_outs"
+    - id: scanpy_seurat_converted_objects
+      summary: "Downstream AnnData / Seurat objects derived from Cell Ranger matrices"
+      path_checks:
+        - name: "Scanpy/AnnData workspace (e.g. merged .h5ad staging)"
+          path_template: "{data_root}/scrna/converted_h5ad_workspace"
+        - name: "Optional Seurat RDS or qs archive staging"
+          path_template: "{data_root}/scrna/converted_seurat_rds"
+
+m3_cellranger_output_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_cellranger_output_integration_stub.json"
+  done_flag: "results/module3/m3_cellranger_output_integration_stub.flag"

@@ -1,0 +1,29 @@
+# Outline M2.1: TOIL / UCSC Xena RNA-seq hub file staging under GLIOMA_TARGET_DATA_ROOT.
+# Aligns with config/data_sources.yaml gtex_xena_toil (primary bulk TPM DEA inputs).
+
+m2_1_toil_xena_hub_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_1_toil_xena_hub_paths_status.json"
+  done_flag: "results/module3/m2_1_toil_xena_hub_paths_status.flag"
+  groups:
+    - id: toil_xena_primary_gtex_hub
+      summary: "TcgaTargetGTEX_phenotype.txt.gz + TcgaTargetGtex_rsem_gene_tpm.gz (TOIL RSEM gene TPM hub)"
+      path_checks:
+        - name: "Xena TOIL hub directory (gtex/xena_toil)"
+          path_template: "{data_root}/gtex/xena_toil"
+        - name: "TCGA+GTEx phenotype table (.txt.gz)"
+          path_template: "{data_root}/gtex/xena_toil/TcgaTargetGTEX_phenotype.txt.gz"
+        - name: "TCGA+GTEx RSEM gene TPM matrix (.gz)"
+          path_template: "{data_root}/gtex/xena_toil/TcgaTargetGtex_rsem_gene_tpm.gz"
+    - id: toil_hub_supplementary_staging
+      summary: "Checksums, download manifests, or auxiliary Xena/TOIL slices mirrored locally"
+      path_checks:
+        - name: "Optional hub checksum or manifest directory"
+          path_template: "{data_root}/gtex/xena_toil_manifests"
+        - name: "Optional extracted long-format TPM TSV staging (external to results/)"
+          path_template: "{data_root}/gtex/toil_tpm_extract_staging"
+
+m2_1_toil_xena_hub_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_1_toil_xena_hub_integration_stub.json"
+  done_flag: "results/module3/m2_1_toil_xena_hub_integration_stub.flag"

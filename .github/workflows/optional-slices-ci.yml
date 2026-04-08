@@ -1,0 +1,311 @@
+# MOVICS/contrast smoke + M3 NNLS on temp TSVs (no synthetic Scanpy / no placeholder deconv).
+name: Optional slices
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/optional-slices-ci.yml"
+      - "Snakefile"
+      - "pytest.ini"
+      - "scripts/m3_scrna_scanpy_qc_cluster.py"
+      - "scripts/run_m3_deconvolution_s2_nnls.py"
+      - "scripts/run_m3_rctd_orchestrate.py"
+      - "scripts/run_m3_rctd_wrapper.R"
+      - "scripts/run_m3_cell2location_orchestrate.py"
+      - "config/m3_deconvolution_s2_nnls.yaml"
+      - "config/m3_deconvolution_rctd_inputs.yaml"
+      - "config/m3_deconvolution_cell2location_inputs.yaml"
+      - "config/m3_deconvolution_cell2location_inputs_ci_train.yaml"
+      - "workflow/envs/m3_rctd.yaml"
+      - "workflow/envs/m3_cell2location.yaml"
+      - "workflow/envs/m3_cell2location_light.yaml"
+      - "scripts/m3_ci_stage_minimal_h5ad.py"
+      - "scripts/m3_ci_stage_minimal_rctd_rds.R"
+      - "scripts/m2_3_movics_vs_consensus_report.py"
+      - "config/m3_gse57872_scanpy.yaml"
+      - "config/m2_movics_inputs.yaml"
+      - "config/m2_movics_run.yaml"
+      - "config/m2_movics_data_fetch.yaml"
+      - "config/m2_movics_depmap_mae_run.yaml"
+      - "scripts/fetch_movics_staging_data.py"
+      - "scripts/m2_movics_intnmf_depmap_mae.R"
+      - "config/m2_3_consensus_clustering.yaml"
+      - "tests/test_m2_m3_scoped_deliverables.py"
+      - "tests/test_snakefile_m3_export_manifest_cross_rule_edges.py"
+      - "scripts/module3_public_inputs_status.py"
+      - "tests/test_module3_public_inputs_status_main_smoke.py"
+      - "scripts/module3_scrna_spatial_integration_stub.py"
+      - "tests/test_module3_scrna_spatial_integration_stub_main_smoke.py"
+      - "scripts/__init__.py"
+      - "tests/test_run_m3_deconvolution_s2_nnls.py"
+      - "tests/test_run_m3_cell2location_signature_extract.py"
+      - "tests/test_run_m3_cell2location_training_provenance_diagnostics.py"
+      - "tests/test_run_m3_cell2location_orchestrate_main_smoke.py"
+      - "tests/cell2location_test_doubles.py"
+      - "tests/test_fake_cell2location_modules.py"
+      - "tests/test_m3_deconv_committed_results_flag_contract.py"
+      - "tests/test_m3_results_contract_fixture_repo.py"
+      - "tests/test_m3_cell2location_harmonize_var_names.py"
+      - "tests/fixtures/m3_results_contract_repo/results/module3/m3_deconvolution_rctd/rctd_run_provenance.json"
+      - "tests/test_run_m3_rctd_orchestrate_smoke.py"
+      - "scripts/module3_deconvolution_integration_stub.py"
+      - "scripts/m3_repo_scrna_spatial_integration_stub.py"
+      - "scripts/m3_repo_deconvolution_integration_stub.py"
+      - "scripts/m3_repo_public_inputs_integration_stub.py"
+      - "scripts/m3_repo_sc_workflow_integration_stub.py"
+      - "scripts/m3_repo_cellranger_output_integration_stub.py"
+      - "config/m3_repo_scrna_spatial_outline_inputs.yaml"
+      - "config/m3_repo_deconvolution_outline_inputs.yaml"
+      - "scripts/write_module3_export_manifest.py"
+      - "config/module3_inputs.yaml"
+      - "tests/test_write_module3_export_manifest_main_smoke.py"
+      - "tests/test_module3_deconvolution_integration_stub_cell2location.py"
+      - "tests/test_module3_deconvolution_integration_stub_rctd.py"
+      - "tests/test_module3_deconvolution_integration_stub_main_smoke.py"
+      - "tests/test_m3_export_manifest_artifacts_in_snakefile_rule.py"
+      - "tests/test_m3_repo_deconvolution_stub_echo.py"
+      - "tests/test_m3_repo_deconvolution_integration_stub_main_smoke.py"
+      - "tests/test_m3_repo_scrna_spatial_deconv_echo.py"
+      - "tests/test_m3_repo_scrna_spatial_integration_stub_main_smoke.py"
+      - "scripts/m3_cellranger_output_integration_stub.py"
+      - "config/m3_cellranger_output_outline_inputs.yaml"
+      - "tests/test_m3_cellranger_output_integration_stub_main_smoke.py"
+      - "tests/test_m3_outline_paths_status_main_smoke.py"
+      - "tests/test_m3_repo_outline_integration_stubs_main_smoke.py"
+      - "scripts/module3_deconvolution_paths_status.py"
+      - "scripts/m3_repo_scrna_spatial_paths_status.py"
+      - "scripts/m3_repo_deconvolution_paths_status.py"
+      - "scripts/m3_cellranger_output_paths_status.py"
+      - "config/m3_deconvolution_outline_inputs.yaml"
+      - "scripts/module3_sc_workflow_paths_status.py"
+      - "scripts/m3_repo_sc_workflow_paths_status.py"
+      - "scripts/m3_repo_cellranger_output_paths_status.py"
+      - "config/m3_repo_sc_workflow_outline_inputs.yaml"
+      - "config/m3_repo_cellranger_output_outline_inputs.yaml"
+      - "scripts/m3_dryad_sra_paths_status.py"
+      - "scripts/m3_repo_public_inputs_paths_status.py"
+      - "config/m3_dryad_sra_outline_inputs.yaml"
+      - "config/m3_repo_public_inputs_outline_inputs.yaml"
+      - "tests/test_pipeline_outline_yaml_parse.py"
+      - "config/open_source_data_extensions.yaml"
+      - "scripts/download_open_source_extensions.py"
+      - "scripts/download_all_required.py"
+      - "docs/GBM_DETECTION_AND_OPEN_DATA.md"
+      - "docs/OPTIONAL_SLICES.md"
+      - "docs/PIPELINE_ALIGNMENT.md"
+      - "docs/DATA_MANIFEST.md"
+      - "config/high_value_public_datasets.yaml"
+      - "scripts/download_high_value_public_datasets.py"
+      - "config/supplementary_reference_resources.yaml"
+      - "scripts/download_supplementary_reference_resources.py"
+      - "scripts/supplementary_reference_resources_paths_status.py"
+      - "scripts/decompress_pathwaycommons_gmt.py"
+      - "scripts/build_m4_supplementary_enrichment_plan.py"
+      - "scripts/archs4_recount_h5_summarize.py"
+      - "scripts/join_dea_archs4_expression.py"
+      - "scripts/check_wikipathways_gmt_url.py"
+      - "scripts/load_drugcentral_postgres.py"
+      - "scripts/m4_pathway_database_mirror_paths_status.py"
+      - "scripts/m4_pathway_database_mirror_integration_stub.py"
+      - "config/m4_pathway_database_mirror_outline_inputs.yaml"
+      - "scripts/fetch_clue_api_subset.py"
+      - "config/data_sources.yaml"
+      - "config/pipeline_outline.yaml"
+      - ".env.example"
+      - "scripts/run_outline_governance_batch.py"
+      - "scripts/report_pipeline_planned_extensions.py"
+      - "scripts/write_pipeline_results_index.py"
+      - "config/pipeline_planned_extensions.yaml"
+  pull_request:
+    paths:
+      - ".github/workflows/optional-slices-ci.yml"
+      - "Snakefile"
+      - "pytest.ini"
+      - "scripts/m3_scrna_scanpy_qc_cluster.py"
+      - "scripts/run_m3_deconvolution_s2_nnls.py"
+      - "scripts/run_m3_rctd_orchestrate.py"
+      - "scripts/run_m3_rctd_wrapper.R"
+      - "scripts/run_m3_cell2location_orchestrate.py"
+      - "config/m3_deconvolution_s2_nnls.yaml"
+      - "config/m3_deconvolution_rctd_inputs.yaml"
+      - "config/m3_deconvolution_cell2location_inputs.yaml"
+      - "config/m3_deconvolution_cell2location_inputs_ci_train.yaml"
+      - "workflow/envs/m3_rctd.yaml"
+      - "workflow/envs/m3_cell2location.yaml"
+      - "workflow/envs/m3_cell2location_light.yaml"
+      - "scripts/m3_ci_stage_minimal_h5ad.py"
+      - "scripts/m3_ci_stage_minimal_rctd_rds.R"
+      - "scripts/m2_3_movics_vs_consensus_report.py"
+      - "config/m3_gse57872_scanpy.yaml"
+      - "config/m2_movics_inputs.yaml"
+      - "config/m2_movics_run.yaml"
+      - "config/m2_movics_data_fetch.yaml"
+      - "config/m2_movics_depmap_mae_run.yaml"
+      - "scripts/fetch_movics_staging_data.py"
+      - "scripts/m2_movics_intnmf_depmap_mae.R"
+      - "config/m2_3_consensus_clustering.yaml"
+      - "tests/test_m2_m3_scoped_deliverables.py"
+      - "tests/test_snakefile_m3_export_manifest_cross_rule_edges.py"
+      - "scripts/module3_public_inputs_status.py"
+      - "tests/test_module3_public_inputs_status_main_smoke.py"
+      - "scripts/module3_scrna_spatial_integration_stub.py"
+      - "tests/test_module3_scrna_spatial_integration_stub_main_smoke.py"
+      - "scripts/__init__.py"
+      - "tests/test_run_m3_deconvolution_s2_nnls.py"
+      - "tests/test_run_m3_cell2location_signature_extract.py"
+      - "tests/test_run_m3_cell2location_training_provenance_diagnostics.py"
+      - "tests/test_run_m3_cell2location_orchestrate_main_smoke.py"
+      - "tests/cell2location_test_doubles.py"
+      - "tests/test_fake_cell2location_modules.py"
+      - "tests/test_m3_deconv_committed_results_flag_contract.py"
+      - "tests/test_m3_results_contract_fixture_repo.py"
+      - "tests/test_m3_cell2location_harmonize_var_names.py"
+      - "tests/fixtures/m3_results_contract_repo/results/module3/m3_deconvolution_rctd/rctd_run_provenance.json"
+      - "tests/test_run_m3_rctd_orchestrate_smoke.py"
+      - "scripts/module3_deconvolution_integration_stub.py"
+      - "scripts/m3_repo_scrna_spatial_integration_stub.py"
+      - "scripts/m3_repo_deconvolution_integration_stub.py"
+      - "scripts/m3_repo_public_inputs_integration_stub.py"
+      - "scripts/m3_repo_sc_workflow_integration_stub.py"
+      - "scripts/m3_repo_cellranger_output_integration_stub.py"
+      - "config/m3_repo_scrna_spatial_outline_inputs.yaml"
+      - "config/m3_repo_deconvolution_outline_inputs.yaml"
+      - "scripts/write_module3_export_manifest.py"
+      - "config/module3_inputs.yaml"
+      - "tests/test_write_module3_export_manifest_main_smoke.py"
+      - "tests/test_module3_deconvolution_integration_stub_cell2location.py"
+      - "tests/test_module3_deconvolution_integration_stub_rctd.py"
+      - "tests/test_module3_deconvolution_integration_stub_main_smoke.py"
+      - "tests/test_m3_export_manifest_artifacts_in_snakefile_rule.py"
+      - "tests/test_m3_repo_deconvolution_stub_echo.py"
+      - "tests/test_m3_repo_deconvolution_integration_stub_main_smoke.py"
+      - "tests/test_m3_repo_scrna_spatial_deconv_echo.py"
+      - "tests/test_m3_repo_scrna_spatial_integration_stub_main_smoke.py"
+      - "scripts/m3_cellranger_output_integration_stub.py"
+      - "config/m3_cellranger_output_outline_inputs.yaml"
+      - "tests/test_m3_cellranger_output_integration_stub_main_smoke.py"
+      - "tests/test_m3_outline_paths_status_main_smoke.py"
+      - "tests/test_m3_repo_outline_integration_stubs_main_smoke.py"
+      - "scripts/module3_deconvolution_paths_status.py"
+      - "scripts/m3_repo_scrna_spatial_paths_status.py"
+      - "scripts/m3_repo_deconvolution_paths_status.py"
+      - "scripts/m3_cellranger_output_paths_status.py"
+      - "config/m3_deconvolution_outline_inputs.yaml"
+      - "scripts/module3_sc_workflow_paths_status.py"
+      - "scripts/m3_repo_sc_workflow_paths_status.py"
+      - "scripts/m3_repo_cellranger_output_paths_status.py"
+      - "config/m3_repo_sc_workflow_outline_inputs.yaml"
+      - "config/m3_repo_cellranger_output_outline_inputs.yaml"
+      - "scripts/m3_dryad_sra_paths_status.py"
+      - "scripts/m3_repo_public_inputs_paths_status.py"
+      - "config/m3_dryad_sra_outline_inputs.yaml"
+      - "config/m3_repo_public_inputs_outline_inputs.yaml"
+      - "tests/test_pipeline_outline_yaml_parse.py"
+      - "config/open_source_data_extensions.yaml"
+      - "scripts/download_open_source_extensions.py"
+      - "scripts/download_all_required.py"
+      - "docs/GBM_DETECTION_AND_OPEN_DATA.md"
+      - "docs/OPTIONAL_SLICES.md"
+      - "docs/PIPELINE_ALIGNMENT.md"
+      - "docs/DATA_MANIFEST.md"
+      - "config/high_value_public_datasets.yaml"
+      - "scripts/download_high_value_public_datasets.py"
+      - "config/supplementary_reference_resources.yaml"
+      - "scripts/download_supplementary_reference_resources.py"
+      - "scripts/supplementary_reference_resources_paths_status.py"
+      - "scripts/decompress_pathwaycommons_gmt.py"
+      - "scripts/build_m4_supplementary_enrichment_plan.py"
+      - "scripts/archs4_recount_h5_summarize.py"
+      - "scripts/join_dea_archs4_expression.py"
+      - "scripts/check_wikipathways_gmt_url.py"
+      - "scripts/load_drugcentral_postgres.py"
+      - "scripts/m4_pathway_database_mirror_paths_status.py"
+      - "scripts/m4_pathway_database_mirror_integration_stub.py"
+      - "config/m4_pathway_database_mirror_outline_inputs.yaml"
+      - "scripts/fetch_clue_api_subset.py"
+      - "config/data_sources.yaml"
+      - "config/pipeline_outline.yaml"
+      - ".env.example"
+      - "scripts/run_outline_governance_batch.py"
+      - "scripts/report_pipeline_planned_extensions.py"
+      - "scripts/write_pipeline_results_index.py"
+      - "config/pipeline_planned_extensions.yaml"
+
+jobs:
+  optional-slices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+
+      - name: Empty GLIOMA_TARGET_DATA_ROOT
+        run: mkdir -p "${{ runner.temp }}/glioma_empty"
+
+      - name: Snakemake M3 deconvolution S2 (NNLS on temp wide TSVs)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export GLIOMA_TARGET_DATA_ROOT="$(python << 'PY'
+          import os
+          from pathlib import Path
+          dr = Path(os.environ["RUNNER_TEMP"]) / "glioma_nnls_ci"
+          sub = dr / "m3_deconvolution_nnls"
+          sub.mkdir(parents=True, exist_ok=True)
+          (sub / "reference_profile_wide.tsv").write_text(
+              "gene_id\tA\tB\nG1\t1.0\t0.5\nG2\t0.5\t1.0\n", encoding="utf-8"
+          )
+          (sub / "spatial_counts_wide.tsv").write_text(
+              "spot_id\tG1\tG2\ns1\t1.0\t1.0\n", encoding="utf-8"
+          )
+          print(dr.resolve())
+          PY
+          )"
+          snakemake -c1 m3_deconvolution_s2_nnls
+
+      - name: Snakemake MOVICS staging fetch (empty data_root; DepMap skipped)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/glioma_empty
+        run: snakemake -c1 fetch_movics_staging_data
+
+      - name: Regenerate MOVICS vs consensus contrast JSON
+        run: snakemake -c1 m2_3_movics_vs_consensus_report
+
+      - name: Open-source data extensions catalog (dry-run)
+        run: python scripts/download_open_source_extensions.py --dry-run
+
+      - name: High-value public datasets (dry-run)
+        run: python scripts/download_high_value_public_datasets.py --dry-run --skip-gdc-methylation
+
+      - name: Supplementary reference resources (dry-run)
+        run: python scripts/download_supplementary_reference_resources.py --dry-run --skip-archs4-h5
+
+      - name: Supplementary reference paths status (empty data_root)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/glioma_empty
+        run: python scripts/supplementary_reference_resources_paths_status.py
+
+      - name: WikiPathways GMT URL HEAD check
+        run: python scripts/check_wikipathways_gmt_url.py
+
+      - name: DrugCentral Postgres status (skip without GLIOMA_TARGET_DRUGCENTRAL_LOAD)
+        run: python scripts/drugcentral_postgres_load_status.py
+
+      - name: Outline governance (planned-extensions report + pipeline index)
+        run: python scripts/run_outline_governance_batch.py
+
+      - name: Snakefile defines ARCHS4 DEA join rule
+        run: python -c "s=open('Snakefile',encoding='utf-8').read(); assert 'rule m4_join_dea_archs4_expression:' in s"
+
+      - name: Pytest M2/M3 scoped deliverables
+        run: python -m pytest tests/test_m2_m3_scoped_deliverables.py tests/test_module3_public_inputs_status_main_smoke.py tests/test_module3_scrna_spatial_integration_stub_main_smoke.py tests/test_run_m3_deconvolution_s2_nnls.py tests/test_run_m3_cell2location_signature_extract.py tests/test_run_m3_cell2location_training_provenance_diagnostics.py tests/test_run_m3_cell2location_orchestrate_main_smoke.py tests/test_fake_cell2location_modules.py tests/test_m3_deconv_committed_results_flag_contract.py tests/test_m3_results_contract_fixture_repo.py tests/test_m3_cell2location_harmonize_var_names.py tests/test_run_m3_rctd_orchestrate_smoke.py tests/test_module3_deconvolution_integration_stub_cell2location.py tests/test_module3_deconvolution_integration_stub_rctd.py tests/test_module3_deconvolution_integration_stub_main_smoke.py tests/test_write_module3_export_manifest_main_smoke.py tests/test_m3_export_manifest_artifacts_in_snakefile_rule.py tests/test_snakefile_m3_export_manifest_cross_rule_edges.py tests/test_m3_repo_deconvolution_stub_echo.py tests/test_m3_repo_deconvolution_integration_stub_main_smoke.py tests/test_m3_repo_scrna_spatial_deconv_echo.py tests/test_m3_repo_scrna_spatial_integration_stub_main_smoke.py tests/test_m3_cellranger_output_integration_stub_main_smoke.py tests/test_m3_outline_paths_status_main_smoke.py tests/test_m3_repo_outline_integration_stubs_main_smoke.py tests/test_pipeline_outline_yaml_parse.py -v --tb=short

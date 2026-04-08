@@ -1,0 +1,61 @@
+# Extra open-access HTTP downloads under GLIOMA_TARGET_DATA_ROOT (same tree as GBM Detection).
+# Run: python scripts/download_open_source_extensions.py
+# Or:  python scripts/download_all_required.py --with-open-extensions
+#
+# MSigDB gene sets: non-commercial academic use — https://www.gsea-msigdb.org/gsea/msigdb/license.jsp
+# Add rows here to pull additional cohorts (GEO), GMTs, or flat files without editing Python.
+
+msigdb:
+  release: "2023.2.Hs"
+  base_url: "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs"
+
+# Each item: id, url (optional url_template + format from msigdb), dest under data_root, enabled, description
+downloads:
+  - id: msigdb_hallmark_hs_symbols
+    url: "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs/h.all.v2023.2.Hs.symbols.gmt"
+    dest: references/gene_sets/msigdb/h.all.v2023.2.Hs.symbols.gmt
+    enabled: true
+    description: "MSigDB Hallmark gene sets (HGNC symbols) — GSEA / enrichment"
+
+  - id: msigdb_oncogenic_hs_symbols
+    url: "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs/c6.all.v2023.2.Hs.symbols.gmt"
+    enabled: true
+    dest: references/gene_sets/msigdb/c6.all.v2023.2.Hs.symbols.gmt
+    description: "MSigDB C6 oncogenic signatures"
+
+  - id: msigdb_reactome_cp_hs_symbols
+    url: "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs/c2.cp.reactome.v2023.2.Hs.symbols.gmt"
+    enabled: true
+    dest: references/gene_sets/msigdb/c2.cp.reactome.v2023.2.Hs.symbols.gmt
+    description: "MSigDB C2 Reactome canonical pathways (symbols); same Reactome content as GSEA/MSigDB release"
+
+  - id: msigdb_kegg_legacy_cp_hs_symbols
+    url: "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs/c2.cp.kegg_legacy.v2023.2.Hs.symbols.gmt"
+    enabled: true
+    dest: references/gene_sets/msigdb/c2.cp.kegg_legacy.v2023.2.Hs.symbols.gmt
+    description: "MSigDB C2 KEGG legacy canonical pathways (symbols); MSigDB 2023.2 uses kegg_legacy / kegg_medicus filenames"
+
+  - id: mcpcounter_gene_signatures
+    url: "https://raw.githubusercontent.com/ebecht/MCPcounter/master/Signatures/genes.txt"
+    enabled: true
+    dest: references/cell_deconvolution/mcpcounter/genes.txt
+    description: "MCP-counter cell population markers (Becht et al.); upstream file Signatures/genes.txt"
+
+  - id: ctd_chem_gene_ixns
+    url: "https://ctdbase.org/reports/CTD_chem_gene_ixns.tsv.gz"
+    enabled: true
+    dest: references/ctd/CTD_chem_gene_ixns.tsv.gz
+    description: "CTD chemical–gene interactions (~42 MB .tsv.gz compressed; expands to a large TSV); drug/toxicity priors"
+
+  - id: ctd_genes_pathways
+    url: "https://ctdbase.org/reports/CTD_genes_pathways.tsv.gz"
+    enabled: true
+    dest: references/ctd/CTD_genes_pathways.tsv.gz
+    description: "CTD gene–pathway associations (moderate size); link genes to curated pathways"
+
+# GEO series via NCBI FTP — same layout as download_external_datasets (geo/bulk_microarray/<GSE>/matrix|soft).
+geo_series:
+  enabled: true
+  gse_ids:
+    - GSE13213
+    - GSE7696

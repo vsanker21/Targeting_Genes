@@ -1,0 +1,70 @@
+# Cross-module results index (fresh on-disk stats for manifest/provenance paths).
+# scripts/write_pipeline_results_index.py — merges absolute repo paths from provenance
+# with manifest-relative keys (same file deduped once).
+# Snakemake: m3–m7 export_manifest rules take write_module*_export_manifest.py +
+# manifest_optional.py as inputs; pipeline_results_index takes write_pipeline_results_index.py
+# + pipeline_inventory.yaml (see Snakefile).
+#
+# Each module export manifest JSON may set optional: true on rows (optional_tags in
+# module3_inputs / module2_integration / module5–7 *_inputs YAML). pipeline_results_index
+# optional_path_posix forces optional on merged path_posix keys (e.g. harvest-only paths).
+# Summary: index_schema (integer; bump when summary shape changes),
+# sources_summary (manifest/provenance loaded vs missing counts),
+# missing_required_path_posix / missing_optional_path_posix (sorted lists),
+# n_missing_required, n_missing_optional, n_optional; by_outline_module adds
+# per-module n_optional, n_missing_required, n_missing_optional (plus n, n_existing).
+# CI / gates: python scripts/write_pipeline_results_index.py --strict (exit 1 if required
+# paths missing or optional_path_posix typos; adds summary.strict_mode / strict_ok / strict_triggers).
+# Or set env GLIOMA_TARGET_PIPELINE_INDEX_STRICT=1 (same behavior; Snakemake env:). Use 0/false/no/off to force off.
+
+pipeline_results_index:
+  enabled: true
+  output_json: "results/pipeline_results_index.json"
+  # After manifests + provenance harvest: force optional: true on these path_posix keys
+  # (e.g. paths that appear only from provenance jobs, not from export manifests).
+  # Unknown keys are listed in index summary optional_path_posix_unmatched and stderr-warned.
+  optional_path_posix:
+    # Word report from m7_export_glioma_results_docx — not produced until optional rule runs.
+    - "results/module7/glioma_target_results_report.docx"
+  # Explicit primary deliverables: merged into pipeline_results_index entries with tag
+  # primary_deliverable:<id> (path may already appear from manifests; tags are merged).
+  # tier_filter documents the row filter for ranked lists stored as wide TSVs.
+  primary_deliverables:
+    - id: glioma_target_tier1_welch
+      module: 7
+      path_posix: "results/module7/glioma_target_tier1_welch.tsv"
+      tier_filter: "all rows are glioma_target_tier == 1 (slice of Welch GTS table)"
+      note: "Written by export_gts_candidate_table.py with global Welch job. Full ranked table: results/module7/gts_candidate_table_welch_stub.tsv. See docs/GLIOMA_TARGET_SCORE.md."
+    - id: glioma_target_results_report_docx
+      module: 7
+      path_posix: "results/module7/glioma_target_results_report.docx"
+      tier_filter: null
+      note: "Human-readable summary + top-N table from tier-1 TSV. Snakemake m7_export_glioma_results_docx / scripts/export_glioma_target_results_docx.py."
+  # JSON sources merged into the index (paths relative to repo root).
+  manifest_paths:
+    - "results/module3/module3_export_manifest.json"
+    - "results/module4/module4_export_manifest.json"
+    - "results/module5/module5_export_manifest.json"
+    - "results/module6/module6_export_manifest.json"
+    - "results/module7/module7_export_manifest.json"
+  # Each path must be a named input on Snakemake rule pipeline_results_index (DAG); see tests.
+  provenance_paths:
+    # Job-list JSONs only (harvest output/input paths). Summary JSONs are already in module3_export_manifest.
+    - path: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_provenance.json"
+      module: 3
+    - path: "results/module3/dea_string_export_provenance.json"
+      module: 3
+    - path: "results/module4/wgcna_hub_expr_subset_provenance.json"
+      module: 4
+    - path: "results/module4/wgcna_hub_expr_subset_recount3_only_provenance.json"
+      module: 4
+    - path: "results/module4/wgcna_hub_gene_overlap_summary.json"
+      module: 4
+    - path: "results/module4/gsea_prerank_export_provenance.json"
+      module: 4
+    - path: "results/module5/lincs_disease_signature_provenance.json"
+      module: 5
+    - path: "results/module6/structure_druggability_bridge_provenance.json"
+      module: 6
+    - path: "results/module7/gts_candidate_stub_provenance.json"
+      module: 7

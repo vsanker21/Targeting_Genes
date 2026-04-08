@@ -1,0 +1,26 @@
+# Outline M3: in-repo cohort QC summary, Verhaak subtype scores/summary, and mean TPM-by-subtype outputs.
+# Aligns with module2_integration.yaml subtype_scoring and subtype_mean_expression; stratified_dea.yaml subtype_scores_tsv.
+
+m3_repo_cohort_verhaak_subtype_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_cohort_verhaak_subtype_paths_status.json"
+  done_flag: "results/module3/m3_repo_cohort_verhaak_subtype_paths_status.flag"
+  groups:
+    - id: cohort_verhaak_subtype_repo_outputs
+      summary: "Cohort design JSON, Verhaak scores and summary, mean log TPM by subtype TSV and provenance"
+      path_checks:
+        - name: "Expression cohort design summary JSON"
+          path_template: "{repo_root}/results/module3/cohort_design_summary.json"
+        - name: "Verhaak subtype scores TSV"
+          path_template: "{repo_root}/results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+        - name: "Verhaak subtype summary JSON"
+          path_template: "{repo_root}/results/module3/tcga_gbm_verhaak_subtype_summary.json"
+        - name: "Mean log TPM by Verhaak subtype TSV"
+          path_template: "{repo_root}/results/module3/mean_log_tpm_by_verhaak_subtype.tsv"
+        - name: "Mean log TPM by subtype provenance JSON"
+          path_template: "{repo_root}/results/module3/mean_log_tpm_by_verhaak_subtype_provenance.json"
+
+m3_repo_cohort_verhaak_subtype_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_cohort_verhaak_subtype_integration_stub.json"
+  done_flag: "results/module3/m3_repo_cohort_verhaak_subtype_integration_stub.flag"

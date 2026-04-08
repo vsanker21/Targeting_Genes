@@ -1,0 +1,36 @@
+# PyDESeq2: recount3 harmonized gene counts (GENCODE G029) — TCGA-GBM tumor vs GTEx brain normal.
+# Source: JHU IDIES recount3 mirrors (same quantification for both arms; not GDC STAR aligner).
+# Gene rows restricted to the ENSG *base* IDs present in results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet
+# (protein-coding STAR universe) for comparable gene lists with the rest of the repo.
+#
+# GTEx matrix is ~300 MB compressed. max_gtex_brain_samples: int subsamples columns (RAM-friendly).
+# Use null, 0, negative, or "all" to keep every GTEx brain column (~2.9k) — joint matrix ~1–3+ GB RAM.
+
+deseq2_recount3_tcga_gbm_vs_gtex_brain:
+  enabled: true
+  # STAR matrix in repo — used only for gene_id universe (bases ENSG... without version suffix)
+  star_counts_matrix: "results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+  recount3_base_url: "https://data.idies.jhu.edu/recount3/data/human/data_sources"
+  tcga_gbm_g029_relpath: "tcga/gene_sums/BM/GBM/tcga.gene_sums.GBM.G029.gz"
+  gtex_brain_g029_relpath: "gtex/gene_sums/IN/BRAIN/gtex.gene_sums.BRAIN.G029.gz"
+  local_cache_subdir: "recount3/harmonized_g029"
+  max_gtex_brain_samples: 200
+  random_seed: 42
+  # Written before PyDESeq2; edgeR reads the same integers (run Python first).
+  prepared_counts_matrix: "recount3_de_counts_matrix.parquet"
+  prepared_sample_meta: "recount3_de_sample_meta.tsv"
+  pydeseq2:
+    design: "~condition"
+    contrast: ["condition", "Tumor", "Normal"]
+    min_replicates: 2
+  gene_filter_min_total: 10
+  gene_filter_min_samples_expressing: 5
+  edger:
+    enabled: true
+    contrast_numerator: Tumor
+    contrast_denominator: Normal
+    output_results: "edger_qlf_results.tsv"
+    output_provenance: "edger_provenance.json"
+  output_dir: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain"
+  output_results: "deseq2_results.tsv"
+  output_provenance: "deseq2_provenance.json"

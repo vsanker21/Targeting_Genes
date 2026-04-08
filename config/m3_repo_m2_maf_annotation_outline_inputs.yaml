@@ -1,0 +1,20 @@
+# Outline M2.2: M3 export manifest slice for maf_annotation_integration_stub JSON/flag under results/module3.
+# No separate m2_maf_annotation_paths_status (stub-only outline); this repo slice inventories the stub pair for the manifest.
+
+m3_repo_m2_maf_annotation_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_m2_maf_annotation_paths_status.json"
+  done_flag: "results/module3/m3_repo_m2_maf_annotation_paths_status.flag"
+  groups:
+    - id: module3_m2_maf_annotation_repo_outline_outputs
+      summary: "maf_annotation_integration_stub JSON/flag under results/module3"
+      path_checks:
+        - name: maf_annotation_integration_stub_json
+          path_template: "{repo_root}/results/module3/maf_annotation_integration_stub.json"
+        - name: maf_annotation_integration_stub_flag
+          path_template: "{repo_root}/results/module3/maf_annotation_integration_stub.flag"
+
+m3_repo_m2_maf_annotation_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_m2_maf_annotation_integration_stub.json"
+  done_flag: "results/module3/m3_repo_m2_maf_annotation_integration_stub.flag"

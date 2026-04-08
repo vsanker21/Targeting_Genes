@@ -1,0 +1,33 @@
+# Outline M3: in-repo PyDESeq2 and edgeR provenance JSONs for GDC STAR counts (within-TCGA-GBM contrasts).
+# Aligns with config/deseq2_tcga_gbm.yaml and Snakemake m2_deseq2_tcga_* / m2_edger_tcga_* rules.
+# DEA TSVs are rule outputs alongside each provenance JSON.
+
+m3_repo_gdc_star_tcga_gbm_dea_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_gdc_star_tcga_gbm_dea_paths_status.json"
+  done_flag: "results/module3/m3_repo_gdc_star_tcga_gbm_dea_paths_status.flag"
+  groups:
+    - id: gdc_star_tcga_gbm_dea_provenance_outputs
+      summary: "PyDESeq2 and edgeR DEA TSVs and provenance for primary vs recurrent and primary vs solid tissue normal"
+      path_checks:
+        - name: "PyDESeq2 primary vs recurrent provenance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_tcga_gbm/primary_vs_recurrent/deseq2_provenance.json"
+        - name: "PyDESeq2 primary vs solid tissue normal provenance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_tcga_gbm/primary_vs_solid_tissue_normal/deseq2_provenance.json"
+        - name: "edgeR primary vs recurrent provenance JSON"
+          path_template: "{repo_root}/results/module3/edger_tcga_gbm/primary_vs_recurrent/edger_provenance.json"
+        - name: "edgeR primary vs solid tissue normal provenance JSON"
+          path_template: "{repo_root}/results/module3/edger_tcga_gbm/primary_vs_solid_tissue_normal/edger_provenance.json"
+        - name: "PyDESeq2 primary vs recurrent DEA results TSV"
+          path_template: "{repo_root}/results/module3/deseq2_tcga_gbm/primary_vs_recurrent/deseq2_results.tsv"
+        - name: "PyDESeq2 primary vs solid tissue normal DEA results TSV"
+          path_template: "{repo_root}/results/module3/deseq2_tcga_gbm/primary_vs_solid_tissue_normal/deseq2_results.tsv"
+        - name: "edgeR primary vs recurrent QLF results TSV"
+          path_template: "{repo_root}/results/module3/edger_tcga_gbm/primary_vs_recurrent/edger_qlf_results.tsv"
+        - name: "edgeR primary vs solid tissue normal QLF results TSV"
+          path_template: "{repo_root}/results/module3/edger_tcga_gbm/primary_vs_solid_tissue_normal/edger_qlf_results.tsv"
+
+m3_repo_gdc_star_tcga_gbm_dea_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_gdc_star_tcga_gbm_dea_integration_stub.json"
+  done_flag: "results/module3/m3_repo_gdc_star_tcga_gbm_dea_integration_stub.flag"

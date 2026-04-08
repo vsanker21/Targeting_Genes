@@ -1,0 +1,38 @@
+# Outline M1: reference annotations + GDC open STAR count download staging under GLIOMA_TARGET_DATA_ROOT.
+# Aligns with config/data_sources.yaml references: and gdc: (repo matrices still under results/module2/).
+
+m1_reference_gdc_path_checks:
+  enabled: true
+  output_json: "results/module3/m1_reference_gdc_paths_status.json"
+  done_flag: "results/module3/m1_reference_gdc_paths_status.flag"
+  groups:
+    - id: reference_annotation_bundle
+      summary: "GENCODE, HGNC, ENCODE blacklist — shared across DEA, GDC, and optional reprocessing"
+      path_checks:
+        - name: "References root directory"
+          path_template: "{data_root}/references"
+        - name: "GENCODE annotation GTF (.gtf.gz)"
+          path_template: "{data_root}/references/gencode.v44.annotation.gtf.gz"
+        - name: "HGNC complete gene set TSV"
+          path_template: "{data_root}/references/hgnc_complete_set.txt"
+        - name: "hg38 ENCODE blacklist BED (.bed.gz)"
+          path_template: "{data_root}/references/hg38-blacklist.v2.bed.gz"
+    - id: gdc_open_star_counts_staging
+      summary: "GDC harmonized open TCGA-GBM STAR count files + manifest (inputs to build_gdc_gbm_expression_matrix)"
+      path_checks:
+        - name: "GDC TCGA-GBM open STAR counts directory"
+          path_template: "{data_root}/gdc/tcga_gbm_open_star_counts"
+        - name: "GDC files manifest JSON under STAR counts dir"
+          path_template: "{data_root}/gdc/tcga_gbm_open_star_counts/gdc_files_manifest.json"
+    - id: gdc_client_cache_auxiliary
+      summary: "Optional gdc-client token dir, API cache, or download scratch outside STAR tree"
+      path_checks:
+        - name: "Optional GDC client credentials or token cache directory"
+          path_template: "{data_root}/gdc/gdc_client_cache"
+        - name: "Optional GDC raw download scratch (pre-manifest)"
+          path_template: "{data_root}/gdc/download_scratch"
+
+m1_reference_gdc_integration_stub:
+  enabled: true
+  output_json: "results/module3/m1_reference_gdc_integration_stub.json"
+  done_flag: "results/module3/m1_reference_gdc_integration_stub.flag"

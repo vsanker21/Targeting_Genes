@@ -1,0 +1,34 @@
+﻿# Outline M2.1: optional GDC TCGA + GTEx STAR count mirrors for true paired bulk DESeq2/edgeR.
+# In-repo substitute: recount3 GENCODE G029 TCGA-GBM vs GTEx brain (not GDC STAR pipeline parity).
+
+m2_1_star_pairing_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_1_star_pairing_paths_status.json"
+  done_flag: "results/module3/m2_1_star_pairing_paths_status.flag"
+  groups:
+    - id: gdc_star_counts_mirror
+      summary: "GDC-harmonized STAR raw counts for TCGA-GBM (outside bundled cohort parquet)"
+      path_checks:
+        - name: "GDC STAR counts mirror or htseq/featureCounts exports (TCGA-GBM)"
+          path_template: "{data_root}/tcga/star_counts_gdc_mirror"
+        - name: "Optional GDC manifest or sample sheet for STAR count files"
+          path_template: "{data_root}/tcga/gdc_star_sample_manifest"
+    - id: gtex_star_counts_mirror
+      summary: "GTEx STAR counts aligned to GDC pipeline version (brain or pan-tissue)"
+      path_checks:
+        - name: "GTEx STAR count mirror (brain or subset)"
+          path_template: "{data_root}/gtex/star_counts_gtex_mirror"
+        - name: "Optional GTEx phenotype or sample attributes for STAR mirror"
+          path_template: "{data_root}/gtex/gtex_star_phenotype_stub"
+    - id: paired_tumor_normal_maps
+      summary: "Explicit TCGA tumor to GTEx normal pairing for matched DEA"
+      path_checks:
+        - name: "Paired sample map (TCGA barcode to GTEx SAMPID or harmonized ID)"
+          path_template: "{data_root}/cohorts/tcga_gtex_star_pairing_map"
+        - name: "Cross-study covariate bridge (ancestry, sex, batch) optional"
+          path_template: "{data_root}/cohorts/tcga_gtex_covariate_bridge"
+
+m2_1_star_pairing_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_1_star_pairing_integration_stub.json"
+  done_flag: "results/module3/m2_1_star_pairing_integration_stub.flag"

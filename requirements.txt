@@ -1,0 +1,9 @@
+pyyaml>=6.0
+numpy>=1.24
+pandas>=2.0
+pyarrow>=14.0
+scipy>=1.10
+scikit-learn>=1.3
+statsmodels>=0.14
+# Snakefile DAG (install for local runs: snakemake -c1 …)
+snakemake>=8.0

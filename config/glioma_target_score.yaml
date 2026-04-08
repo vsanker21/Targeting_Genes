@@ -1,0 +1,38 @@
+# GLIOMA-TARGET composite score (outline Module 7.1) — version 1.1
+#
+# v1.1: E (bulk DEA) + M (DepMap CRISPR + known-driver) + D (HGNC UniProt → tractability
+# proxy, aligned with Module 6 bridge) + N (STRING export gene list membership = PPI-ready
+# DE+dependency screen). S (spatial/scRNA) and T (off-tumor safety) remain reserved at 0.
+#
+# Each sub-score is normalized to [0, 1] via cohort percentile ranks among genes passing HGNC
+# resolution. Final glioma_target_score is in [0, 1].
+#
+# Tier bands follow outline §7.2 (high / moderate / exploratory), applied to glioma_target_score.
+
+version: "1.1"
+enabled: true
+
+weights:
+  E: 0.32   # expression specificity (bulk DEA)
+  M: 0.48   # mutation / dependency (DepMap + driver); with E+D+N should sum to 1.0
+  D: 0.10   # druggability proxy: HGNC primary UniProt present
+  N: 0.10   # network / STRING prep: gene in DepMap-gated STRING list for this DEA engine
+
+# How M splits between DepMap dependency rank and binary known-driver bonus
+m_components:
+  depmap: 0.82
+  known_driver: 0.18
+
+# How E splits between |effect| rank and |signed -log10 p| rank
+expression_components:
+  abs_effect_rank: 0.55
+  signed_neg_log10_p_rank: 0.45
+
+tier_thresholds:
+  tier_1_min: 0.75   # outline: high confidence / immediately actionable (within implemented signals)
+  tier_2_min: 0.50
+  tier_3_min: 0.25
+
+reserved_outline_components:
+  S: { weight: 0.0, note: "spatial / scRNA coverage — not in bulk GTS v1.1" }
+  T: { weight: 0.0, note: "off-tumor / CNS safety — future" }

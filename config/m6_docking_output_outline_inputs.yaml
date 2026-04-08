@@ -1,0 +1,34 @@
+﻿# Outline M6 supplement: optional molecular docking pose / score export trees under GLIOMA_TARGET_DATA_ROOT.
+# Complements module6_structure_tooling_paths_status (binaries) and structure_admet_integration_stub (gaps).
+
+m6_docking_output_path_checks:
+  enabled: true
+  output_json: "results/module6/m6_docking_output_paths_status.json"
+  done_flag: "results/module6/m6_docking_output_paths_status.flag"
+  groups:
+    - id: gnina_pose_and_score_exports
+      summary: "GNINA CNN docking poses, SDF/PDBQT exports, and score tables"
+      path_checks:
+        - name: "GNINA pose output directory (SDF, PDBQT, or structured per-target runs)"
+          path_template: "{data_root}/docking/gnina_pose_output"
+        - name: "Optional GNINA score summary TSV or log manifest"
+          path_template: "{data_root}/docking/gnina_score_tables"
+    - id: glide_pose_archives
+      summary: "Schrodinger Glide (or compatible) job output archives when licensed"
+      path_checks:
+        - name: "Glide docking run root or PV file directory"
+          path_template: "{data_root}/docking/glide_docking_runs"
+        - name: "Optional Glide pose viewer or report export staging"
+          path_template: "{data_root}/docking/glide_report_exports"
+    - id: batch_virtual_screen_outputs
+      summary: "High-throughput or merged virtual screen batches (AutoDock Vina, smina, etc.)"
+      path_checks:
+        - name: "Batch virtual screen output directory (multi-ligand)"
+          path_template: "{data_root}/docking/high_throughput_dock_batches"
+        - name: "Merged pose SDF library or ranked ligand list export"
+          path_template: "{data_root}/docking/merged_pose_sdf_library"
+
+m6_docking_output_integration_stub:
+  enabled: true
+  output_json: "results/module6/m6_docking_output_integration_stub.json"
+  done_flag: "results/module6/m6_docking_output_integration_stub.flag"

@@ -1,0 +1,18 @@
+# Executable MOVICS path: IntNMF on two matched views from in-repo GDC STAR matrices.
+# View 1: log2(TPM+1); view 2: log2(raw unstranded counts+1); same samples x same genes (Gaussian each).
+# Science note: wired baseline for reproducibility; extend with true multi-omic staging under
+#   config/m2_movics_inputs.yaml (path_checks) when external matrices exist.
+# Requires R + packages from: python scripts/install_r_movics_dependencies.py
+
+movics_intnmf:
+  tpm_matrix: results/module2/tcga_gbm_star_tpm_matrix.parquet
+  counts_matrix: results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet
+  sample_meta: results/module2/tcga_gbm_sample_meta.tsv
+  sample_type_col: sample_type
+  meta_column_matrix: column_name
+  filter_sample_types:
+    - Primary Tumor
+  max_genes: 1500
+  n_clust: 4
+  output_clusters_tsv: results/module3/m2_movics_intnmf/movics_intnmf_clusters.tsv
+  output_provenance_json: results/module3/m2_movics_intnmf/movics_intnmf_provenance.json

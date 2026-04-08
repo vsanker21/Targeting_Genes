@@ -1,0 +1,397 @@
+# Outline Module 2 extensions: DepMap, Verhaak / MSigDB subtyping, stratified DEA, somatic layer.
+
+depmap_crispr_join:
+  crispr_gene_effect_csv: "CRISPRGeneEffect.csv"
+  model_csv: "Model.csv"
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  oncotree_primary_contains: "Glioblastoma"
+  oncotree_lineage_fallback: "CNS/Brain"
+  dea_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+  dea_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+  output_ols: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr.tsv"
+  output_welch: "results/module3/dea_gbm_vs_gtex_brain_depmap_crispr.tsv"
+  # recount3 G029 tumor vs GTEx brain (PyDESeq2 + edgeR); same join logic as TOIL DEA tables
+  extra_dea_pairs:
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr.tsv"
+
+# DepMap WES mutation calls (not TCGA MAF). MutSig2CV remains external.
+depmap_somatic_join:
+  omics_somatic_csv: "OmicsSomaticMutations.csv"
+  model_csv: "Model.csv"
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  oncotree_primary_contains: "Glioblastoma"
+  oncotree_lineage_fallback: "CNS/Brain"
+  vep_impacts: ["HIGH", "MODERATE"]
+  read_chunksize: 200000
+  dea_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+  dea_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+  output_ols: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_somatic.tsv"
+  output_welch: "results/module3/dea_gbm_vs_gtex_brain_depmap_somatic.tsv"
+  gene_summary_tsv: "results/module3/depmap_gbm_somatic_by_gene.tsv"
+  extra_dea_pairs:
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_somatic.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_somatic.tsv"
+
+# ARCHS4/recount HDF5 (Maayan): cohort mean raw count + mean log1p(count) per HGNC symbol (DEA context only).
+# Snakemake: m4_join_dea_archs4_expression. Set enabled: false to skip the Python join (not recommended).
+archs4_expression_join:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  archs4_dir: "{data_root}/references/archs4_recount"
+  gtex_h5: "gtex_matrix.h5"
+  tcga_h5: "tcga_matrix.h5"
+  dea_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+  dea_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+  output_ols: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate_archs4.tsv"
+  output_welch: "results/module3/dea_gbm_vs_gtex_brain_archs4.tsv"
+  extra_dea_pairs:
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_archs4.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_archs4.tsv"
+
+subtype_scoring:
+  # msigdb_gmt: full Verhaak sets from MSigDB 2024.1.Hs c2.cgp (bundled GMT). compact_yaml: short lists in config/gbm_verhaak_signatures.yaml
+  gene_set_source: msigdb_gmt
+  # rank_aggregate: mean per-gene ranks within signature genes (default). centroid_cosine: cosine to user TSV profiles (see centroid_profile_tsv).
+  assignment_method: rank_aggregate
+  centroid_profile_tsv: "references/verhaak_centroids_user_template.tsv"
+  msigdb_gmt: "references/verhaak_msigdb_c2_cgp_2024.1.Hs.gmt"
+  signatures_yaml: "config/gbm_verhaak_signatures.yaml"
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  output_scores: "results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+  output_summary_json: "results/module3/tcga_gbm_verhaak_subtype_summary.json"
+
+# Stratified DEA lives in config/stratified_dea.yaml (same keys as former stratified_dea block).
+
+# Join DepMap CRISPR/somatic, TCGA MAF, MutSig onto per-subtype Welch/OLS DEA tables (outputs under */integrated/).
+stratified_dea_integration:
+  enabled: true
+  welch_glob: "results/module3/stratified_dea/dea_welch_subtype_*.tsv"
+  ols_glob: "results/module3/stratified_ols_dea/dea_ols_subtype_*.tsv"
+  welch_output_dir: "results/module3/stratified_dea/integrated"
+  ols_output_dir: "results/module3/stratified_ols_dea/integrated"
+  mutsig_lookup_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain_mutsig.tsv"
+  mutsig_lookup_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_mutsig.tsv"
+  done_flag: "results/module3/stratified_dea_integration.flag"
+
+# Outline Module 2.2 "key known drivers" — HGNC symbol list → flag column on DEA (not somatic calls).
+outline_driver_flags:
+  enabled: true
+  symbols_yaml: "references/gbm_known_drivers_outline.yaml"
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  gene_flag_column: "outline_m22_known_gbm_driver"
+  targets:
+    - input: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_ols_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_depmap_crispr.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_depmap_crispr_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_depmap_somatic.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_depmap_somatic_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_somatic.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_somatic_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_tcga_maf.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_tcga_maf_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_ols_tcga_maf.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_ols_tcga_maf_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_mutsig.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_mutsig_outline_drivers.tsv"
+    - input: "results/module3/dea_gbm_vs_gtex_brain_ols_mutsig.tsv"
+      output: "results/module3/dea_gbm_vs_gtex_brain_ols_mutsig_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_somatic.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_somatic_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_somatic.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_somatic_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_tcga_maf.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_tcga_maf_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_tcga_maf.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_tcga_maf_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_mutsig.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_mutsig_outline_drivers.tsv"
+    - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_mutsig.tsv"
+      output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_mutsig_outline_drivers.tsv"
+  glob_targets:
+    - "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+    - "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+  stratified_integrated_drivers_flag: "results/module3/stratified_integrated_outline_drivers.flag"
+
+# Per-subtype mean hub expression (TOIL log scale) for heatmaps / co-expression inputs (Module 2/4 bridge).
+subtype_mean_expression:
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  subtype_scores_tsv: "results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+  output_tsv: "results/module3/mean_log_tpm_by_verhaak_subtype.tsv"
+  provenance_json: "results/module3/mean_log_tpm_by_verhaak_subtype_provenance.json"
+  min_samples_per_subtype: 3
+
+# STRING / PPI gene lists (Module 4 prep). Multiple jobs = different filter stringency.
+dea_string_export:
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  aggregate_provenance_json: "results/module3/dea_string_export_provenance.json"
+  jobs:
+    - job_name: welch_fdr_only
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      output_txt: "results/module3/dea_welch_fdr05_symbols_for_string.txt"
+      padj_max: 0.05
+    - job_name: welch_m21_high_confidence
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      output_txt: "results/module3/dea_welch_string_m21_high_confidence.txt"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+    - job_name: welch_fdr_abs_lfc_1p5
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      output_txt: "results/module3/dea_welch_string_fdr_lfc_ge_1p5.txt"
+      padj_max: 0.05
+      min_abs_effect: 1.5
+      effect_column: "delta_log2_expression"
+    - job_name: ols_m21_high_confidence
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+      output_txt: "results/module3/dea_ols_string_m21_high_confidence.txt"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      effect_column: "beta_tumor_vs_ref_normal"
+    # DepMap-joined DEA: STRING list for genes that are DE (M2.1 screen) and GBM-line CRISPR median ≤ threshold (more negative = stronger dependency).
+    - job_name: welch_m21_depmap_crispr_median_lte
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_depmap_crispr.tsv"
+      output_txt: "results/module3/dea_welch_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+    - job_name: ols_m21_depmap_crispr_median_lte
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr.tsv"
+      output_txt: "results/module3/dea_ols_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+    # recount3 G029 count-based DE (padj or FDR via dea_string_filters.resolve_fdr_column)
+    - job_name: recount3_pydeseq2_fdr05
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output_txt: "results/module3/dea_recount3_pydeseq2_string_fdr05.txt"
+      padj_max: 0.05
+    - job_name: recount3_edger_fdr05
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output_txt: "results/module3/dea_recount3_edger_string_fdr05.txt"
+      padj_max: 0.05
+    - job_name: recount3_pydeseq2_depmap_crispr_median_lte
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr.tsv"
+      output_txt: "results/module3/dea_recount3_pydeseq2_string_depmap_crispr_median_lte_minus0p5.txt"
+      padj_max: 0.05
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+    - job_name: recount3_edger_depmap_crispr_median_lte
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr.tsv"
+      output_txt: "results/module3/dea_recount3_edger_string_depmap_crispr_median_lte_minus0p5.txt"
+      padj_max: 0.05
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+
+# Module 4.1 bridge: genes × tumor samples hub matrix subset for external WGCNA (R) / co-expression.
+# Expression values are always TOIL RSEM TPM (tumor samples); gene sets nominate features.
+#   • Welch/OLS: outline M2.1 high-confidence screen on TOIL log-expression DEA.
+#   • recount3: intersection of PyDESeq2 vs edgeR STRING lists that already require FDR + DepMap
+#     CRISPR median ≤ -0.5 (genes robust across count-based models + GBM-line dependency).
+#     Built by rule m4_recount3_depmap_string_consensus + scripts/intersect_symbol_lists.py.
+wgcna_hub_subset:
+  enabled: true
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  sample_filter: tumor_only
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  symbol_list_paths:
+    - "results/module3/dea_welch_string_m21_high_confidence.txt"
+    - "results/module3/dea_ols_string_m21_high_confidence.txt"
+    - "results/module3/dea_recount3_depmap_crispr_consensus_string.txt"
+  output_parquet: "results/module4/wgcna_hub_expr_subset.parquet"
+  # Optional tidy table: one row per gene × sample (TOIL RSEM TPM, same scale as subset parquet).
+  output_long_tsv: "results/module4/wgcna_hub_expr_subset_long.tsv"
+  provenance_json: "results/module4/wgcna_hub_expr_subset_provenance.json"
+
+# Recount3-only WGCNA hub (same TOIL TPM × tumor samples; no Welch/OLS M2.1 lists).
+# Compare to wgcna_hub_subset: driver+recount3 union vs count-based DepMap consensus alone.
+wgcna_hub_subset_recount3_only:
+  enabled: true
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  sample_filter: tumor_only
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  symbol_list_paths:
+    - "results/module3/dea_recount3_depmap_crispr_consensus_string.txt"
+  output_parquet: "results/module4/wgcna_hub_expr_subset_recount3_only.parquet"
+  output_long_tsv: "results/module4/wgcna_hub_expr_subset_recount3_only_long.tsv"
+  provenance_json: "results/module4/wgcna_hub_expr_subset_recount3_only_provenance.json"
+
+# Sample metadata + Verhaak scores for WGCNA trait matrices (rows match expression columns when aligned).
+wgcna_sample_traits:
+  enabled: true
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  subtype_scores_tsv: "results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  align_with_wgcna_subset_parquet: "results/module4/wgcna_hub_expr_subset.parquet"
+  sample_filter: tumor_only
+  restrict_to_matrix_columns: true
+  # Binary columns for WGCNA (1 = assigned Verhaak label); labels must match subtype_scores_tsv calls.
+  verhaak_one_hot_columns: true
+  verhaak_one_hot_labels: ["Classical", "Mesenchymal", "Neural", "Proneural"]
+  output_tsv: "results/module4/wgcna_hub_sample_traits.tsv"
+  provenance_json: "results/module4/wgcna_hub_sample_traits_provenance.json"
+
+# Traits table aligned to recount3-only WGCNA subset (same cohort columns as integrated hub).
+wgcna_sample_traits_recount3_only:
+  enabled: true
+  sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+  subtype_scores_tsv: "results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+  expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+  align_with_wgcna_subset_parquet: "results/module4/wgcna_hub_expr_subset_recount3_only.parquet"
+  sample_filter: tumor_only
+  restrict_to_matrix_columns: true
+  verhaak_one_hot_columns: true
+  verhaak_one_hot_labels: ["Classical", "Mesenchymal", "Neural", "Proneural"]
+  output_tsv: "results/module4/wgcna_hub_sample_traits_recount3_only.tsv"
+  provenance_json: "results/module4/wgcna_hub_sample_traits_recount3_only_provenance.json"
+
+# Inventory of Module 4 exports for reproducibility / downstream tools.
+module4_export_manifest:
+  enabled: true
+  output_json: "results/module4/module4_export_manifest.json"
+  # Add string_api_network:<job_id> here if a STRING JSON is intentionally skipped (offline clone).
+  # Supplementary + ARCHS4 join artifacts are optional when HDF5 / R / GMTs are absent.
+  optional_tags:
+    - "archs4_dea_join:welch"
+    - "archs4_dea_join:ols"
+    - "archs4_dea_join:deseq2"
+    - "archs4_dea_join:edger"
+    - "archs4_dea_join:provenance"
+    - "archs4_recount_h5_summary"
+    - "archs4_outline_driver_context"
+    - "supplementary:m4_open_enrichment_plan"
+    - "supplementary:m4_clusterprofiler_plan"
+    - "supplementary:fgsea_results"
+    - "supplementary:clusterprofiler_results"
+
+# Per-subtype STRING lists from integrated stratified DEA (same filter logic as dea_string_export).
+stratified_string_export:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  output_root: "results/module4/stratified_string"
+  aggregate_provenance_json: "results/module4/stratified_string_export_provenance.json"
+  jobs:
+    - job_tag: welch_integrated_m21
+      glob_input: "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      output_filename_suffix: "_string_m21_high_confidence.txt"
+    - job_tag: ols_integrated_m21
+      glob_input: "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      effect_column: "beta_tumor_vs_ref_normal"
+      output_filename_suffix: "_string_m21_high_confidence.txt"
+    - job_tag: welch_integrated_m21_depmap
+      glob_input: "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+      output_filename_suffix: "_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+    - job_tag: ols_integrated_m21_depmap
+      glob_input: "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+      padj_max: 0.05
+      require_outline_m21_high_confidence_screen: true
+      effect_column: "beta_tumor_vs_ref_normal"
+      numeric_filters:
+        - column: depmap_crispr_median_gbm
+          op: lte
+          value: -0.5
+      output_filename_suffix: "_string_m21_depmap_crispr_median_lte_minus0p5.txt"
+
+# Preranked GSEA / fgsea inputs: sign(effect) * (-log10(pvalue)) with HGNC symbols.
+gsea_prerank_export:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  pvalue_floor: 1.0e-300
+  aggregate_provenance_json: "results/module4/gsea_prerank_export_provenance.json"
+  jobs:
+    - job_name: welch_signed_neg_log10_p
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      output_rnk: "results/module4/gsea/dea_welch_signed_neg_log10_p.rnk"
+      effect_column: "delta_log2_expression"
+      pvalue_column: "pvalue"
+    - job_name: ols_signed_neg_log10_p
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+      output_rnk: "results/module4/gsea/dea_ols_signed_neg_log10_p.rnk"
+      effect_column: "beta_tumor_vs_ref_normal"
+      pvalue_column: "pvalue"
+    - job_name: recount3_pydeseq2_signed_neg_log10_p
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      output_rnk: "results/module4/gsea/recount3_pydeseq2_signed_neg_log10_p.rnk"
+      effect_column: "log2FoldChange"
+      pvalue_column: "pvalue"
+    - job_name: recount3_edger_signed_neg_log10_p
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      output_rnk: "results/module4/gsea/recount3_edger_signed_neg_log10_p.rnk"
+      effect_column: "logFC"
+      pvalue_column: "PValue"
+  stratified_glob_jobs:
+    - job_tag: welch_integrated
+      glob_input: "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+      effect_column: "delta_log2_expression"
+      pvalue_column: "pvalue"
+    - job_tag: ols_integrated
+      glob_input: "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+      effect_column: "beta_tumor_vs_ref_normal"
+      pvalue_column: "pvalue"
+  stratified_output_filename_suffix: "_signed_neg_log10_p.rnk"
+  stratified_prerank_flag: "results/module4/gsea_stratified_prerank.flag"
+
+# STRING-DB API: fetch interaction network edges for DEA-derived symbol lists (optional; requires network).
+# Manual: snakemake m4_string_api_network -c1  (not part of rule all — avoids offline/HTTP failures)
+string_api_network_fetch:
+  enabled: true
+  string_api_base: "https://string-db.org/api"
+  species_tax_id: 9606
+  network_max_genes: 400
+  required_score: 400
+  network_type: "functional"
+  request_timeout_s: 120
+  jobs:
+    - job_id: welch_m21_high_confidence
+      input_symbols_txt: "results/module3/dea_welch_string_m21_high_confidence.txt"
+      output_json: "results/module4/string_api/welch_m21_high_confidence_network.json"
+    - job_id: ols_m21_high_confidence
+      input_symbols_txt: "results/module3/dea_ols_string_m21_high_confidence.txt"
+      output_json: "results/module4/string_api/ols_m21_high_confidence_network.json"
+    # PyDESeq2 ∩ edgeR DepMap-gated recount3 STRING list (same genes as recount3-only WGCNA hub).
+    # network_max_genes caps symbols sent to STRING (list is ~1.4k; default 400 = first N in file order).
+    - job_id: recount3_depmap_crispr_consensus
+      input_symbols_txt: "results/module3/dea_recount3_depmap_crispr_consensus_string.txt"
+      output_json: "results/module4/string_api/recount3_depmap_crispr_consensus_network.json"

@@ -1,0 +1,15 @@
+results/
+# Secrets (never commit CLUE keys)
+.env
+.clue_key
+**/clue_key.txt
+# Local R path for Snakemake edgeR rules (scripts/configure_r_for_snakemake.py)
+config/rscript_local.yaml
+.conda_envs/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+env/
+*.log
+.DS_Store

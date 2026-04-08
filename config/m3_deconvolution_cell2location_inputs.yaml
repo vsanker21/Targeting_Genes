@@ -1,0 +1,57 @@
+# Cell2location: AnnData h5ad paths relative to GLIOMA_TARGET_DATA_ROOT / data_sources.yaml data_root.
+# Default run validates inputs only. Set training.enabled: true for RegressionModel + Cell2location (see docs).
+#
+# Real Visium + scRNA often mix gene symbols with Ensembl IDs (e.g. SYMBOL vs SYMBOL.123). When overlap is low,
+# enable training.harmonize_var_names (strip_version_suffix / uppercase) before raising training.min_shared_genes.
+# Override this file path: GLIOMA_TARGET_M3_CELL2LOCATION_CONFIG (repo-relative or absolute).
+#
+# After a failed training run, cell2location_run_provenance.json may include signature_extract_diagnostic,
+# signature_extract_error, and/or gene_intersection_diagnostic. scripts/module3_deconvolution_integration_stub.py
+# reads that file into m3_deconvolution_integration_stub.json checklist (cell2location_has_*_diagnostic,
+# cell2location_run_status) and recommended_next_steps summaries.
+
+m3_deconvolution_cell2location:
+  reference_h5ad: m3_spatial_deconv/cell2location/reference_scRNA.h5ad
+  spatial_h5ad: m3_spatial_deconv/cell2location/spatial_visium.h5ad
+
+  # Optional outputs (repo-relative). Written when training.enabled is true.
+  output_result_h5ad: results/module3/m3_deconvolution_cell2location/spatial_cell2location.h5ad
+  output_abundance_tsv: results/module3/m3_deconvolution_cell2location/spot_cell_abundance_means.tsv
+
+  training:
+    # Opt-in: full signature estimation (RegressionModel) + spatial mapping (Cell2location).
+    enabled: false
+    # Reference obs column with cell type / cluster labels (required if enabled).
+    reference_labels_key: cell_type
+    # Reference batch key; if omitted, a single batch column _c2l_batch is added.
+    reference_batch_key: null
+    # Raw counts: null = adata.X, otherwise adata.layers[name].
+    reference_counts_layer: null
+    spatial_counts_layer: null
+    spatial_batch_key: null
+    # Signatures fed to Cell2location: "means" (default) or "q05" (prefer posterior quantile summaries when exported).
+    signature_summary: means
+    # Minimum genes shared between spatial var_names and signature matrix index (after RegressionModel export).
+    # On failure, cell2location_run_provenance.json may record gene_intersection_diagnostic / signature_extract_diagnostic.
+    # Use ~25–100 for real Visium + scRNA; lower only for tiny pilot matrices.
+    min_shared_genes: 25
+
+    # Optional: normalize var_names on reference + spatial before training (e.g. strip Ensembl version suffix).
+    harmonize_var_names:
+      enabled: false
+      strip_version_suffix: true
+      uppercase: false
+
+    regression_max_epochs: 250
+    regression_batch_size: 2500
+    regression_lr: 0.002
+
+    cell2location_max_epochs: 3000
+    cell2location_batch_size: null
+    cell2location_lr: 0.002
+    cell2location_N_cells_per_location: 8.0
+    cell2location_detection_alpha: 20.0
+
+    export_posterior_num_samples: 1000
+    export_posterior_batch_size: 2048
+    use_gpu: false

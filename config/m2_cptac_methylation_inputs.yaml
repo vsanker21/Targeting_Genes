@@ -1,0 +1,18 @@
+# Outline M2.1: optional CPTAC proteome + DNA methylation roots under GLIOMA_TARGET_DATA_ROOT.
+# Presence only — no concordance or silencing logic until controlled-access matrices are linked.
+
+cptac_methylation_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_cptac_methylation_paths_status.json"
+  done_flag: "results/module3/m2_cptac_methylation_paths_status.flag"
+  path_checks:
+    - name: "CPTAC GBM proteome / PSM export root (controlled access)"
+      path_template: "{data_root}/cptac/gbm_proteome"
+    - name: "DNA methylation beta matrix or IDAT bundle (TCGA GBM cohort)"
+      path_template: "{data_root}/methylation/tcga_gbm"
+
+# Gap checklist for protein concordance + methylation silencing filters — scripts/module2_cptac_methylation_integration_stub.py
+cptac_methylation_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_cptac_methylation_integration_stub.json"
+  done_flag: "results/module3/m2_cptac_methylation_integration_stub.flag"

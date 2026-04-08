@@ -1,0 +1,27 @@
+# Outline M2.3: optional external cohort / multi-omics roots for MOVICS-style consensus clustering.
+# In-repo MOVICS: (1) IntNMF TPM + counts — config/m2_movics_run.yaml + rule m2_movics_intnmf_tcga_gbm
+#   (2) IntNMF three views on DepMap MAE .tsv.gz — config/m2_movics_depmap_mae_run.yaml + rule m2_movics_intnmf_depmap_mae
+# Programmatic staging (DepMap MAE + optional CGGA HTTP + CBTTC readme): config/m2_movics_data_fetch.yaml +
+#   python scripts/fetch_movics_staging_data.py  |  Snakemake fetch_movics_staging_data
+
+movics_intnmf_repo_run:
+  description: "MOVICS::getIntNMF on GDC STAR TPM + unstranded counts (Primary Tumor); see m2_movics_run.yaml"
+  install_hint: "python scripts/install_r_movics_dependencies.py"
+
+movics_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_movics_paths_status.json"
+  done_flag: "results/module3/m2_movics_paths_status.flag"
+  path_checks:
+    - name: "External cohort expression staging (e.g. CGGA TSV/MTX)"
+      path_template: "{data_root}/cohorts/cgga_expression"
+    - name: "CBTTC / pedcbioportal-style bundle root (optional)"
+      path_template: "{data_root}/cohorts/cbttc"
+    - name: "Multi-omics matrix or MAE staging (samples × assays)"
+      path_template: "{data_root}/omics/multi_omics_mae"
+
+# Gap checklist vs in-repo Verhaak + stratified DEA — scripts/module2_movics_integration_stub.py
+movics_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_movics_integration_stub.json"
+  done_flag: "results/module3/m2_movics_integration_stub.flag"

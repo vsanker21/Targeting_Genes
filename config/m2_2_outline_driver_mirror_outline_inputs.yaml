@@ -1,0 +1,29 @@
+# Outline M2.2 optional driver panel mirrors under GLIOMA_TARGET_DATA_ROOT.
+# Complements references/gbm_known_drivers_outline.yaml and module2_integration outline_driver_flags.
+
+m2_2_outline_driver_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_2_outline_driver_mirror_paths_status.json"
+  done_flag: "results/module3/m2_2_outline_driver_mirror_paths_status.flag"
+  groups:
+    - id: user_driver_panel_staging
+      summary: "User-curated driver YAML or TSV trees extending the in-repo outline list"
+      path_checks:
+        - name: "User driver panel root"
+          path_template: "{data_root}/drivers/user_panels"
+        - name: "Extended driver YAML mirror directory"
+          path_template: "{data_root}/drivers/extended_yaml_mirror"
+        - name: "Per-project driver manifest"
+          path_template: "{data_root}/drivers/driver_manifest"
+    - id: census_or_catalog_mirror
+      summary: "COSMIC or other catalog extracts for manual curation"
+      path_checks:
+        - name: "COSMIC or census gene extract staging"
+          path_template: "{data_root}/drivers/cosmic_or_census_extracts"
+        - name: "Pan-cancer driver catalog TSV tree"
+          path_template: "{data_root}/drivers/pan_cancer_catalog_mirror"
+
+m2_2_outline_driver_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_2_outline_driver_mirror_integration_stub.json"
+  done_flag: "results/module3/m2_2_outline_driver_mirror_integration_stub.flag"

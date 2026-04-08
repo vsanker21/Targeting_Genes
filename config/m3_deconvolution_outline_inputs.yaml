@@ -1,0 +1,41 @@
+# Outline M3: optional spatial deconvolution / cell-state DE staging under GLIOMA_TARGET_DATA_ROOT.
+# Complements public GEO/SRA paths and scRNA/spatial integration stub; no Scanpy/Seurat execution.
+
+m3_deconvolution_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_deconvolution_paths_status.json"
+  done_flag: "results/module3/m3_deconvolution_paths_status.flag"
+  groups:
+    - id: single_cell_reference_atlas
+      summary: "Single-cell reference h5ad/loom and cell-type annotations for deconvolution"
+      path_checks:
+        - name: "Reference atlas or single-cell h5ad / loom staging"
+          path_template: "{data_root}/single_cell/reference_atlas_deconv"
+        - name: "Cell-type labels or metadata table for reference"
+          path_template: "{data_root}/single_cell/reference_celltype_annotations"
+    - id: spatial_transcriptomics_inputs
+      summary: "Visium / Xenium / other spatial counts or images aligned to spots"
+      path_checks:
+        - name: "Spatial count matrix or Space Ranger-style filtered matrix directory"
+          path_template: "{data_root}/spatial/deconvolution_count_inputs"
+        - name: "Spot coordinates or tissue alignment metadata"
+          path_template: "{data_root}/spatial/spot_coordinates_metadata"
+    - id: deconvolution_method_outputs
+      summary: "External Cell2location, RCTD, BayesPrism, or similar output staging"
+      path_checks:
+        - name: "Cell2location or probabilistic deconvolution export directory"
+          path_template: "{data_root}/spatial/deconv_cell2location_output"
+        - name: "RCTD, BayesPrism, or alternative deconv output directory"
+          path_template: "{data_root}/spatial/deconv_rctd_bayesprism_output"
+    - id: pseudobulk_cell_state_de
+      summary: "Pseudobulk or cell-state-level DE results (external Scanpy/Seurat)"
+      path_checks:
+        - name: "Pseudobulk DE result tables (TSV) per cell state or cluster"
+          path_template: "{data_root}/single_cell/pseudobulk_de_results"
+        - name: "Cell-state marker gene lists or ranked scores"
+          path_template: "{data_root}/single_cell/cell_state_marker_exports"
+
+m3_deconvolution_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_deconvolution_integration_stub.json"
+  done_flag: "results/module3/m3_deconvolution_integration_stub.flag"

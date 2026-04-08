@@ -1,0 +1,16 @@
+# Snakemake 8+ workflow profile: safe defaults on a shared login / fat node.
+# Usage:
+#   snakemake --workflow-profile profiles/example_slurm -c 8
+#
+# For true cluster submission, install an executor plugin, e.g.:
+#   pip install snakemake-executor-plugin-slurm
+# then run without this profile, for example:
+#   snakemake --executor slurm --jobs 40 --default-resources mem_mb=8192
+#
+# A copy-paste cluster-generic template (requires
+# snakemake-executor-plugin-cluster-generic) lives in docs/SNAKEMAKE_HPC.md.
+cores: 8
+default-resources:
+  - mem_mb=8192
+  - runtime=120
+latency-wait: 120

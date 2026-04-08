@@ -1,0 +1,20 @@
+# M1 stub: ComBat-Seq on TCGA-GBM GDC STAR integer counts (subset + explicit batch proxy).
+# Batch = TCGA tissue source site (TSS): second token of case/sample barcode (e.g. TCGA-06-6390 → "06").
+# This is a coarse institutional/processing proxy, not sequencing lane or library batch — see provenance caveats.
+# Output is adjusted count-scale matrix (non-integer); exploratory / clustering — not a drop-in DESeq2 replacement.
+
+combat_seq_tcga_gbm_primary:
+  enabled: true
+  counts_matrix: "results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+  sample_meta: "results/module2/tcga_gbm_sample_meta.tsv"
+  meta_column_matrix: "column_name"
+  sample_type_col: "sample_type"
+  sample_types: ["Primary Tumor"]
+  batch_mode: "tss"
+  min_samples_per_batch: 3
+  min_batches: 2
+  gene_filter_min_total: 10
+  gene_filter_min_samples_expressing: 5
+  output_dir: "results/module1/combat_seq_tcga_gbm_primary"
+  output_matrix: "combat_seq_adjusted_counts.parquet"
+  output_provenance: "combat_seq_provenance.json"

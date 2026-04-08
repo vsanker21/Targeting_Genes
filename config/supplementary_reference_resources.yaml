@@ -1,0 +1,72 @@
+# Extra reference downloads: Expression Atlas gene slices, ARCHS4/recount matrices, pathways,
+# drug–gene priors (ChEMBL mapping + DGIdb), ClinVar + gnomAD gene-level constraint.
+# Run: python scripts/download_supplementary_reference_resources.py
+# Or:  python scripts/download_all_required.py --with-supplementary-reference-resources [--skip-supplementary-archs4]
+#
+# WikiPathways GMT date in URL may change; check https://wikipathways-data.wmcloud.org/current/gmt/
+# Last verified against listing: 2026-04-01 (wikipathways-20260310-gmt-Homo_sapiens.gmt present).
+
+archs4_recount_matrices:
+  enabled: true
+  dest_dir: references/archs4_recount
+  # recount2-aligned GTEx / TCGA gene-count HDF5 from Maayan Lab S3 (~590 + ~700 MB).
+  files:
+    - url: "https://s3.amazonaws.com/mssm-seq-matrix/gtex_matrix.h5"
+      filename: "gtex_matrix.h5"
+    - url: "https://s3.amazonaws.com/mssm-seq-matrix/tcga_matrix.h5"
+      filename: "tcga_matrix.h5"
+
+expression_atlas_gene_baselines:
+  enabled: true
+  dest_dir: references/expression_atlas_genes
+  url_template: "https://www.ebi.ac.uk/gxa/genes/{ensembl_id}.tsv"
+  genes:
+    - { ensembl_id: "ENSG00000141510", symbol: "TP53" }
+    - { ensembl_id: "ENSG00000164362", symbol: "TERT" }
+    - { ensembl_id: "ENSG00000146648", symbol: "EGFR" }
+    - { ensembl_id: "ENSG00000138413", symbol: "IDH1" }
+    - { ensembl_id: "ENSG00000170430", symbol: "MGMT" }
+    - { ensembl_id: "ENSG00000157764", symbol: "BRAF" }
+
+pathways:
+  wikipathways_homo_sapiens_gmt:
+    enabled: true
+    url: "https://wikipathways-data.wmcloud.org/current/gmt/wikipathways-20260310-gmt-Homo_sapiens.gmt"
+    dest: references/pathways/wikipathways-Homo_sapiens.gmt
+  pathwaycommons_all_hgnc_gmt:
+    enabled: true
+    # pathwaycommons.org URL 301s to a directory index HTML; use Bader Lab archive (gzip GMT).
+    url: "https://download.baderlab.org/PathwayCommons/PC2/v12/PathwayCommons12.All.hgnc.gmt.gz"
+    dest: references/pathways/PathwayCommons12.All.hgnc.gmt.gz
+
+drug_target:
+  chembl_uniprot_mapping:
+    enabled: true
+    url: "https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_36/chembl_uniprot_mapping.txt"
+    dest: references/drug_target/chembl_36_uniprot_mapping.txt
+  dgidb:
+    enabled: true
+    dest_dir: references/dgidb
+    files:
+      - url: "https://www.dgidb.org/data/latest/interactions.tsv"
+        filename: "interactions.tsv"
+      - url: "https://www.dgidb.org/data/latest/genes.tsv"
+        filename: "genes.tsv"
+      - url: "https://www.dgidb.org/data/latest/drugs.tsv"
+        filename: "drugs.tsv"
+
+variant_interpretation:
+  clinvar_gene_summary:
+    enabled: true
+    url: "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/gene_specific_summary.txt"
+    dest: references/clinvar/gene_specific_summary.txt
+  gnomad_lof_by_gene_v2_1_1:
+    enabled: true
+    url: "https://gnomad-public-us-east-1.s3.amazonaws.com/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz"
+    dest: references/gnomad/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
+
+# DrugCentral PostgreSQL dump (~1.4 GB compressed). Off by default; use script --with-drugcentral.
+drugcentral:
+  enabled: false
+  url: "https://unmtid-shinyapps.net/download/drugcentral.dump.11012023.sql.gz"
+  dest: references/drugcentral/drugcentral.dump.11012023.sql.gz

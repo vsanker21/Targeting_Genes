@@ -1,0 +1,48 @@
+# Third-party tools outside core requirements.txt (Cell Ranger, GNINA, cmapPy, etc.).
+# Functional gate: scripts/ensure_optional_third_party_functional.py (pip + GCT round-trip + binaries).
+# Status JSON: scripts/verify_optional_third_party_tooling.py; paths use {data_root}.
+
+third_party_tooling:
+  pip_requirements_optional: requirements-optional.txt
+  # PyPI distribution name -> import module name (for importlib)
+  pip_import_names:
+    cmapPy: cmapPy
+
+  # Full path overrides (checked before PATH). Set in CI/lab to satisfy strict checks.
+  binary_env_overrides:
+    cellranger: GLIOMA_TARGET_CELLRANGER_EXE
+    spaceranger: GLIOMA_TARGET_SPACERANGER_EXE
+    gnina: GLIOMA_TARGET_GNINA_EXE
+
+  # Local conda prefix for programmatic GNINA install (scripts/ensure_optional_third_party_functional.py --bootstrap-gnina)
+  conda_gnina_prefix_relative: ".conda_envs/gnina"
+
+  # Executables searched with shutil.which (Windows + Unix names).
+  binaries:
+    - id: cellranger
+      display_name: 10x Genomics Cell Ranger
+      exe_candidates:
+        - cellranger
+        - cellranger.exe
+      install_note: "Download from https://www.10xgenomics.com/support/software/cell-ranger — add the extracted `cellranger-x.y.z` directory to PATH or set CELLRANGER_HOME."
+    - id: spaceranger
+      display_name: 10x Genomics Space Ranger
+      exe_candidates:
+        - spaceranger
+        - spaceranger.exe
+      install_note: "Bundled with Cell Ranger download from 10x Genomics; add to PATH alongside cellranger."
+    - id: gnina
+      display_name: GNINA (docking)
+      exe_candidates:
+        - gnina
+        - gnina.exe
+      install_note: "Recommended: conda install -c conda-forge gnina   (or build from https://github.com/gnina/gnina )"
+
+  # Optional markers under data_root (from module6_inputs / local layout).
+  optional_path_checks:
+    - name: gnina_ready_flag
+      path_template: "{data_root}/tools/gnina_ready.flag"
+      note: "Touch this file after installing GNINA if the binary is not on PATH."
+    - name: cellranger_install_root
+      path_template: "{data_root}/tools/cellranger"
+      note: "Optional: unpack Cell Ranger here; add inner bin to PATH manually."

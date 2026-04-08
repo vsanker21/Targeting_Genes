@@ -1,0 +1,41 @@
+﻿# Outline M5: optional L1000 GCTX / CLUE / cmap reference data staging under GLIOMA_TARGET_DATA_ROOT.
+# Complements module5_data_paths LINCS roots and sRGES stub; no GCTX I/O or cmapPy batches in-repo.
+
+m5_l1000_data_path_checks:
+  enabled: true
+  output_json: "results/module5/m5_l1000_data_paths_status.json"
+  done_flag: "results/module5/m5_l1000_data_paths_status.flag"
+  groups:
+    - id: l1000_gctx_mirror
+      summary: "LINCS L1000 Level 5 GCTX or HDF5 mirror (subset or full)"
+      path_checks:
+        - name: "GCTX or Level 5 matrix file staging directory"
+          path_template: "{data_root}/lincs/gctx_level5_mirror"
+        - name: "Gene / probe ID mapping or chip annotation for L1000"
+          path_template: "{data_root}/lincs/l1000_gene_chip_annotations"
+    - id: clue_api_cache
+      summary: "CLUE API JSON cache or query export directory"
+      path_checks:
+        - name: "CLUE API response cache or signed URL download staging"
+          path_template: "{data_root}/lincs/clue_api_cache"
+        - name: "Optional CLUE workspace or session export"
+          path_template: "{data_root}/lincs/clue_workspace_export"
+    - id: cmap_reference_files
+      summary: "cmap reference GMTs, landmark lists, or gene-set libraries"
+      path_checks:
+        - name: "Connectivity map landmark or gene-set reference files"
+          path_template: "{data_root}/lincs/cmap_reference_gene_sets"
+        - name: "Optional perturbagen metadata table (compound / shRNA IDs)"
+          path_template: "{data_root}/lincs/perturbagen_metadata"
+    - id: connectivity_batch_exports
+      summary: "Saved cmapPy / CLUE connectivity score tables (batch outputs)"
+      path_checks:
+        - name: "Directory of batch connectivity TSV/CSV (query x perturbagen)"
+          path_template: "{data_root}/lincs/connectivity_batch_exports"
+        - name: "Optional provenance manifest for batch connectivity runs"
+          path_template: "{data_root}/lincs/connectivity_batch_manifest"
+
+m5_l1000_data_integration_stub:
+  enabled: true
+  output_json: "results/module5/m5_l1000_data_integration_stub.json"
+  done_flag: "results/module5/m5_l1000_data_integration_stub.flag"

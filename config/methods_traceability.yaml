@@ -1,0 +1,33 @@
+# Maps Project_Outline_extracted.txt Module 2 claims to this repository (scientific traceability).
+# Ingested into results/module3/cohort_design_summary.json by summarize_expression_cohort.py
+
+outline_source: "Project_Outline_extracted.txt"
+
+module_2:
+  section_2_1_differential_expression:
+    outline_states:
+      - "DESeq2 / edgeR tumor vs GTEx normal; FDR < 0.05, |log2FC| > 1.5"
+      - "GTEx frontal lobe and cerebellum as controls (outline text)"
+    this_repository:
+      primary_screen: "TOIL RSEM hub log2(TPM+pseudo); Welch (pooled normals) + OLS (tumor vs reference GTEx subregion + other-subregion dummies)"
+      rationale: "Primary DE avoids mixing GDC STAR TCGA with TOIL GTEx (pipeline/reference confounding). DESeq2/edgeR require integer counts on a shared path for both arms."
+      outline_gates_on_hub_scale: "Columns outline_m21_* apply FDR and |log2FC| thresholds to hub-scale effect columns (Welch delta_log2_expression or OLS beta_tumor_vs_ref_normal); not identical to DESeq2 LFC."
+    cerebellum_note: "Default config excludes cerebellum from the normal pool for cortex-GBM contrast; add gtex_brain_detailed_categories entries to match outline cerebellum-inclusive controls explicitly."
+
+  section_2_2_mutation_landscape:
+    outline_states:
+      - "MutSig2CV SMGs; CADD/REVEL; dNdScv; OncoKB + ClinVar"
+    this_repository:
+      implemented: "DepMap CRISPR + OmicsSomaticMutations (GBM lines); optional TCGA MAF cohort gene summary; optional MutSig gene-table join to DEA"
+      driver_gene_outline_flags: "Outline text lists canonical GBM drivers; references/gbm_known_drivers_outline.yaml maps symbols → Ensembl; join_dea_outline_driver_flags.py adds outline_m22_known_gbm_driver (not per-sample mutation status)."
+      caveat: "DepMap reflects cell-line GBM; TCGA MAF reflects bulk tumors. Not a substitute for full MutSig2CV + variant consequence ranking in the outline."
+
+  section_2_3_subtype_stratification:
+    outline_states:
+      - "MOVICS consensus across multiple algorithms on multi-omics"
+    this_repository:
+      implemented: "MSigDB Verhaak gene sets (rank-mean or user centroid cosine); stratified Welch/OLS DE per assigned subtype vs same pooled normals / OLS design"
+      caveat: "Labels are heuristic single-sample calls, not MOVICS posteriors. Subtype partitions are mutually exclusive assignments from one cohort; stratified p-values are not independent across subtypes. See subtype score margin columns and provenance JSON."
+
+  m3_artifact_manifest:
+    this_repository: "results/module3/module3_export_manifest.json — curated list of bulk DEA/join/recount3/GDC STAR provenance, concordance, cross-assay QC, and M3 scRNA path-status JSONs (write_module3_export_manifest.py); optional_tags / extra_artifacts.optional can mark GDC STAR edgeR paths when tcga_gbm_star_unstranded_counts_matrix.parquet is absent on a clone; merged into results/pipeline_results_index.json via config/pipeline_inventory.yaml (summary sources_summary, missing_*_path_posix, n_missing_*, n_optional, optional_path_posix_unmatched; strict: --strict or GLIOMA_TARGET_PIPELINE_INDEX_STRICT (1/true/yes/on; 0/false/no/off off) → strict_triggers)"

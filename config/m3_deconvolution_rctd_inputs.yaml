@@ -1,0 +1,9 @@
+# RCTD (R spacexr): paths relative to GLIOMA_TARGET_DATA_ROOT / data_sources.yaml data_root.
+# Objects must be Reference and SpatialRNA (or compatible) RDS as expected by spacexr::create.RCTD.
+#
+# scripts/run_m3_rctd_wrapper.R always writes rctd_run_provenance.json; rctd_run.flag only when status is ok;
+# otherwise the wrapper exits 1 (Snakemake marks m3_deconvolution_rctd_run failed).
+
+m3_deconvolution_rctd:
+  reference_rds: m3_spatial_deconv/rctd/reference.rds
+  spatial_rna_rds: m3_spatial_deconv/rctd/spatialRNA.rds

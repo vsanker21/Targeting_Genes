@@ -1,0 +1,84 @@
+# Curated programmatic downloads (see scripts/download_all_required.py).
+# Additional HTTPS/GEO items: config/open_source_data_extensions.yaml + --with-open-extensions
+# Pharmacogenomics / methylation / scRNA mirrors: config/high_value_public_datasets.yaml + --with-high-value-datasets
+# Pathways / variant priors / bulk recount matrices: config/supplementary_reference_resources.yaml + --with-supplementary-reference-resources
+# DepMap file names must match rows in https://depmap.org/portal/api/download/files.
+# Auto pick: newest release (YYQq) that contains *all* listed files (avoids PRISM / Harmonized
+# bundles that share a quarter token but do not ship Model.csv / Omics* matrices).
+
+depmap:
+  prefer_release: null  # null = auto-detect newest YYQq from API
+  files:
+    - Model.csv
+    - CRISPRGeneEffect.csv
+    - CRISPRGeneDependency.csv
+    - OmicsExpressionTPMLogp1HumanProteinCodingGenes.csv
+    - OmicsSomaticMutations.csv
+    - PortalOmicsCNGeneLog2.csv
+
+references:
+  gencode_gtf_gz: "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz"
+  # Official HGNC bulk file (Google Cloud; EBI hgnc/tsv/ path retired)
+  hgnc_complete_tsv: "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+  # GitHub: ENCODE-style blacklist for GRCh38/hg38 alignment QC
+  encode_blacklist_hg38_gz: "https://raw.githubusercontent.com/Boyle-Lab/Blacklist/master/lists/hg38-blacklist.v2.bed.gz"
+
+gdc:
+  # Open TCGA-GBM harmonized STAR gene counts (TSV); ~400 files, ~1.5 GB total.
+  download_star_counts: true
+  star_counts_subdir: "gdc/tcga_gbm_open_star_counts"
+
+# recount3 G029 gene-sum .gz (TCGA GBM + GTEx brain) for PyDESeq2 tumor vs normal — download_all_required.py --with-recount3-de-counts
+recount3:
+  download_harmonized_g029: false
+
+geo_bulk_series:
+  - GSE4290
+  - GSE7696
+  - GSE50161
+  - GSE68848
+
+optional:
+  string_protein_links: false  # ~hundreds of MB; enable with --with-string
+
+# Shallow git clones (--depth 1) for reproducible workflow references (requires `git` on PATH).
+git_pipelines:
+  enabled: true
+  repos:
+    - url: "https://github.com/nf-core/rnaseq.git"
+      path: "pipelines/nf-core-rnaseq"
+      branch: null
+    - url: "https://github.com/nf-core/scrnaseq.git"
+      path: "pipelines/nf-core-scrnaseq"
+      branch: null
+    - url: "https://github.com/nf-core/fetchngs.git"
+      path: "pipelines/nf-core-fetchngs"
+      branch: null
+    - url: "https://github.com/cmap/cmapPy.git"
+      path: "pipelines/cmapPy"
+      branch: null
+
+# LINCS / CLUE REST API (https://api.clue.io) — requires a free academic user_key.
+# Provide key via environment (never commit):
+#   CLUE_API_KEY=...   OR   CLUE_API_TOKEN_FILE=C:\Users\you\.secrets\clue_key.txt (first line = key)
+# If no key, this phase is skipped.
+clue_api:
+  enabled_if_token: true
+  out_subdir: "lincs/clue_api_subset"
+  base_url: "https://api.clue.io"
+  snapshots:
+    - name: "genes_landmark.json"
+      path: "/api/genes"
+      filter_json: '{"where":{"l1000_type":"landmark"},"limit":2500}'
+    - name: "cells_count.json"
+      path: "/api/cells/count"
+      filter_json: null
+    - name: "sigs_temozolomide.json"
+      path: "/api/sigs"
+      filter_json: '{"where":{"pert_iname":"temozolomide"},"limit":200,"fields":{"sig_id":true,"pert_id":true,"cell_id":true,"pert_iname":true,"distil_cc_q75":true}}'
+    - name: "perts_temozolomide.json"
+      path: "/api/perts"
+      filter_json: '{"where":{"pert_iname":"temozolomide"}}'
+    - name: "profiles_temozolomide_mcf7_l1000.json"
+      path: "/api/profiles"
+      filter_json: '{"where":{"pert_iname":"temozolomide","cell_id":"MCF7","assay":"L1000"},"limit":50}'

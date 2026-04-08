@@ -1,0 +1,23 @@
+# Outline M1: in-repo m1_reference_gdc path-status + integration stub JSON/flags under results/module3 (M3 export manifest slice).
+
+m3_repo_m1_reference_gdc_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_m1_reference_gdc_paths_status.json"
+  done_flag: "results/module3/m3_repo_m1_reference_gdc_paths_status.flag"
+  groups:
+    - id: module3_m1_reference_gdc_repo_outline_outputs
+      summary: "M1 reference/GDC artifacts (paths_status + integration_stub) under results/module3"
+      path_checks:
+        - name: m1_reference_gdc_paths_status_json
+          path_template: "{repo_root}/results/module3/m1_reference_gdc_paths_status.json"
+        - name: m1_reference_gdc_paths_status_flag
+          path_template: "{repo_root}/results/module3/m1_reference_gdc_paths_status.flag"
+        - name: m1_reference_gdc_integration_stub_json
+          path_template: "{repo_root}/results/module3/m1_reference_gdc_integration_stub.json"
+        - name: m1_reference_gdc_integration_stub_flag
+          path_template: "{repo_root}/results/module3/m1_reference_gdc_integration_stub.flag"
+
+m3_repo_m1_reference_gdc_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_m1_reference_gdc_integration_stub.json"
+  done_flag: "results/module3/m3_repo_m1_reference_gdc_integration_stub.flag"

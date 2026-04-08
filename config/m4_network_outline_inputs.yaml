@@ -1,0 +1,41 @@
+﻿# Outline Module 4: optional external GRN / co-expression staging under GLIOMA_TARGET_DATA_ROOT.
+# Complements in-repo TPM hub exports and STRING lists; no WGCNA, SCENIC+, or SLAYER execution.
+
+m4_network_path_checks:
+  enabled: true
+  output_json: "results/module4/m4_network_paths_status.json"
+  done_flag: "results/module4/m4_network_paths_status.flag"
+  groups:
+    - id: external_wgcna_workspace
+      summary: "R WGCNA blockwise outputs, TOM, or session image (outside this repo)"
+      path_checks:
+        - name: "WGCNA blockwise or module eigengene export directory"
+          path_template: "{data_root}/networks/wgcna_blockwise"
+        - name: "Optional RData / RDS workspace with WGCNA objects"
+          path_template: "{data_root}/networks/wgcna_r_workspace"
+    - id: scenic_plus_audit
+      summary: "SCENIC+ / pySCENIC regulon and AUCell outputs (staging)"
+      path_checks:
+        - name: "pySCENIC or SCENIC+ GRN output directory (adjacencies, regulons)"
+          path_template: "{data_root}/networks/scenic_grn_output"
+        - name: "AUCell or enrichment scores matrix export"
+          path_template: "{data_root}/networks/scenic_aucell_matrix"
+    - id: biogrid_interaction_cache
+      summary: "BioGRID / InBio Map / similar PPI tabular cache (not STRING API)"
+      path_checks:
+        - name: "BioGRID PSI-MITAB or gene-gene edge cache directory"
+          path_template: "{data_root}/networks/biogrid_mitab_cache"
+        - name: "Precomputed gene pair metrics (e.g. Mentha-style) TSV directory"
+          path_template: "{data_root}/networks/gene_pair_metric_tables"
+    - id: slayer_style_pairs
+      summary: "DepMap SLAYER-style synthetic lethality or co-dependency pair tables"
+      path_checks:
+        - name: "SLAYER or similar paired gene effect table staging"
+          path_template: "{data_root}/networks/slayer_pair_tables"
+        - name: "DepMap co-dependency model export (optional mirror)"
+          path_template: "{data_root}/networks/depmap_codependency_mirror"
+
+m4_network_integration_stub:
+  enabled: true
+  output_json: "results/module4/m4_network_integration_stub.json"
+  done_flag: "results/module4/m4_network_integration_stub.flag"

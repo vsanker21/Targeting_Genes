@@ -1,0 +1,34 @@
+﻿# Outline M2.2: optional external variant annotation cache staging (VEP, OncoKB, ClinVar).
+# Complements maf_annotation_integration_stub (gene-level MAF summaries); no API or VEP execution in-repo.
+
+m2_2_variant_annotation_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_2_variant_annotation_paths_status.json"
+  done_flag: "results/module3/m2_2_variant_annotation_paths_status.flag"
+  groups:
+    - id: vep_or_functional_annotation_outputs
+      summary: "VEP, snpEff, Funcotator, or similar functional prediction exports"
+      path_checks:
+        - name: "VEP or Ensembl VEP cache / annotation TSV directory"
+          path_template: "{data_root}/variants/vep_annotation_cache"
+        - name: "Optional snpEff or other variant annotator output root"
+          path_template: "{data_root}/variants/snpeff_annotation_cache"
+    - id: oncokb_annotation_staging
+      summary: "OncoKB API dumps, MAF/VCF annotator outputs, or enterprise file drops"
+      path_checks:
+        - name: "OncoKB-annotated MAF or API response cache directory"
+          path_template: "{data_root}/variants/oncokb_annotation_cache"
+        - name: "Optional oncokb-annotator CLI workspace"
+          path_template: "{data_root}/variants/oncokb_annotator_workspace"
+    - id: clinvar_reference_staging
+      summary: "ClinVar VCF subsets, XML, or dbSNP-to-ClinVar crosswalk tables"
+      path_checks:
+        - name: "ClinVar VCF or tab-indexed variant reference staging"
+          path_template: "{data_root}/variants/clinvar_reference_vcf"
+        - name: "Optional ClinVar XML or reduced variant TSV cache"
+          path_template: "{data_root}/variants/clinvar_tabular_cache"
+
+m2_2_variant_annotation_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_2_variant_annotation_integration_stub.json"
+  done_flag: "results/module3/m2_2_variant_annotation_integration_stub.flag"

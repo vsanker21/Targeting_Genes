@@ -1,0 +1,27 @@
+# Outline M2.3 optional immune-oncology gene signatures and TME deconvolution reference mirrors under GLIOMA_TARGET_DATA_ROOT.
+# Complements Verhaak subtypes and m2_movics_* multi-omics staging; no TIDE, ESTIMATE, or CIBERSORTx in-repo.
+
+m2_3_immune_tme_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_3_immune_tme_mirror_paths_status.json"
+  done_flag: "results/module3/m2_3_immune_tme_mirror_paths_status.flag"
+  groups:
+    - id: immune_gene_signature_staging
+      summary: "Curated IFN-gamma, cytolytic, checkpoint, or ESTIMATE-style gene lists (GMT, YAML, TSV)"
+      path_checks:
+        - name: "Immune gene signature or gene set library root"
+          path_template: "{data_root}/immune_oncology/gene_signature_sets"
+        - name: "Checkpoint or ligand-receptor panel staging"
+          path_template: "{data_root}/immune_oncology/checkpoint_ligand_panels"
+    - id: tme_deconv_reference_staging
+      summary: "Reference matrices for CIBERSORTx, MCP-counter, or similar (user-provided; no deconvolution jobs)"
+      path_checks:
+        - name: "TME cell-type reference signature matrix staging"
+          path_template: "{data_root}/immune_oncology/tme_reference_signatures"
+        - name: "Optional saved deconvolution output TSV tree from external runs"
+          path_template: "{data_root}/immune_oncology/external_deconv_output_staging"
+
+m2_3_immune_tme_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_3_immune_tme_mirror_integration_stub.json"
+  done_flag: "results/module3/m2_3_immune_tme_mirror_integration_stub.flag"

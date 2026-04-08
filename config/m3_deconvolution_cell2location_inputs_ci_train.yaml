@@ -1,0 +1,37 @@
+# CI / regression only: minimal epochs + posterior draws (CPU). For GitHub Actions timeouts.
+# Use with GLIOMA_TARGET_M3_CELL2LOCATION_CONFIG and full m3_cell2location conda env (no GLIOMA_TARGET_M3_C2L_CONDA_ENV=light).
+
+m3_deconvolution_cell2location:
+  reference_h5ad: m3_spatial_deconv/cell2location/reference_scRNA.h5ad
+  spatial_h5ad: m3_spatial_deconv/cell2location/spatial_visium.h5ad
+
+  output_result_h5ad: results/module3/m3_deconvolution_cell2location/ci_train_spatial_cell2location.h5ad
+  output_abundance_tsv: results/module3/m3_deconvolution_cell2location/ci_train_spot_cell_abundance_means.tsv
+
+  training:
+    enabled: true
+    reference_labels_key: cell_type
+    reference_batch_key: null
+    reference_counts_layer: null
+    spatial_counts_layer: null
+    spatial_batch_key: null
+    signature_summary: means
+    min_shared_genes: 15
+    harmonize_var_names:
+      enabled: true
+      strip_version_suffix: true
+      uppercase: false
+
+    regression_max_epochs: 1
+    regression_batch_size: 256
+    regression_lr: 0.002
+
+    cell2location_max_epochs: 1
+    cell2location_batch_size: null
+    cell2location_lr: 0.002
+    cell2location_N_cells_per_location: 8.0
+    cell2location_detection_alpha: 20.0
+
+    export_posterior_num_samples: 8
+    export_posterior_batch_size: 64
+    use_gpu: false

@@ -1,0 +1,30 @@
+# Outline M3: in-repo recount3 TCGA-GBM vs GTEx brain DEA outputs (config/deseq2_recount3_tcga_gtex.yaml output_dir).
+# Complements m2_1_recount3_mirror (data_root recount3 cache) with built TSV and parquet under results/module3.
+
+m3_repo_recount3_bulk_dea_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_recount3_bulk_dea_paths_status.json"
+  done_flag: "results/module3/m3_repo_recount3_bulk_dea_paths_status.flag"
+  groups:
+    - id: recount3_gbm_vs_gtex_brain_dea_outputs
+      summary: "PyDESeq2 and edgeR results, concordance JSON, and DE counts matrix from recount3 harmonized counts"
+      path_checks:
+        - name: "PyDESeq2 DEA results TSV"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+        - name: "edgeR QLF DEA results TSV"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+        - name: "PyDESeq2 provenance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_provenance.json"
+        - name: "edgeR provenance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_provenance.json"
+        - name: "PyDESeq2 vs edgeR concordance JSON"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_vs_edger_concordance.json"
+        - name: "Recount3 DE counts matrix parquet"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/recount3_de_counts_matrix.parquet"
+        - name: "Recount3 DE sample metadata TSV"
+          path_template: "{repo_root}/results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/recount3_de_sample_meta.tsv"
+
+m3_repo_recount3_bulk_dea_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_recount3_bulk_dea_integration_stub.json"
+  done_flag: "results/module3/m3_repo_recount3_bulk_dea_integration_stub.flag"

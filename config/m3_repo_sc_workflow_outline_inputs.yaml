@@ -1,0 +1,20 @@
+# Outline M3: in-repo module3_sc_workflow_paths_status JSON/flag under results/module3.
+# Complements module3_inputs.yaml sc_workflow_path_checks for M3 export manifest bundling (subset of m3_repo_scrna_spatial quartet).
+
+m3_repo_sc_workflow_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_sc_workflow_paths_status.json"
+  done_flag: "results/module3/m3_repo_sc_workflow_paths_status.flag"
+  groups:
+    - id: module3_sc_workflow_repo_outline_outputs
+      summary: "module3_sc_workflow_paths_status JSON/flag under results/module3"
+      path_checks:
+        - name: module3_sc_workflow_paths_status_json
+          path_template: "{repo_root}/results/module3/module3_sc_workflow_paths_status.json"
+        - name: module3_sc_workflow_paths_status_flag
+          path_template: "{repo_root}/results/module3/module3_sc_workflow_paths_status.flag"
+
+m3_repo_sc_workflow_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_sc_workflow_integration_stub.json"
+  done_flag: "results/module3/m3_repo_sc_workflow_integration_stub.flag"

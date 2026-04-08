@@ -1,0 +1,34 @@
+# Outline M2.2: optional DepMap CRISPR / omics / model-table mirrors under GLIOMA_TARGET_DATA_ROOT/depmap/.
+# Aligns with scripts/depmap_shared.latest_depmap_dir (release subfolders) and join_dea_depmap_* inputs.
+
+m2_2_depmap_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_2_depmap_mirror_paths_status.json"
+  done_flag: "results/module3/m2_2_depmap_mirror_paths_status.flag"
+  groups:
+    - id: depmap_public_release_tree
+      summary: "Per-release bundles (e.g. depmap/<release>/CRISPRGeneEffect.csv, Model.csv) from DepMap Public"
+      path_checks:
+        - name: "DepMap root with versioned release subdirectories (standard download_all_required layout)"
+          path_template: "{data_root}/depmap"
+        - name: "Optional flat staging of a single release tarball extract"
+          path_template: "{data_root}/depmap/single_release_extract"
+    - id: depmap_crispr_and_dependency
+      summary: "Auxiliary CRISPR screens, Chronos, or gene dependency exports mirrored outside release folder"
+      path_checks:
+        - name: "CRISPR gene effect or dependency score mirror directory"
+          path_template: "{data_root}/depmap/crispr_dependency_mirror"
+        - name: "Optional DepMap gene summary or dataset README staging"
+          path_template: "{data_root}/depmap/dataset_manifests"
+    - id: depmap_omics_and_models
+      summary: "OmicsSomaticMutations, expression, and model/sample metadata mirrors"
+      path_checks:
+        - name: "Omics somatic mutation table mirror (MAF-like TSV/CSV trees)"
+          path_template: "{data_root}/depmap/omics_somatic_mutations_mirror"
+        - name: "Model.csv or sample metadata mirror root"
+          path_template: "{data_root}/depmap/model_metadata_mirror"
+
+m2_2_depmap_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_2_depmap_mirror_integration_stub.json"
+  done_flag: "results/module3/m2_2_depmap_mirror_integration_stub.flag"

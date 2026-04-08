@@ -1,0 +1,13 @@
+# Stratified Welch DEA: tumor subsets by verhaak_subtype_call vs same pooled GTEx normals.
+# Loaded by scripts/dea_stratified_by_subtype.py and referenced by Snakemake rule m2_stratified_dea_by_subtype.
+
+subtype_scores_tsv: "results/module3/tcga_gbm_verhaak_subtype_scores.tsv"
+expression_parquet: "results/module3/toil_gbm_vs_brain_tpm.parquet"
+sample_table: "results/module3/toil_gbm_vs_brain_samples.tsv"
+min_tumor_samples: 8
+output_dir: "results/module3/stratified_dea"
+summary_tsv: "results/module3/stratified_dea/summary.tsv"
+
+# OLS with GTEx region dummies; same min_tumor_samples and subtype column as Welch stratified.
+ols_stratified_output_dir: "results/module3/stratified_ols_dea"
+ols_stratified_summary_tsv: "results/module3/stratified_ols_dea/summary.tsv"

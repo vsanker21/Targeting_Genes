@@ -1,0 +1,8 @@
+# M3 S2 — scipy NNLS deconvolution. Paths are relative to GLIOMA_TARGET_DATA_ROOT / data_sources.yaml data_root.
+# Optional rule all: GLIOMA_TARGET_INCLUDE_M3_DECONV_S2=1 (and real TSVs present).
+
+m3_deconvolution_s2_nnls:
+  enabled: true
+  output_dir: results/module3/m3_deconvolution_s2
+  reference_profile_tsv: m3_deconvolution_nnls/reference_profile_wide.tsv
+  spatial_counts_tsv: m3_deconvolution_nnls/spatial_counts_wide.tsv

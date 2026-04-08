@@ -1,0 +1,55 @@
+# M2.1 — Single source of truth: which “harmonized” count table and which DEA contrast(s).
+# Two mutually distinct strategies are implemented in this repo (do not conflate them).
+
+strategies:
+  gdc_star_same_pipeline:
+    description: >
+      TCGA-GBM GDC open STAR **unstranded gene counts** built into one matrix
+      (results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet).
+      All contrasts use the **same** GDC STAR quantification; no GTEx arm.
+    count_table:
+      path: results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet
+      sample_meta: results/module2/tcga_gbm_sample_meta.tsv
+    config_files:
+      - config/deseq2_tcga_gbm.yaml
+    contrasts:
+      - name: Primary Tumor vs Recurrent Tumor
+        pydeseq2_contrast: ["condition", "Recurrent", "Primary"]
+        snakemake_rules:
+          deseq2: m2_deseq2_tcga_primary_recurrent
+          edger: m2_edger_tcga_primary_recurrent
+        primary_outputs:
+          deseq2_tsv: results/module3/deseq2_tcga_gbm/primary_vs_recurrent/deseq2_results.tsv
+          edger_tsv: results/module3/edger_tcga_gbm/primary_vs_recurrent/edger_qlf_results.tsv
+      - name: Primary Tumor vs Solid Tissue Normal
+        note: >
+          Exploratory only — very few Solid Tissue Normal samples; see deseq2_provenance.json caveats.
+        pydeseq2_contrast: ["condition", "PrimaryTumor", "SolidNormal"]
+        snakemake_rules:
+          deseq2: m2_deseq2_tcga_primary_vs_solid_normal
+          edger: m2_edger_tcga_primary_vs_solid_normal
+        primary_outputs:
+          deseq2_tsv: results/module3/deseq2_tcga_gbm/primary_vs_solid_tissue_normal/deseq2_results.tsv
+          edger_tsv: results/module3/edger_tcga_gbm/primary_vs_solid_tissue_normal/edger_qlf_results.tsv
+
+  recount3_star_universe_g029:
+    description: >
+      **recount3** harmonized GENCODE **G029** gene-sum counts for TCGA-GBM tumor vs **GTEx brain** normal
+      (same recount3 pipeline for both cohorts; **not** GDC STAR alignments).
+      Gene rows are restricted to the ENSG base IDs present in the GDC STAR matrix for a comparable gene universe.
+    count_table:
+      source: JHU IDIES recount3 mirrors (see config/deseq2_recount3_tcga_gtex.yaml)
+      local_cache_subdir: recount3/harmonized_g029
+      star_universe_matrix: results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet
+    config_files:
+      - config/deseq2_recount3_tcga_gtex.yaml
+    contrasts:
+      - name: TCGA-GBM tumor vs GTEx brain normal
+        pydeseq2_contrast: ["condition", "Tumor", "Normal"]
+        snakemake_rules:
+          deseq2: m2_deseq2_recount3_tcga_gbm_vs_gtex_brain
+          edger: m2_edger_recount3_tcga_gbm_vs_gtex_brain
+          concordance: m2_recount3_deseq2_edger_concordance
+        primary_outputs:
+          deseq2_tsv: results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv
+          edger_tsv: results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv

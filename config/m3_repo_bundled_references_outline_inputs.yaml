@@ -1,0 +1,24 @@
+# Outline M3: repository-shipped files under references/ (Verhaak GMT, driver outline, centroid template).
+# Paths use {repo_root} (clone root), not GLIOMA_TARGET_DATA_ROOT. See module2_integration.yaml gbm_verhaak and outline_driver_flags.
+
+m3_repo_bundled_references_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_bundled_references_paths_status.json"
+  done_flag: "results/module3/m3_repo_bundled_references_paths_status.flag"
+  groups:
+    - id: repo_bundled_outline_references
+      summary: "Shipped GMT, centroid template, and driver symbol YAML used by M2 Verhaak and outline driver joins"
+      path_checks:
+        - name: "Verhaak default MSigDB GMT (C2 CGP)"
+          path_template: "{repo_root}/references/verhaak_msigdb_c2_cgp_2024.1.Hs.gmt"
+        - name: "Verhaak alternate MSigDB GMT (C4 CGN)"
+          path_template: "{repo_root}/references/verhaak_msigdb_c4_cgn_2024.1.Hs.gmt"
+        - name: "Verhaak centroid profile user template TSV"
+          path_template: "{repo_root}/references/verhaak_centroids_user_template.tsv"
+        - name: "GBM known drivers outline YAML"
+          path_template: "{repo_root}/references/gbm_known_drivers_outline.yaml"
+
+m3_repo_bundled_references_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_bundled_references_integration_stub.json"
+  done_flag: "results/module3/m3_repo_bundled_references_integration_stub.flag"

@@ -1,0 +1,20 @@
+# Outline M3: in-repo TOIL UCSC Xena TPM hub slice under results/module3 (module2_integration expression_parquet / sample_table).
+# Complements m2_1_toil_xena_hub_mirror (data_root gtex/xena_toil staging) with built parquet and sample TSV in the clone.
+
+m3_repo_toil_bulk_expression_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_toil_bulk_expression_paths_status.json"
+  done_flag: "results/module3/m3_repo_toil_bulk_expression_paths_status.flag"
+  groups:
+    - id: toil_gbm_vs_brain_hub_outputs
+      summary: "TOIL RSEM gene TPM matrix and sample table for bulk DEA, Verhaak, and WGCNA hub exports"
+      path_checks:
+        - name: "TOIL GBM vs brain TPM parquet"
+          path_template: "{repo_root}/results/module3/toil_gbm_vs_brain_tpm.parquet"
+        - name: "TOIL GBM vs brain sample metadata TSV"
+          path_template: "{repo_root}/results/module3/toil_gbm_vs_brain_samples.tsv"
+
+m3_repo_toil_bulk_expression_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_toil_bulk_expression_integration_stub.json"
+  done_flag: "results/module3/m3_repo_toil_bulk_expression_integration_stub.flag"

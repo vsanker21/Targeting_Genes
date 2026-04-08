@@ -1,0 +1,12 @@
+# Conda env for M3 RCTD wrapper (R only; spacexr via R on Windows/macOS without Bioconda spacexr).
+# Linux/macOS CI: use workflow/envs/m3_rctd_spacexr_bioconda.yaml via GLIOMA_TARGET_M3_RCTD_BUNDLE_SPACEXR=1.
+# Manual spacexr: R -e "remotes::install_github('dmcable/spacexr')"
+# Wrapper writes rctd_run.flag only when rctd_run_provenance.json status is ok; else exit 1 (Snakemake job fails).
+name: m3_rctd
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base>=4.3
+  - r-jsonlite
+  - r-remotes

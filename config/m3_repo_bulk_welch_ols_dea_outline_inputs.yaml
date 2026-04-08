@@ -1,0 +1,24 @@
+# Outline M3: in-repo TOIL TPM bulk DEA (Welch + OLS region covariate) under results/module3.
+# Aligns with module2_integration.yaml depmap_crispr depmap_somatic mutsig outline_driver_flags dea_*_tsv inputs.
+
+m3_repo_bulk_welch_ols_dea_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_bulk_welch_ols_dea_paths_status.json"
+  done_flag: "results/module3/m3_repo_bulk_welch_ols_dea_paths_status.flag"
+  groups:
+    - id: toil_bulk_welch_ols_dea_outputs
+      summary: "Primary Welch and OLS DEA TSVs plus provenance JSONs from TOIL TPM hub"
+      path_checks:
+        - name: "Welch tumor vs pooled normals DEA TSV"
+          path_template: "{repo_root}/results/module3/dea_gbm_vs_gtex_brain.tsv"
+        - name: "OLS tumor vs ref with region covariate DEA TSV"
+          path_template: "{repo_root}/results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+        - name: "Welch DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/dea_gbm_vs_gtex_brain_provenance.json"
+        - name: "OLS DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate_provenance.json"
+
+m3_repo_bulk_welch_ols_dea_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_bulk_welch_ols_dea_integration_stub.json"
+  done_flag: "results/module3/m3_repo_bulk_welch_ols_dea_integration_stub.flag"

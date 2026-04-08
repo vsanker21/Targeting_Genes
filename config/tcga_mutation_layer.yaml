@@ -1,0 +1,35 @@
+# TCGA MAF → cohort gene-level summary + optional join to DEA (outline §2.2 alongside DepMap somatic).
+# M2.2 in-repo choice: **ClinVar gene-level** annotation — Snakemake `m2_maf_genes_clinvar_annotate` + config/m2_2_clinvar_gene_annotation.yaml
+# MutSig2CV outputs are not ingested here; run MutSig externally and merge by gene symbol if needed.
+# Leave maf_glob empty to skip (join script still adds zero columns with provenance "skipped").
+
+maf_glob: ""
+
+variant_classifications:
+  - Missense_Mutation
+  - Nonsense_Mutation
+  - Frame_Shift_Del
+  - Frame_Shift_Ins
+  - Splice_Site
+  - Translation_Start_Site
+  - Nonstop_Mutation
+
+hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+gene_summary_tsv: "results/module3/tcga_gbm_maf_gene_summary.tsv"
+provenance_json: "results/module3/tcga_maf_layer_provenance.json"
+
+dea_ols_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+dea_welch_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+output_ols: "results/module3/dea_gbm_vs_gtex_brain_ols_tcga_maf.tsv"
+output_welch: "results/module3/dea_gbm_vs_gtex_brain_tcga_maf.tsv"
+extra_dea_pairs:
+  - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+    output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_tcga_maf.tsv"
+  - input: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+    output: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_tcga_maf.tsv"
+
+# M2.2 OncoKB/ClinVar gap (no API calls) — scripts/module2_maf_annotation_integration_stub.py
+maf_annotation_integration_stub:
+  enabled: true
+  output_json: "results/module3/maf_annotation_integration_stub.json"
+  done_flag: "results/module3/maf_annotation_integration_stub.flag"

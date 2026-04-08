@@ -1,0 +1,57 @@
+# PyDESeq2 on TCGA-GBM GDC STAR unstranded integer counts (Milestone M2.1 — count-based DE, partial).
+# Contrast: Recurrent Tumor vs Primary Tumor (same pipeline; NOT tumor vs GTEx — see gdc_counts_cohort_summary).
+deseq2_tcga_primary_vs_recurrent:
+  enabled: true
+  counts_matrix: "results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+  sample_meta: "results/module2/tcga_gbm_sample_meta.tsv"
+  meta_column_matrix: "column_name"
+  sample_type_col: "sample_type"
+  primary_label: "Primary Tumor"
+  recurrent_label: "Recurrent Tumor"
+  condition_primary: "Primary"
+  condition_recurrent: "Recurrent"
+  pydeseq2:
+    design: "~condition"
+    contrast: ["condition", "Recurrent", "Primary"]
+    min_replicates: 2
+  gene_filter_min_total: 10
+  gene_filter_min_samples_expressing: 5
+  output_dir: "results/module3/deseq2_tcga_gbm/primary_vs_recurrent"
+  output_results: "deseq2_results.tsv"
+  output_provenance: "deseq2_provenance.json"
+  # edgeR glmQLF (R): same aggregation + gene filter; logFC = Recurrent vs Primary (matches PyDESeq2 contrast).
+  edger:
+    enabled: true
+    contrast_numerator: "Recurrent"
+    contrast_denominator: "Primary"
+    output_dir: "results/module3/edger_tcga_gbm/primary_vs_recurrent"
+    output_results: "edger_qlf_results.tsv"
+    output_provenance: "edger_provenance.json"
+
+# Same STAR matrix as above; only five Solid Tissue Normal samples — see provenance caveats (exploratory stub).
+deseq2_tcga_primary_vs_solid_normal:
+  enabled: true
+  counts_matrix: "results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+  sample_meta: "results/module2/tcga_gbm_sample_meta.tsv"
+  meta_column_matrix: "column_name"
+  sample_type_col: "sample_type"
+  primary_label: "Primary Tumor"
+  normal_label: "Solid Tissue Normal"
+  condition_primary: "PrimaryTumor"
+  condition_normal: "SolidNormal"
+  pydeseq2:
+    design: "~condition"
+    contrast: ["condition", "PrimaryTumor", "SolidNormal"]
+    min_replicates: 2
+  gene_filter_min_total: 10
+  gene_filter_min_samples_expressing: 5
+  output_dir: "results/module3/deseq2_tcga_gbm/primary_vs_solid_tissue_normal"
+  output_results: "deseq2_results.tsv"
+  output_provenance: "deseq2_provenance.json"
+  edger:
+    enabled: true
+    contrast_numerator: "PrimaryTumor"
+    contrast_denominator: "SolidNormal"
+    output_dir: "results/module3/edger_tcga_gbm/primary_vs_solid_tissue_normal"
+    output_results: "edger_qlf_results.tsv"
+    output_provenance: "edger_provenance.json"

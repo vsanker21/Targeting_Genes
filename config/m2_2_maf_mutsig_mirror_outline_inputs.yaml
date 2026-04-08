@@ -1,0 +1,29 @@
+# Outline M2.2: optional TCGA MAF + MutSig gene-level output mirrors under GLIOMA_TARGET_DATA_ROOT.
+# Upstream of config/tcga_mutation_layer.yaml (maf_glob) and config/mutsig_merge.yaml (mutsig_gene_tsv).
+
+m2_2_maf_mutsig_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m2_2_maf_mutsig_mirror_paths_status.json"
+  done_flag: "results/module3/m2_2_maf_mutsig_mirror_paths_status.flag"
+  groups:
+    - id: tcga_maf_bulk_mirror
+      summary: "Open or controlled-access MAF files staged before tcga_maf_gene_cohort_summary (see tcga_mutation_layer.yaml maf_glob)"
+      path_checks:
+        - name: "TCGA-GBM MAF staging root (multi-sample .maf.txt or .maf.gz)"
+          path_template: "{data_root}/mutations/tcga_gbm_maf_staging"
+        - name: "Optional per-case MAF subdirectories"
+          path_template: "{data_root}/mutations/tcga_maf_by_case"
+        - name: "Optional MAF manifest or sample list (TSV/YAML)"
+          path_template: "{data_root}/mutations/tcga_maf_manifest"
+    - id: mutsig_gene_level_mirror
+      summary: "MutSig2CV or compatible gene-level q/p/rank tables for join_dea_mutsig.py"
+      path_checks:
+        - name: "MutSig gene-level output directory (e.g. scores or fullsig)"
+          path_template: "{data_root}/mutations/mutsig2cv_gene_outputs"
+        - name: "Optional merged MutSig export TSV staging"
+          path_template: "{data_root}/mutations/mutsig_gene_table_staging"
+
+m2_2_maf_mutsig_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m2_2_maf_mutsig_mirror_integration_stub.json"
+  done_flag: "results/module3/m2_2_maf_mutsig_mirror_integration_stub.flag"

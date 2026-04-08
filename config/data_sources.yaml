@@ -1,0 +1,120 @@
+# Local data inventory shared with the GBM Detection project.
+# Default root; override with env GLIOMA_TARGET_DATA_ROOT if this machine uses a different path.
+# Use the same tree as GBM Detection so TCGA UUID folders, staged GEO, DepMap, and this repo’s downloads stay aligned.
+data_root: "G:/GBM Detection/data"
+
+# --- TCGA (GDC-style layout under TCGA-GBM) ---
+tcga_gbm:
+  description: "TCGA-GBM case folders (UUID-named); use with GDC metadata / file manifests from the companion project."
+  path: "{data_root}/tcga/TCGA-GBM"
+
+# --- GEO ---
+geo:
+  epigenetic:
+    GSE100351: "{data_root}/geo/epigenetic/GSE100351"
+    GSE139136: "{data_root}/geo/epigenetic/GSE139136"
+  external_validation:
+    GSE154795: "{data_root}/geo/external_validation/GSE154795"
+  scrna_seq:
+    GSE131928: "{data_root}/geo/scrna_seq/GSE131928"
+    GSE141946: "{data_root}/geo/scrna_seq/GSE141946"
+    GSE57872: "{data_root}/geo/scrna_seq/GSE57872"
+  spatial:
+    GSE287631: "{data_root}/geo/spatial/GSE287631"
+  # Bulk microarray (project outline); fetched via scripts/download_external_datasets.py
+  bulk_microarray:
+    GSE4290: "{data_root}/geo/bulk_microarray/GSE4290"
+    GSE7696: "{data_root}/geo/bulk_microarray/GSE7696"
+    GSE50161: "{data_root}/geo/bulk_microarray/GSE50161"
+    GSE68848: "{data_root}/geo/bulk_microarray/GSE68848"
+
+# --- GTEx + TCGA normal reference (TOIL RNA-seq hub / UCSC Xena) ---
+gtex_xena_toil:
+  description: "TcgaTargetGTEX_phenotype.txt.gz + TcgaTargetGtex_rsem_gene_tpm.gz (TCGA+GTEx gene TPM)."
+  root: "{data_root}/gtex/xena_toil"
+  phenotype: "{data_root}/gtex/xena_toil/TcgaTargetGTEX_phenotype.txt.gz"
+  gene_tpm: "{data_root}/gtex/xena_toil/TcgaTargetGtex_rsem_gene_tpm.gz"
+
+# --- DepMap (Broad): API index + Google Cloud signed URLs; see depmap/*/download_manifest.json ---
+depmap:
+  root: "{data_root}/depmap"
+  latest_glob_note: "Largest YYQq folder under depmap/ after scripts/download_all_required.py"
+
+# --- GDC harmonized open RNA (TCGA-GBM STAR gene counts TSV) ---
+gdc:
+  tcga_gbm_star_counts: "{data_root}/gdc/tcga_gbm_open_star_counts"
+  manifest: "{data_root}/gdc/tcga_gbm_open_star_counts/gdc_files_manifest.json"
+  # Open Illumina methylation beta TXT (sesame level 3); see scripts/download_high_value_public_datasets.py
+  tcga_gbm_methylation_beta: "{data_root}/gdc/tcga_gbm_open_methylation_beta"
+  methylation_manifest: "{data_root}/gdc/tcga_gbm_open_methylation_beta/gdc_methylation_files_manifest.json"
+  # Built under repo results/module2/ by scripts/build_gdc_gbm_expression_matrix.py
+  repo_tpm_matrix: "results/module2/tcga_gbm_star_tpm_matrix.parquet"
+  repo_unstranded_counts_matrix: "results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+
+# --- Pharmacogenomics (GDSC, PRISM via DepMap, Open Targets) — download_high_value_public_datasets.py ---
+pharmacogenomics:
+  gdsc: "{data_root}/pharmacogenomics/gdsc"
+  prism_depmap_primary: "{data_root}/pharmacogenomics/prism_depmap/primary"
+  prism_depmap_secondary: "{data_root}/pharmacogenomics/prism_depmap/secondary"
+  open_targets: "{data_root}/pharmacogenomics/open_targets"
+
+# recount3 G029 .gz (TCGA GBM + GTEx brain) — default under data_root; override with env RECOUNT3_CACHE_DIR
+recount3:
+  harmonized_g029: "{data_root}/recount3/harmonized_g029"
+
+# --- Reference annotations (GENCODE + HGNC) ---
+references:
+  root: "{data_root}/references"
+  gencode_gtf_gz: "{data_root}/references/gencode.v44.annotation.gtf.gz"
+  hgnc_complete_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  hg38_blacklist_gz: "{data_root}/references/hg38-blacklist.v2.bed.gz"
+  # Optional: python scripts/download_open_source_extensions.py (or download_all_required.py --with-open-extensions)
+  gene_sets_msigdb: "{data_root}/references/gene_sets/msigdb"
+  mcpcounter_signatures: "{data_root}/references/cell_deconvolution/mcpcounter/genes.txt"
+  # CELLxGENE Census source h5ad mirrors (public S3); see config/high_value_public_datasets.yaml
+  scrna_cellxgene_census: "{data_root}/references/scrna_cellxgene_census"
+  # CTD bulk reports (open_source_data_extensions.yaml)
+  ctd_chem_gene_ixns_gz: "{data_root}/references/ctd/CTD_chem_gene_ixns.tsv.gz"
+  ctd_genes_pathways_gz: "{data_root}/references/ctd/CTD_genes_pathways.tsv.gz"
+  # Supplementary open references (download_supplementary_reference_resources.py / --with-supplementary-reference-resources)
+  archs4_recount_dir: "{data_root}/references/archs4_recount"
+  expression_atlas_genes_dir: "{data_root}/references/expression_atlas_genes"
+  pathways_dir: "{data_root}/references/pathways"
+  wikipathways_homo_sapiens_gmt: "{data_root}/references/pathways/wikipathways-Homo_sapiens.gmt"
+  pathwaycommons_all_hgnc_gmt: "{data_root}/references/pathways/PathwayCommons12.All.hgnc.gmt.gz"
+  # Plain GMT produced by Snakemake rule pathwaycommons_hgnc_gmt_plain (gzip expanded for GSEA/fgsea tools).
+  pathwaycommons_all_hgnc_gmt_plain: "{data_root}/references/pathways/PathwayCommons12.All.hgnc.gmt"
+  dgidb_dir: "{data_root}/references/dgidb"
+  chembl_uniprot_mapping_txt: "{data_root}/references/drug_target/chembl_36_uniprot_mapping.txt"
+  clinvar_gene_specific_summary: "{data_root}/references/clinvar/gene_specific_summary.txt"
+  gnomad_lof_by_gene_bgz: "{data_root}/references/gnomad/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz"
+  drugcentral_dump_gz: "{data_root}/references/drugcentral/drugcentral.dump.11012023.sql.gz"
+
+# --- Shallow-cloned public pipelines (git) + LINCS CLUE API dumps ---
+pipelines:
+  root: "{data_root}/pipelines"
+  nf_core_rnaseq: "{data_root}/pipelines/nf-core-rnaseq"
+  nf_core_scrnaseq: "{data_root}/pipelines/nf-core-scrnaseq"
+  nf_core_fetchngs: "{data_root}/pipelines/nf-core-fetchngs"
+  cmap_py: "{data_root}/pipelines/cmapPy"
+
+lincs:
+  clue_api_subset: "{data_root}/lincs/clue_api_subset"
+
+# --- SRA-derived (aligned counts / FASTQ for GSE57872) ---
+sra:
+  GSE57872:
+    root: "{data_root}/sra/GSE57872"
+    fastq: "{data_root}/sra/GSE57872/fastq"
+    counts: "{data_root}/sra/GSE57872/counts"
+
+# --- Dryad: Ravi et al. spatial multi-omics (Visium, scRNA, methylation, IMC, MALDI) ---
+# Citation: https://doi.org/10.5061/dryad.h70rxwdmj
+dryad_spatial_gbm:
+  root: "{data_root}/dryad/spatial_gbm"
+  visium: "{data_root}/dryad/spatial_gbm/10XVisium 2"
+  scrna_tumor: "{data_root}/dryad/spatial_gbm/scTumor_Tissue"
+  scrna_environment: "{data_root}/dryad/spatial_gbm/scSlices_Environment"
+  methylation: "{data_root}/dryad/spatial_gbm/Methylation"
+  imc: "{data_root}/dryad/spatial_gbm/IMC_1"
+  maldi: "{data_root}/dryad/spatial_gbm/MALDI_1"

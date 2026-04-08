@@ -1,0 +1,28 @@
+# Outline M3: in-repo provenance JSONs for DepMap CRISPR/somatic joins, TCGA MAF layer and join, MutSig join, and STRING export.
+# Aligns with module2_integration.yaml depmap_crispr_join, depmap_somatic_join, tcga_mutation_layer, mutsig_merge, and M4 STRING prep.
+
+m3_repo_bulk_join_provenance_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_bulk_join_provenance_paths_status.json"
+  done_flag: "results/module3/m3_repo_bulk_join_provenance_paths_status.flag"
+  groups:
+    - id: bulk_join_provenance_repo_outputs
+      summary: "DepMap, TCGA MAF, MutSig join provenance plus DEA STRING export provenance under results/module3"
+      path_checks:
+        - name: "DepMap CRISPR join provenance JSON"
+          path_template: "{repo_root}/results/module3/depmap_crispr_join_provenance.json"
+        - name: "DepMap somatic join provenance JSON"
+          path_template: "{repo_root}/results/module3/depmap_somatic_join_provenance.json"
+        - name: "TCGA MAF layer provenance JSON"
+          path_template: "{repo_root}/results/module3/tcga_maf_layer_provenance.json"
+        - name: "TCGA MAF join DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/tcga_maf_join_provenance.json"
+        - name: "MutSig join DEA provenance JSON"
+          path_template: "{repo_root}/results/module3/mutsig_join_provenance.json"
+        - name: "DEA STRING export provenance JSON"
+          path_template: "{repo_root}/results/module3/dea_string_export_provenance.json"
+
+m3_repo_bulk_join_provenance_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_bulk_join_provenance_integration_stub.json"
+  done_flag: "results/module3/m3_repo_bulk_join_provenance_integration_stub.flag"

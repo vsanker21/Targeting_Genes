@@ -1,0 +1,51 @@
+# Compact gene-symbol signatures for Verhaak-style TCGA GBM subtyping (2010-class model).
+# Not a full centroid reproduction — expand from supplementary tables for publication use.
+# Scoring: per-tumor-sample rank-based composite (see scripts/score_gbm_verhaak_subtypes.py).
+
+reference: "Verhaak et al., Cancer Cell 2010 (approximate marker sets)"
+
+subtypes:
+  Classical:
+    - EGFR
+    - NOTCH3
+    - NDRG1
+    - ATP1B2
+    - SEC61G
+    - LANCL2
+    - VAMP3
+    - EFR3A
+    - TSC22D1
+    - NES
+  Mesenchymal:
+    - CD44
+    - VIM
+    - CHI3L1
+    - ANPEP
+    - SERPINE1
+    - RELA
+    - CEBPD
+    - TRADD
+    - MYO10
+    - TGFB1
+  Proneural:
+    - OLIG2
+    - NKX2-2
+    - SOX2
+    - DLL3
+    - DCX
+    - ASCL1
+    - NEUROG1
+    - TCF4
+    - FABP7
+    - PDGFRA
+  Neural:
+    - STMN2
+    - MAP2
+    - NEFL
+    - GABRA1
+    - SYT1
+    - CLTB
+    - SNAP25
+    - VSNL1
+    - RBFOX1
+    - ELAVL2

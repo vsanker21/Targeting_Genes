@@ -1,0 +1,289 @@
+# cmapPy + optional third-party functional check (no GNINA / 10x in default runner).
+name: Optional stack
+
+on:
+  push:
+    paths:
+      - "requirements*.txt"
+      - "pytest.ini"
+      - "scripts/ensure_optional_third_party_functional.py"
+      - "scripts/run_optional_stack_ci.py"
+      - "scripts/verify_optional_third_party_tooling.py"
+      - "config/third_party_tooling.yaml"
+      - "tests/**"
+      - "scripts/write_pipeline_results_index.py"
+      - "scripts/manifest_optional.py"
+      - "scripts/write_module*_export_manifest.py"
+      - "config/pipeline_inventory.yaml"
+      - "config/pipeline_outline.yaml"
+      - "config/m2_cptac_methylation_inputs.yaml"
+      - "config/m2_1_star_pairing_outline_inputs.yaml"
+      - "config/m2_1_recount3_mirror_outline_inputs.yaml"
+      - "config/m2_1_toil_xena_hub_outline_inputs.yaml"
+      - "config/m2_2_variant_annotation_outline_inputs.yaml"
+      - "config/m2_2_depmap_mirror_outline_inputs.yaml"
+      - "config/m2_2_maf_mutsig_mirror_outline_inputs.yaml"
+      - "config/m2_2_outline_driver_mirror_outline_inputs.yaml"
+      - "config/m2_movics_inputs.yaml"
+      - "config/m2_3_immune_tme_mirror_outline_inputs.yaml"
+      - "config/m1_outline_inputs.yaml"
+      - "config/m1_harmony_batch_outline_inputs.yaml"
+      - "config/m1_reference_gdc_outline_inputs.yaml"
+      - "config/m1_batch_correction_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m1_outline_inputs.yaml"
+      - "config/m3_repo_m1_harmony_batch_outline_inputs.yaml"
+      - "config/m3_repo_m1_reference_gdc_outline_inputs.yaml"
+      - "config/m3_repo_m1_batch_correction_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_cptac_methylation_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_star_pairing_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_recount3_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_toil_xena_hub_outline_inputs.yaml"
+      - "config/m3_repo_m2_movics_outline_inputs.yaml"
+      - "config/m3_repo_m2_3_immune_tme_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_variant_annotation_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_depmap_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_maf_mutsig_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_outline_driver_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_maf_annotation_outline_inputs.yaml"
+      - "config/m5_modality_outline_inputs.yaml"
+      - "config/m4_network_outline_inputs.yaml"
+      - "config/m3_repo_module4_network_outline_inputs.yaml"
+      - "config/m4_string_cache_outline_inputs.yaml"
+      - "config/m3_repo_module4_string_cache_outline_inputs.yaml"
+      - "config/m4_gsea_mirror_outline_inputs.yaml"
+      - "config/m4_pathway_database_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_pathway_database_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_gsea_mirror_outline_inputs.yaml"
+      - "config/vendor_tooling_outline_inputs.yaml"
+      - "config/m7_validation_outline_inputs.yaml"
+      - "config/m7_gts_external_score_mirror_outline_inputs.yaml"
+      - "config/m6_toxicity_outline_inputs.yaml"
+      - "config/m6_docking_output_outline_inputs.yaml"
+      - "config/m6_compound_library_mirror_outline_inputs.yaml"
+      - "config/m3_deconvolution_outline_inputs.yaml"
+      - "config/m3_repo_deconvolution_outline_inputs.yaml"
+      - "config/m3_repo_scrna_spatial_outline_inputs.yaml"
+      - "config/m3_repo_public_inputs_outline_inputs.yaml"
+      - "config/m3_repo_sc_workflow_outline_inputs.yaml"
+      - "config/m3_dryad_sra_outline_inputs.yaml"
+      - "config/m3_repo_dryad_sra_outline_inputs.yaml"
+      - "config/m3_geo_pipelines_mirror_outline_inputs.yaml"
+      - "config/m3_repo_geo_pipelines_mirror_outline_inputs.yaml"
+      - "config/m3_tcga_recount_lincs_mirror_outline_inputs.yaml"
+      - "config/m3_repo_tcga_recount_lincs_mirror_outline_inputs.yaml"
+      - "config/m3_repo_bundled_references_outline_inputs.yaml"
+      - "config/m3_repo_gdc_expression_matrix_outline_inputs.yaml"
+      - "config/m3_repo_toil_bulk_expression_outline_inputs.yaml"
+      - "config/m3_repo_recount3_bulk_dea_outline_inputs.yaml"
+      - "config/m3_repo_bulk_welch_ols_dea_outline_inputs.yaml"
+      - "config/m3_repo_toil_vs_recount3_correlation_outline_inputs.yaml"
+      - "config/m3_repo_stratified_bulk_dea_outline_inputs.yaml"
+      - "config/m3_repo_cohort_verhaak_subtype_outline_inputs.yaml"
+      - "config/m3_repo_bulk_join_provenance_outline_inputs.yaml"
+      - "config/m3_repo_gdc_star_tcga_gbm_dea_outline_inputs.yaml"
+      - "config/m3_repo_module5_lincs_connectivity_outline_inputs.yaml"
+      - "config/m3_repo_module5_l1000_data_outline_inputs.yaml"
+      - "config/m3_repo_module5_modality_outline_inputs.yaml"
+      - "config/m3_repo_module5_srges_output_outline_inputs.yaml"
+      - "config/m3_repo_module5_lincs_connectivity_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_hub_gsea_outline_inputs.yaml"
+      - "config/m3_repo_module7_gts_stub_outline_inputs.yaml"
+      - "config/m3_repo_module7_validation_outline_inputs.yaml"
+      - "config/m3_repo_module7_gts_external_score_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module6_structure_bridge_outline_inputs.yaml"
+      - "config/m3_repo_module6_structure_tooling_outline_inputs.yaml"
+      - "config/m3_repo_tooling_vendor_outline_inputs.yaml"
+      - "config/m3_repo_module6_docking_output_outline_inputs.yaml"
+      - "config/m3_repo_module6_toxicity_outline_inputs.yaml"
+      - "config/m3_repo_module6_compound_library_mirror_outline_inputs.yaml"
+      - "config/m3_cellranger_output_outline_inputs.yaml"
+      - "config/m3_repo_cellranger_output_outline_inputs.yaml"
+      - "config/m5_l1000_data_outline_inputs.yaml"
+      - "config/m5_srges_output_outline_inputs.yaml"
+      - "config/m5_lincs_connectivity_mirror_outline_inputs.yaml"
+      - "config/open_source_data_extensions.yaml"
+      - "scripts/download_open_source_extensions.py"
+      - "scripts/download_all_required.py"
+      - "docs/GBM_DETECTION_AND_OPEN_DATA.md"
+      - "config/high_value_public_datasets.yaml"
+      - "scripts/download_high_value_public_datasets.py"
+      - "config/supplementary_reference_resources.yaml"
+      - "scripts/download_supplementary_reference_resources.py"
+      - "scripts/supplementary_reference_resources_paths_status.py"
+      - "scripts/m4_pathway_database_mirror_integration_stub.py"
+      - "scripts/fetch_clue_api_subset.py"
+      - "config/data_sources.yaml"
+      - ".env.example"
+      - "Snakefile"
+      - ".github/workflows/optional-stack.yml"
+  pull_request:
+    paths:
+      - "requirements*.txt"
+      - "pytest.ini"
+      - "scripts/ensure_optional_third_party_functional.py"
+      - "scripts/run_optional_stack_ci.py"
+      - "scripts/verify_optional_third_party_tooling.py"
+      - "config/third_party_tooling.yaml"
+      - "config/module5_inputs.yaml"
+      - "config/m2_cptac_methylation_inputs.yaml"
+      - "config/m2_1_star_pairing_outline_inputs.yaml"
+      - "config/m2_1_recount3_mirror_outline_inputs.yaml"
+      - "config/m2_1_toil_xena_hub_outline_inputs.yaml"
+      - "config/m2_2_variant_annotation_outline_inputs.yaml"
+      - "config/m2_2_depmap_mirror_outline_inputs.yaml"
+      - "config/m2_2_maf_mutsig_mirror_outline_inputs.yaml"
+      - "config/m2_2_outline_driver_mirror_outline_inputs.yaml"
+      - "config/m2_movics_inputs.yaml"
+      - "config/m2_3_immune_tme_mirror_outline_inputs.yaml"
+      - "config/m1_outline_inputs.yaml"
+      - "config/m1_harmony_batch_outline_inputs.yaml"
+      - "config/m1_reference_gdc_outline_inputs.yaml"
+      - "config/m1_batch_correction_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m1_outline_inputs.yaml"
+      - "config/m3_repo_m1_harmony_batch_outline_inputs.yaml"
+      - "config/m3_repo_m1_reference_gdc_outline_inputs.yaml"
+      - "config/m3_repo_m1_batch_correction_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_cptac_methylation_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_star_pairing_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_recount3_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_1_toil_xena_hub_outline_inputs.yaml"
+      - "config/m3_repo_m2_movics_outline_inputs.yaml"
+      - "config/m3_repo_m2_3_immune_tme_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_variant_annotation_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_depmap_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_maf_mutsig_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_2_outline_driver_mirror_outline_inputs.yaml"
+      - "config/m3_repo_m2_maf_annotation_outline_inputs.yaml"
+      - "config/m5_modality_outline_inputs.yaml"
+      - "config/m4_network_outline_inputs.yaml"
+      - "config/m3_repo_module4_network_outline_inputs.yaml"
+      - "config/m4_string_cache_outline_inputs.yaml"
+      - "config/m3_repo_module4_string_cache_outline_inputs.yaml"
+      - "config/m4_gsea_mirror_outline_inputs.yaml"
+      - "config/m4_pathway_database_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_pathway_database_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_gsea_mirror_outline_inputs.yaml"
+      - "config/vendor_tooling_outline_inputs.yaml"
+      - "config/m7_validation_outline_inputs.yaml"
+      - "config/m7_gts_external_score_mirror_outline_inputs.yaml"
+      - "config/m6_toxicity_outline_inputs.yaml"
+      - "config/m6_docking_output_outline_inputs.yaml"
+      - "config/m6_compound_library_mirror_outline_inputs.yaml"
+      - "config/m3_deconvolution_outline_inputs.yaml"
+      - "config/m3_repo_deconvolution_outline_inputs.yaml"
+      - "config/m3_repo_scrna_spatial_outline_inputs.yaml"
+      - "config/m3_repo_public_inputs_outline_inputs.yaml"
+      - "config/m3_repo_sc_workflow_outline_inputs.yaml"
+      - "config/m3_dryad_sra_outline_inputs.yaml"
+      - "config/m3_repo_dryad_sra_outline_inputs.yaml"
+      - "config/m3_geo_pipelines_mirror_outline_inputs.yaml"
+      - "config/m3_repo_geo_pipelines_mirror_outline_inputs.yaml"
+      - "config/m3_tcga_recount_lincs_mirror_outline_inputs.yaml"
+      - "config/m3_repo_tcga_recount_lincs_mirror_outline_inputs.yaml"
+      - "config/m3_repo_bundled_references_outline_inputs.yaml"
+      - "config/m3_repo_gdc_expression_matrix_outline_inputs.yaml"
+      - "config/m3_repo_toil_bulk_expression_outline_inputs.yaml"
+      - "config/m3_repo_recount3_bulk_dea_outline_inputs.yaml"
+      - "config/m3_repo_bulk_welch_ols_dea_outline_inputs.yaml"
+      - "config/m3_repo_toil_vs_recount3_correlation_outline_inputs.yaml"
+      - "config/m3_repo_stratified_bulk_dea_outline_inputs.yaml"
+      - "config/m3_repo_cohort_verhaak_subtype_outline_inputs.yaml"
+      - "config/m3_repo_bulk_join_provenance_outline_inputs.yaml"
+      - "config/m3_repo_gdc_star_tcga_gbm_dea_outline_inputs.yaml"
+      - "config/m3_repo_module5_lincs_connectivity_outline_inputs.yaml"
+      - "config/m3_repo_module5_l1000_data_outline_inputs.yaml"
+      - "config/m3_repo_module5_modality_outline_inputs.yaml"
+      - "config/m3_repo_module5_srges_output_outline_inputs.yaml"
+      - "config/m3_repo_module5_lincs_connectivity_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module4_hub_gsea_outline_inputs.yaml"
+      - "config/m3_repo_module7_gts_stub_outline_inputs.yaml"
+      - "config/m3_repo_module7_validation_outline_inputs.yaml"
+      - "config/m3_repo_module7_gts_external_score_mirror_outline_inputs.yaml"
+      - "config/m3_repo_module6_structure_bridge_outline_inputs.yaml"
+      - "config/m3_repo_module6_structure_tooling_outline_inputs.yaml"
+      - "config/m3_repo_tooling_vendor_outline_inputs.yaml"
+      - "config/m3_repo_module6_docking_output_outline_inputs.yaml"
+      - "config/m3_repo_module6_toxicity_outline_inputs.yaml"
+      - "config/m3_repo_module6_compound_library_mirror_outline_inputs.yaml"
+      - "config/m3_cellranger_output_outline_inputs.yaml"
+      - "config/m3_repo_cellranger_output_outline_inputs.yaml"
+      - "config/m5_l1000_data_outline_inputs.yaml"
+      - "config/m5_srges_output_outline_inputs.yaml"
+      - "config/m5_lincs_connectivity_mirror_outline_inputs.yaml"
+      - "config/open_source_data_extensions.yaml"
+      - "scripts/download_open_source_extensions.py"
+      - "scripts/download_all_required.py"
+      - "docs/GBM_DETECTION_AND_OPEN_DATA.md"
+      - "config/high_value_public_datasets.yaml"
+      - "scripts/download_high_value_public_datasets.py"
+      - "scripts/fetch_clue_api_subset.py"
+      - "config/data_sources.yaml"
+      - ".env.example"
+      - "scripts/module5_cmap_tooling_scan.py"
+      - "scripts/module5_lincs_connectivity_readiness.py"
+      - "tests/**"
+      - "scripts/write_pipeline_results_index.py"
+      - "scripts/manifest_optional.py"
+      - "scripts/write_module*_export_manifest.py"
+      - "config/pipeline_inventory.yaml"
+      - "config/pipeline_outline.yaml"
+      - "Snakefile"
+      - ".github/workflows/optional-stack.yml"
+  workflow_dispatch:
+
+jobs:
+  optional-stack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+
+      - name: High-value public datasets (dry-run)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/glioma_hv_empty
+        run: |
+          mkdir -p "${{ runner.temp }}/glioma_hv_empty"
+          python scripts/download_high_value_public_datasets.py --dry-run --skip-gdc-methylation
+
+      - name: Supplementary reference resources (dry-run)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/glioma_sup_empty
+        run: |
+          mkdir -p "${{ runner.temp }}/glioma_sup_empty"
+          python scripts/download_supplementary_reference_resources.py --dry-run --skip-archs4-h5
+
+      - name: Supplementary reference paths status (empty data_root)
+        env:
+          GLIOMA_TARGET_DATA_ROOT: ${{ runner.temp }}/glioma_sup_empty
+        run: python scripts/supplementary_reference_resources_paths_status.py
+
+      - name: Optional stack (pytest + ensure; same as run_optional_stack_ci.py)
+        run: python scripts/run_optional_stack_ci.py
+
+      - name: Third-party tooling status (non-strict PATH/pip report)
+        run: python scripts/verify_optional_third_party_tooling.py
+
+      - name: Upload functional report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: optional_third_party_functional_report
+          path: results/optional_third_party_functional_report.json
+          if-no-files-found: ignore
+
+      - name: Upload third-party tooling status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: third_party_tooling_status
+          path: results/third_party_tooling_status.json
+          if-no-files-found: ignore

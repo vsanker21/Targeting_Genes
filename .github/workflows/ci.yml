@@ -1,0 +1,29 @@
+# Default CI: unit tests + integration (strict index subprocess, Snakemake dry-run when snakemake on PATH).
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      # requirements.txt includes snakemake; @pytest.mark.snakemake dry-run tests run here.
+      # Use `pytest -m "not snakemake"` locally for a quicker loop without the DAG dry-run.
+      - name: Pytest
+        run: python -m pytest -q --tb=line

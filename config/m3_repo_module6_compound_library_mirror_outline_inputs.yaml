@@ -1,0 +1,24 @@
+# Outline M3: in-repo Module 6 m6_compound_library_mirror path-status + integration stub JSON/flags under results/module6.
+# Complements m6_compound_library_mirror_outline_inputs.yaml (data_root compounds trees) for M3 export manifest bundling.
+
+m3_repo_module6_compound_library_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_module6_compound_library_mirror_paths_status.json"
+  done_flag: "results/module3/m3_repo_module6_compound_library_mirror_paths_status.flag"
+  groups:
+    - id: module6_compound_library_mirror_repo_outline_outputs
+      summary: "M6 compound library mirror outline artifacts (paths_status + integration_stub) under results/module6"
+      path_checks:
+        - name: m6_compound_library_mirror_paths_status_json
+          path_template: "{repo_root}/results/module6/m6_compound_library_mirror_paths_status.json"
+        - name: m6_compound_library_mirror_paths_status_flag
+          path_template: "{repo_root}/results/module6/m6_compound_library_mirror_paths_status.flag"
+        - name: m6_compound_library_mirror_integration_stub_json
+          path_template: "{repo_root}/results/module6/m6_compound_library_mirror_integration_stub.json"
+        - name: m6_compound_library_mirror_integration_stub_flag
+          path_template: "{repo_root}/results/module6/m6_compound_library_mirror_integration_stub.flag"
+
+m3_repo_module6_compound_library_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_module6_compound_library_mirror_integration_stub.json"
+  done_flag: "results/module3/m3_repo_module6_compound_library_mirror_integration_stub.flag"

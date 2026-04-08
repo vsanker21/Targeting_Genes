@@ -1,0 +1,32 @@
+# Outline M1 supplement: optional scRNA / pseudobulk Harmony staging vs ComBat-Seq on bulk STAR counts.
+# Complements m1_outline_inputs + module1_outline_integration_stub (harmony_scrna_batch_correction stays false there).
+
+m1_harmony_batch_path_checks:
+  enabled: true
+  output_json: "results/module3/m1_harmony_batch_paths_status.json"
+  done_flag: "results/module3/m1_harmony_batch_paths_status.flag"
+  groups:
+    - id: harmony_integrated_objects
+      summary: "Post-integration single-cell objects (Harmony, scVI, or Seurat integration outputs)"
+      path_checks:
+        - name: "AnnData / Scanpy workspace after harmonization"
+          path_template: "{data_root}/scrna/harmony_integrated_h5ad"
+        - name: "Seurat RDS or layer export directory"
+          path_template: "{data_root}/scrna/harmony_integrated_seurat"
+    - id: batch_covariate_metadata
+      summary: "Batch, donor, platform, and assay covariate tables beyond bulk TSS proxy"
+      path_checks:
+        - name: "Sample- or cell-level batch covariate tables (TSV/CSV)"
+          path_template: "{data_root}/scrna/batch_covariate_tables"
+        - name: "Optional harmonization run configs (YAML/JSON)"
+          path_template: "{data_root}/scrna/harmony_run_configs"
+    - id: cross_dataset_integration_workspace
+      summary: "Multi-study merge, anchors, or reference-mapping prior to Harmony"
+      path_checks:
+        - name: "Cross-study integrated object staging (pre- or post-Harmony)"
+          path_template: "{data_root}/scrna/cross_study_integration"
+
+m1_harmony_batch_integration_stub:
+  enabled: true
+  output_json: "results/module3/m1_harmony_batch_integration_stub.json"
+  done_flag: "results/module3/m1_harmony_batch_integration_stub.flag"

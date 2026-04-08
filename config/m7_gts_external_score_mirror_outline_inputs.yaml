@@ -1,0 +1,27 @@
+# Outline M7 optional externally computed GTS-like or target-prioritization score tables under GLIOMA_TARGET_DATA_ROOT.
+# Complements in-repo GTS stub tables and m7_validation_* (holdout expression and outcomes).
+
+m7_gts_external_score_mirror_path_checks:
+  enabled: true
+  output_json: "results/module7/m7_gts_external_score_mirror_paths_status.json"
+  done_flag: "results/module7/m7_gts_external_score_mirror_paths_status.flag"
+  groups:
+    - id: external_composite_or_tier_scores
+      summary: "User or external pipeline composite scores or evidence tiers per gene (TSV or JSON trees)"
+      path_checks:
+        - name: "External composite GTS-like or tiered score table staging"
+          path_template: "{data_root}/gts_external/composite_score_tables"
+        - name: "Optional weight or config YAML for external scoring methods"
+          path_template: "{data_root}/gts_external/scoring_weights_or_configs"
+    - id: modality_priority_exports
+      summary: "Per-modality target ranks from tools outside this repo (CRISPR, druggability, immune)"
+      path_checks:
+        - name: "Modality-specific priority rank or hit list exports"
+          path_template: "{data_root}/gts_external/modality_arm_exports"
+        - name: "Optional crosswalk from external gene IDs to HGNC"
+          path_template: "{data_root}/gts_external/gene_id_crosswalks"
+
+m7_gts_external_score_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module7/m7_gts_external_score_mirror_integration_stub.json"
+  done_flag: "results/module7/m7_gts_external_score_mirror_integration_stub.flag"

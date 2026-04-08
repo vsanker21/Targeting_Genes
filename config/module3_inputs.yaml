@@ -1,0 +1,58 @@
+# Paths checked by scripts/module3_public_inputs_status.py (Module 3 outline scaffolding).
+# path_template is resolved with {data_root} from GLIOMA_TARGET_DATA_ROOT or data_sources.yaml.
+
+path_checks:
+  - name: "GEO scRNA GSE57872"
+    path_template: "{data_root}/geo/scrna_seq/GSE57872"
+  - name: "SRA GSE57872 bundle"
+    path_template: "{data_root}/sra/GSE57872"
+  - name: "Dryad spatial GBM (Ravi et al.)"
+    path_template: "{data_root}/dryad/spatial_gbm"
+  - name: "GEO scRNA GSE131928"
+    path_template: "{data_root}/geo/scrna_seq/GSE131928"
+  - name: "GEO scRNA GSE141946"
+    path_template: "{data_root}/geo/scrna_seq/GSE141946"
+
+# Optional Scanpy / Seurat / Visium workflow roots (outline M3 prep) — scripts/module3_sc_workflow_paths_status.py
+sc_workflow_path_checks:
+  enabled: true
+  output_json: "results/module3/module3_sc_workflow_paths_status.json"
+  done_flag: "results/module3/module3_sc_workflow_paths_status.flag"
+  path_checks:
+    - name: "Single-cell working directory (h5ad / counts stubs)"
+      path_template: "{data_root}/single_cell/workspace"
+    - name: "Scanpy tutorial or atlas cache (optional)"
+      path_template: "{data_root}/single_cell/scanpy_cache"
+    - name: "Seurat object / RDS staging (optional)"
+      path_template: "{data_root}/single_cell/seurat_staging"
+    - name: "Visium / spaceranger output root (optional)"
+      path_template: "{data_root}/spatial/visium_runs"
+
+# scRNA/spatial execution gap summary (no Scanpy/Seurat) — scripts/module3_scrna_spatial_integration_stub.py
+scrna_spatial_integration_stub:
+  enabled: true
+  output_json: "results/module3/scrna_spatial_integration_stub.json"
+  done_flag: "results/module3/scrna_spatial_integration_stub.flag"
+
+# JSON inventory of bulk-DE / recount3 / join provenance (feeds pipeline_results_index).
+module3_export_manifest:
+  enabled: true
+  output_json: "results/module3/module3_export_manifest.json"
+  # GDC STAR edgeR glmQLF (m2_edger_tcga_*). Use optional_tags if counts matrix is absent on a clone.
+  # RCTD / Cell2location conda rules are opt-in; h5ad/tsv appear only after training.enabled Cell2location runs.
+  optional_tags:
+    - "m3_sc.deconvolution_rctd_provenance"
+    - "m3_sc.deconvolution_rctd_flag"
+    - "m3_sc.deconvolution_cell2location_provenance"
+    - "m3_sc.deconvolution_cell2location_flag"
+    - "m3_sc.deconvolution_cell2location_result_h5ad"
+    - "m3_sc.deconvolution_cell2location_abundance_tsv"
+  # Optional: append more paths without editing write_module3_export_manifest.py.
+  # Each extra_artifacts path must be a named input on Snakemake rule m3_export_manifest.
+  # Built-in _ARTIFACTS rows listed in _ARTIFACTS_EXEMPT_FROM_SNAKEFILE_MANIFEST_INPUTS are
+  # inventory-only (not rule inputs); their tags should stay in optional_tags above.
+  # extra_artifacts:
+  #   - path: "results/module3/custom_provenance.json"
+  #     tag: "custom.example"
+  #     optional: true
+  extra_artifacts: []

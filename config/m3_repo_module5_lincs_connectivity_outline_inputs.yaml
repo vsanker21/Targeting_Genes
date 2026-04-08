@@ -1,0 +1,54 @@
+# Outline M3: in-repo Module 5 LINCS disease signatures, cmap tooling scan, connectivity readiness, signature pack, and sRGES gap stub.
+# Aligns with pipeline_outline module 5 implemented bullets (results/module5).
+
+m3_repo_module5_lincs_connectivity_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_module5_lincs_connectivity_paths_status.json"
+  done_flag: "results/module3/m3_repo_module5_lincs_connectivity_paths_status.flag"
+  groups:
+    - id: module5_lincs_repo_connectivity_outputs
+      summary: "Entrez signatures, provenance, stratified TSVs, cmap scan, connectivity readiness, signature pack, srges stub under results/module5"
+      path_checks:
+        - name: lincs_disease_signature_welch_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature_welch_entrez.tsv"
+        - name: lincs_disease_signature_ols_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature_ols_entrez.tsv"
+        - name: lincs_disease_signature_recount3_pydeseq2_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature_recount3_pydeseq2_entrez.tsv"
+        - name: lincs_disease_signature_recount3_edger_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature_recount3_edger_entrez.tsv"
+        - name: lincs_disease_signature_provenance_json
+          path_template: "{repo_root}/results/module5/lincs_disease_signature_provenance.json"
+        - name: lincs_disease_signature_flag
+          path_template: "{repo_root}/results/module5/lincs_disease_signature.flag"
+        - name: lincs_stratified_signature_flag
+          path_template: "{repo_root}/results/module5/lincs_stratified_signature.flag"
+        - name: stratified_welch_classical_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/welch_integrated/dea_welch_subtype_Classical_entrez.tsv"
+        - name: stratified_welch_mesenchymal_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/welch_integrated/dea_welch_subtype_Mesenchymal_entrez.tsv"
+        - name: stratified_welch_neural_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/welch_integrated/dea_welch_subtype_Neural_entrez.tsv"
+        - name: stratified_welch_proneural_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/welch_integrated/dea_welch_subtype_Proneural_entrez.tsv"
+        - name: stratified_ols_classical_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/ols_integrated/dea_ols_subtype_Classical_entrez.tsv"
+        - name: stratified_ols_mesenchymal_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/ols_integrated/dea_ols_subtype_Mesenchymal_entrez.tsv"
+        - name: stratified_ols_neural_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/ols_integrated/dea_ols_subtype_Neural_entrez.tsv"
+        - name: stratified_ols_proneural_entrez_tsv
+          path_template: "{repo_root}/results/module5/lincs_disease_signature/stratified/ols_integrated/dea_ols_subtype_Proneural_entrez.tsv"
+        - name: cmap_tooling_scan_json
+          path_template: "{repo_root}/results/module5/cmap_tooling_scan.json"
+        - name: lincs_connectivity_readiness_json
+          path_template: "{repo_root}/results/module5/lincs_connectivity_readiness.json"
+        - name: lincs_signature_pack_json
+          path_template: "{repo_root}/results/module5/lincs_signature_pack.json"
+        - name: srges_integration_stub_json
+          path_template: "{repo_root}/results/module5/srges_integration_stub.json"
+
+m3_repo_module5_lincs_connectivity_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_module5_lincs_connectivity_integration_stub.json"
+  done_flag: "results/module3/m3_repo_module5_lincs_connectivity_integration_stub.flag"

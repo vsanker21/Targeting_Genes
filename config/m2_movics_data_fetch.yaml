@@ -1,0 +1,40 @@
+# Programmatic staging for paths checked in config/m2_movics_inputs.yaml (MOVICS / multi-omics).
+# Run: python scripts/fetch_movics_staging_data.py
+# Or:  python scripts/download_all_required.py ... --with-movics-staging  (after DepMap is present)
+
+depmap_gbm_mae:
+  enabled: true
+  # Subset DepMap models (same logic as scripts/depmap_shared.py)
+  # DepMap 25Q3 labels gliomas as "Diffuse Glioma" (not always the string "Glioblastoma").
+  oncotree_primary_substr: "Glioma"
+  oncotree_lineage_fallback: "CNS/Brain"
+  max_genes: 3000
+  # Prefer GBM outline driver symbols first in the gene universe, then fill by expression variance
+  # (improves MOVICS binomial layer vs random high-variance genes with no mutation spread).
+  prioritize_outline_drivers_in_gene_universe: true
+  mutation_outline_drivers_yaml: references/gbm_known_drivers_outline.yaml
+  # Keep only mutation rows with at least one mutant and one wild-type model (better MOVICS binomial layer).
+  # If fewer than mutation_variable_min_genes pass, all rows are kept and provenance notes the relaxation.
+  mutation_require_variable: true
+  mutation_variable_min_genes: 50
+  # Under data_root/omics/multi_omics_mae/
+  out_dir: "omics/multi_omics_mae"
+  filenames:
+    expression_gz: "depmap_gbm_expression_logtpm.tsv.gz"
+    copy_number_gz: "depmap_gbm_cnv_log2.tsv.gz"
+    mutation_binary_gz: "depmap_gbm_mutation_binary.tsv.gz"
+    sample_manifest: "depmap_gbm_sample_manifest.tsv"
+
+# CGGA portal links change; add rows copied from https://cgga.org.cn/download.jsp (right-click -> copy link).
+# Each entry is fetched via HTTPS to cohorts/cgga_expression/<filename>.
+cgga_http: []
+# Example (URLs expire or rotate — verify on the portal before relying):
+#   - name: "mRNAseq_693_placeholder"
+#     url: "https://example.invalid/replace_with_portal_link.zip"
+#     filename: "cgga_mRNAseq_693.zip"
+
+# CBTTC / PedCBioportal: no open bulk API — fetch script writes cohorts/cbttc/ACCESS_NOTES.md. After access approval,
+#   place expression/CNV/mutation tables here (or subfolders) and point custom configs or future rules at those paths.
+cbttc:
+  write_readme: true
+  readme_filename: "ACCESS_NOTES.md"

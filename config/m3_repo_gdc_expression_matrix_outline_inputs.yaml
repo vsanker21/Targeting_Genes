@@ -1,0 +1,29 @@
+# Outline M3: in-repo GDC STAR TPM and counts matrices under results/module2 (config/data_sources.yaml gdc.repo_*).
+# Complements m1_reference_gdc (data_root GDC TSV staging) with built parquet outputs in the clone.
+
+m3_repo_gdc_expression_matrix_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_repo_gdc_expression_matrix_paths_status.json"
+  done_flag: "results/module3/m3_repo_gdc_expression_matrix_paths_status.flag"
+  groups:
+    - id: gdc_repo_expression_matrices
+      summary: "Parquet matrices from build_gdc_gbm_expression_matrix (data_sources gdc.repo_tpm_matrix, repo_unstranded_counts_matrix)"
+      path_checks:
+        - name: "TCGA-GBM STAR TPM matrix parquet"
+          path_template: "{repo_root}/results/module2/tcga_gbm_star_tpm_matrix.parquet"
+        - name: "TCGA-GBM STAR unstranded counts matrix parquet"
+          path_template: "{repo_root}/results/module2/tcga_gbm_star_unstranded_counts_matrix.parquet"
+    - id: gdc_repo_matrix_companion
+      summary: "Sample metadata, counts QC JSON, and cohort summary vs meta (summarize_gdc_counts_cohort.py)"
+      path_checks:
+        - name: "TCGA-GBM sample metadata TSV"
+          path_template: "{repo_root}/results/module2/tcga_gbm_sample_meta.tsv"
+        - name: "GDC counts matrix QC JSON"
+          path_template: "{repo_root}/results/module2/gdc_counts_matrix_qc.json"
+        - name: "GDC counts vs sample-meta cohort summary JSON"
+          path_template: "{repo_root}/results/module2/gdc_counts_cohort_summary.json"
+
+m3_repo_gdc_expression_matrix_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_repo_gdc_expression_matrix_integration_stub.json"
+  done_flag: "results/module3/m3_repo_gdc_expression_matrix_integration_stub.flag"

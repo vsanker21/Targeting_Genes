@@ -1,0 +1,88 @@
+# Paths checked by scripts/module5_data_paths_status.py (Module 5 outline scaffolding).
+# path_template is resolved with {data_root} from GLIOMA_TARGET_DATA_ROOT or data_sources.yaml.
+
+path_checks:
+  - name: "LINCS CLUE API subset"
+    path_template: "{data_root}/lincs/clue_api_subset"
+  - name: "cmapPy (pipelines)"
+    path_template: "{data_root}/pipelines/cmapPy"
+
+# Entrez × signed -log10(p) tables from Module 2 DEA for future LINCS connectivity / sRGES (scripts/export_module5_lincs_disease_signature.py).
+lincs_disease_signature:
+  enabled: true
+  hgnc_tsv: "{data_root}/references/hgnc_complete_set.txt"
+  pvalue_floor: 1.0e-300
+  provenance_json: "results/module5/lincs_disease_signature_provenance.json"
+  done_flag: "results/module5/lincs_disease_signature.flag"
+  jobs:
+    - tag: welch
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain.tsv"
+      effect_col: delta_log2_expression
+      p_col: pvalue
+      output_tsv: "results/module5/lincs_disease_signature_welch_entrez.tsv"
+    - tag: ols
+      dea_tsv: "results/module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv"
+      effect_col: beta_tumor_vs_ref_normal
+      p_col: pvalue
+      output_tsv: "results/module5/lincs_disease_signature_ols_entrez.tsv"
+    - tag: recount3_pydeseq2
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv"
+      effect_col: log2FoldChange
+      p_col: pvalue
+      output_tsv: "results/module5/lincs_disease_signature_recount3_pydeseq2_entrez.tsv"
+    - tag: recount3_edger
+      dea_tsv: "results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv"
+      effect_col: logFC
+      p_col: PValue
+      output_tsv: "results/module5/lincs_disease_signature_recount3_edger_entrez.tsv"
+  # Integrated subtype DEA (same inputs as gsea_prerank_export stratified globs); skips summary / *_outline_drivers*.
+  stratified_glob_jobs:
+    - job_tag: welch_integrated
+      glob_input: "results/module3/stratified_dea/integrated/dea_welch_subtype_*.tsv"
+      effect_col: delta_log2_expression
+      p_col: pvalue
+    - job_tag: ols_integrated
+      glob_input: "results/module3/stratified_ols_dea/integrated/dea_ols_subtype_*.tsv"
+      effect_col: beta_tumor_vs_ref_normal
+      p_col: pvalue
+  stratified_output_suffix: "_entrez.tsv"
+  stratified_done_flag: "results/module5/lincs_stratified_signature.flag"
+
+# cmapPy import + path-check digest for LINCS connectivity prep — scripts/module5_cmap_tooling_scan.py
+cmap_tooling_scan:
+  enabled: true
+  output_json: "results/module5/cmap_tooling_scan.json"
+  done_flag: "results/module5/cmap_tooling_scan.flag"
+  # Merged into cmap_tooling_scan.json when present (e.g. after ensure_optional_third_party_functional / optional_stack_ci).
+  optional_functional_report_json: "results/optional_third_party_functional_report.json"
+
+# LINCS connectivity readiness digest — scripts/module5_lincs_connectivity_readiness.py
+lincs_connectivity_readiness:
+  enabled: true
+  output_json: "results/module5/lincs_connectivity_readiness.json"
+  done_flag: "results/module5/lincs_connectivity_readiness.flag"
+
+# Entrez signature path pack for external cmapPy/CLUE drivers — scripts/export_module5_lincs_signature_pack.py
+lincs_signature_pack:
+  enabled: true
+  output_json: "results/module5/lincs_signature_pack.json"
+  done_flag: "results/module5/lincs_signature_pack.flag"
+  # Optional hints for downstream notebooks (not consumed by repo rules).
+  defaults_for_connectivity:
+    primary_global_tag: welch
+    secondary_global_tag: ols
+    # Optional recount3 count-based DE (same metric as welch/ols); tags match lincs_disease_signature.jobs
+    recount3_pydeseq2_tag: recount3_pydeseq2
+    recount3_edger_tag: recount3_edger
+
+# sRGES / L1000 gap analysis (no scoring) — scripts/module5_srges_integration_stub.py
+srges_integration_stub:
+  enabled: true
+  output_json: "results/module5/srges_integration_stub.json"
+  done_flag: "results/module5/srges_integration_stub.flag"
+
+# Single JSON inventory for Module 5 (paths, sizes) — scripts/write_module5_export_manifest.py
+module5_export_manifest:
+  enabled: true
+  output_json: "results/module5/module5_export_manifest.json"
+  optional_tags: []

@@ -1,0 +1,569 @@
+# Planned capabilities from Project_Outline / pipeline_outline.yaml planned bullets.
+# These are not implemented as full automated steps here; see report_pipeline_planned_extensions.py.
+
+version: 1
+disclaimer: >-
+  Full delivery needs controlled-access data (CGGA, CPTAC, CBTTC), HPC or cloud compute,
+  licensed software (e.g. Glide), R/Bioconductor stacks (DESeq2, edgeR, Harmony, WGCNA, MOVICS),
+  and third-party pipelines (SCENIC+, SLAYER, sRGES). This repo ships partial scaffolding only.
+
+extensions:
+  - id: m1_fastq_quant_reprocessing
+    module: M1
+    summary: "Full FASTQ to quant reprocessing (STAR/Salmon/nf-core)"
+    implementation_status: partial
+    notes: "m1_outline_paths_status.json group fastq_reprocessing (FASTQ staging, nf-core work dir, Salmon index paths); m1_outline_integration_stub.json readiness echo. No nf-core/rnaseq or STAR/Salmon jobs in-repo."
+    blockers: [hpc_or_cloud, workflow_authoring, raw_fastq_storage]
+
+  - id: m1_combat_harmony
+    module: M1
+    summary: "ComBat-Seq / Harmony batch correction"
+    implementation_status: partial
+    notes: "ComBat-Seq on TCGA-GBM primary STAR counts with TSS-derived batch (config/combat_seq_tcga_gbm.yaml, combat_seq_tcga_gbm_subset.R, m1_combat_seq_tcga_gbm_primary). Harmony for scRNA and richer batch covariates not wired. Optional Harmony staging path inventory (m1_harmony_batch_paths_status.json groups harmony_integrated_objects, batch_covariate_metadata, cross_dataset_integration_workspace) and m1_harmony_batch_integration_stub.json checklist (no harmony R/Scanpy execution)."
+    blockers: [harmonized_count_matrix, r_bioconductor_stack, scrna_matrices, batch_metadata]
+
+  - id: m1_cgga_cptac_cbttc
+    module: M1
+    summary: "CGGA / CPTAC / CBTTC ingestion"
+    implementation_status: partial
+    notes: "m1_outline_paths_status.json group external_cohorts (CGGA/CPTAC mirror/CBTTC roots); no parsers or API jobs."
+    blockers: [controlled_access_credentials, custom_parsers, ingestion_snakemake_rules]
+
+  - id: m1_harmonized_multi_omics
+    module: M1
+    summary: "Per-sample harmonized multi-omics matrix"
+    implementation_status: partial
+    notes: "m1_outline_paths_status.json group harmonized_multi_omics (staging + sample ID map paths)."
+    blockers: [cohort_alignment, multi_assay_qc, harmonized_matrix_build]
+
+  - id: m1_reference_gdc_mirror
+    module: M1
+    summary: "Reference bundle + GDC open STAR count file staging"
+    implementation_status: partial
+    notes: "config/data_sources.yaml references: and gdc: paths drive download_all_required / matrix builds. Optional mirror inventory (m1_reference_gdc_paths_status.json groups reference_annotation_bundle, gdc_open_star_counts_staging, gdc_client_cache_auxiliary) and m1_reference_gdc_integration_stub.json checklist (M1 outline stub echo; in-repo gdc_counts_matrix_qc.json flag; no GDC client execution)."
+    blockers: [gdc_credentials, reference_version_lock, manifest_drift]
+
+  - id: m1_batch_correction_mirror
+    module: M1
+    summary: "External ComBat-Seq or limma or cross-cohort harmonized count mirrors under data_root"
+    implementation_status: partial
+    notes: "In-repo ComBat-Seq stub: combat_seq_tcga_gbm.yaml + m1_combat_seq_tcga_gbm_primary (results/module1/combat_seq_tcga_gbm_primary). Harmony staging: m1_harmony_batch_*. Optional mirror staging (m1_batch_correction_mirror_paths_status.json groups combat_seq_or_limma_staging, cross_cohort_integrated_counts) and m1_batch_correction_mirror_integration_stub.json checklist (m1_harmony_batch_integration_stub echo; combat_seq provenance path from config; no R batch correction in-repo beyond combat rule)."
+    blockers: [batch_metadata, r_runtime, matrix_storage, cross_study_id_maps]
+
+  - id: m3_repo_m1_outline
+    module: M3
+    summary: "In-repo m1_outline quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m1_outline_paths_status.json inventories m1_outline_paths_status / integration_stub JSON and flags; integration stub echoes m1_outline_integration_stub.json and m1_outline_paths_status.json (M1 root outline chain)."
+    blockers: [m1_outline_paths_status_run, m1_outline_integration_stub_run]
+
+  - id: m3_repo_m1_harmony_batch
+    module: M3
+    summary: "In-repo m1_harmony_batch quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m1_harmony_batch_paths_status.json inventories m1_harmony_batch quartet; integration stub echoes m1_harmony_batch_integration_stub and m1_outline_integration_stub."
+    blockers: [m1_harmony_batch_stub_slice, m1_outline_integration_stub_run]
+
+  - id: m3_repo_m1_reference_gdc
+    module: M3
+    summary: "In-repo m1_reference_gdc quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m1_reference_gdc_paths_status.json inventories m1_reference_gdc quartet; integration stub echoes m1_reference_gdc_integration_stub and m1_outline_integration_stub (matches m1_reference_gdc_integration_stub inputs)."
+    blockers: [m1_reference_gdc_stub_slice, m1_outline_integration_stub_run]
+
+  - id: m3_repo_m1_batch_correction_mirror
+    module: M3
+    summary: "In-repo m1_batch_correction_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m1_batch_correction_mirror_paths_status.json inventories m1_batch_correction_mirror quartet; integration stub echoes m1_batch_correction_mirror_integration_stub and m1_harmony_batch_integration_stub."
+    blockers: [m1_batch_correction_mirror_stub_slice, m1_harmony_batch_stub_slice]
+
+  - id: m3_repo_m2_cptac_methylation
+    module: M3
+    summary: "In-repo m2_cptac_methylation quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_cptac_methylation_paths_status.json inventories m2_cptac_methylation quartet; integration stub echoes m2_cptac_methylation_integration_stub and paths_status JSON."
+    blockers: [m2_cptac_methylation_stub_slice]
+
+  - id: m3_repo_m2_1_star_pairing
+    module: M3
+    summary: "In-repo m2_1_star_pairing quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_1_star_pairing_paths_status.json inventories m2_1_star_pairing quartet; integration stub echoes m2_1_star_pairing and m2_1_recount3_mirror integration stubs."
+    blockers: [m2_1_star_pairing_stub_slice, m2_1_recount3_mirror_stub_slice]
+
+  - id: m3_repo_m2_1_recount3_mirror
+    module: M3
+    summary: "In-repo m2_1_recount3_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_1_recount3_mirror_paths_status.json inventories m2_1_recount3_mirror quartet; integration stub echoes m2_1_recount3_mirror and m2_1_star_pairing integration stubs."
+    blockers: [m2_1_recount3_mirror_stub_slice, m2_1_star_pairing_stub_slice]
+
+  - id: m3_repo_m2_1_toil_xena_hub
+    module: M3
+    summary: "In-repo m2_1_toil_xena_hub quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_1_toil_xena_hub_paths_status.json inventories m2_1_toil_xena_hub quartet; integration stub echoes m2_1_toil_xena_hub and m1_outline integration stubs."
+    blockers: [m2_1_toil_xena_hub_stub_slice, m1_outline_integration_stub_run]
+
+  - id: m3_repo_m2_movics
+    module: M3
+    summary: "In-repo m2_movics quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_movics_paths_status.json inventories m2_movics quartet; integration stub echoes m2_movics integration_stub and paths_status JSON."
+    blockers: [m2_movics_paths_status_run, m2_movics_integration_stub_run]
+
+  - id: m3_repo_m2_3_immune_tme_mirror
+    module: M3
+    summary: "In-repo m2_3_immune_tme_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_3_immune_tme_mirror_paths_status.json inventories m2_3_immune_tme_mirror quartet; integration stub echoes m2_3_immune_tme_mirror and m2_movics integration stubs."
+    blockers: [m2_3_immune_tme_mirror_stub_slice, m2_movics_integration_stub_run]
+
+  - id: m3_repo_m2_2_variant_annotation
+    module: M3
+    summary: "In-repo m2_2_variant_annotation quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_2_variant_annotation_paths_status.json inventories m2_2_variant_annotation quartet; integration stub echoes m2_2_variant_annotation and maf_annotation integration stubs."
+    blockers: [m2_2_variant_annotation_stub_slice, m2_maf_annotation_integration_stub_run]
+
+  - id: m3_repo_m2_2_depmap_mirror
+    module: M3
+    summary: "In-repo m2_2_depmap_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_2_depmap_mirror_paths_status.json inventories m2_2_depmap_mirror quartet; integration stub echoes m2_2_depmap_mirror and maf_annotation integration stubs."
+    blockers: [m2_2_depmap_mirror_stub_slice, m2_maf_annotation_integration_stub_run]
+
+  - id: m3_repo_m2_2_maf_mutsig_mirror
+    module: M3
+    summary: "In-repo m2_2_maf_mutsig_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_2_maf_mutsig_mirror_paths_status.json inventories m2_2_maf_mutsig_mirror quartet; integration stub echoes m2_2_maf_mutsig_mirror and maf_annotation integration stubs."
+    blockers: [m2_2_maf_mutsig_mirror_stub_slice, m2_maf_annotation_integration_stub_run]
+
+  - id: m3_repo_m2_2_outline_driver_mirror
+    module: M3
+    summary: "In-repo m2_2_outline_driver_mirror quartet under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_2_outline_driver_mirror_paths_status.json inventories m2_2_outline_driver_mirror quartet; integration stub echoes m2_2_outline_driver_mirror and maf_annotation integration stubs."
+    blockers: [m2_2_outline_driver_mirror_stub_slice, m2_maf_annotation_integration_stub_run]
+
+  - id: m3_repo_m2_maf_annotation
+    module: M3
+    summary: "In-repo maf_annotation_integration_stub JSON/flag under results/module3 (M3 export manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_m2_maf_annotation_paths_status.json inventories maf_annotation_integration_stub.json and .flag (no separate m2_maf_annotation_paths_status); integration stub echoes the MAF annotation checklist pair (feeds m3_repo_m2_2_* mirror stubs that list maf_annotation_integration_stub)."
+    blockers: [m2_maf_annotation_integration_stub_run]
+
+  - id: m2_1_deseq2_edger
+    module: M2.1
+    summary: "DESeq2 / edgeR on matched integer counts"
+    implementation_status: partial
+    notes: "PyDESeq2+edgeR on GDC STAR (within-TCGA); PyDESeq2+edgeR on recount3 G029 TCGA-GBM vs GTEx brain; DepMap CRISPR/somatic + outline-driver joins via module2_integration extra_dea_pairs; concordance: compare_recount3_pydeseq2_edger.py; TOIL Welch+OLS vs recount3 LFC: compare_toil_bulk_vs_recount3_effects.py. True GDC STAR + GTEx STAR pairing still blocked at GDC API for this cohort. Optional STAR mirror / pairing map staging (m2_1_star_pairing_paths_status.json groups gdc_star_counts_mirror, gtex_star_counts_mirror, paired_tumor_normal_maps) and m2_1_star_pairing_integration_stub.json checklist (recount3 provenance echo; no GDC fetch). Optional recount3 local data mirror staging (m2_1_recount3_mirror_paths_status.json groups recount3_rse_download_cache, recount3_g029_gene_manifests, recount3_parquet_or_matrix_mirror) and m2_1_recount3_mirror_integration_stub.json checklist (STAR pairing stub echo; in-repo recount3 DEA provenance flag; no recount3 download jobs). Optional TOIL/UCSC Xena hub mirror staging (m2_1_toil_xena_hub_paths_status.json groups toil_xena_primary_gtex_hub, toil_hub_supplementary_staging; config/data_sources.yaml gtex_xena_toil) and m2_1_toil_xena_hub_integration_stub.json checklist (M1 outline stub echo; Welch DEA provenance flag; no Xena HTTP). Optional in-repo TOIL TPM hub slice under results/module3 (m3_repo_toil_bulk_expression_paths_status.json) and m3_repo_toil_bulk_expression_integration_stub.json (m2_1_toil_xena_hub_integration_stub echo). Optional in-repo recount3 bulk DEA artifact bundle (m3_repo_recount3_bulk_dea_paths_status.json) and m3_repo_recount3_bulk_dea_integration_stub.json (m2_1_recount3_mirror_integration_stub echo). Optional in-repo TOIL Welch and OLS bulk DEA tables and provenance (m3_repo_bulk_welch_ols_dea_paths_status.json) and m3_repo_bulk_welch_ols_dea_integration_stub.json (m3_repo_toil_bulk_expression_integration_stub echo). Optional in-repo TOIL vs recount3 cross-assay correlation JSON staging (m3_repo_toil_vs_recount3_correlation_paths_status.json group toil_vs_recount3_cross_assay_outputs) and m3_repo_toil_vs_recount3_correlation_integration_stub.json (m3_repo_bulk_welch_ols_dea and m3_repo_recount3_bulk_dea stub echo; no compare_toil_bulk_vs_recount3_effects run in this slice). Optional in-repo stratified bulk DEA provenance and integration flags (m3_repo_stratified_bulk_dea_paths_status.json group stratified_bulk_dea_repo_outputs) and m3_repo_stratified_bulk_dea_integration_stub.json (m3_repo_toil_bulk_expression and m3_repo_bulk_welch_ols_dea stub echo; no m2_stratified_* run in this slice). Optional in-repo cohort design and Verhaak subtype bundle (m3_repo_cohort_verhaak_subtype_paths_status.json group cohort_verhaak_subtype_repo_outputs) and m3_repo_cohort_verhaak_subtype_integration_stub.json (m3_repo_toil_bulk_expression and m3_repo_bundled_references stub echo; no expression_cohort_summary or m2_verhaak_subtypes run in this slice). Optional in-repo bulk join and STRING export provenance bundle (m3_repo_bulk_join_provenance_paths_status.json group bulk_join_provenance_repo_outputs) and m3_repo_bulk_join_provenance_integration_stub.json (m3_repo_bulk_welch_ols_dea, m2_2_depmap_mirror, m2_2_maf_mutsig_mirror stub echo; no m2_depmap_* or m2_dea_string_export run in this slice). Optional in-repo GDC STAR PyDESeq2/edgeR provenance bundle (m3_repo_gdc_star_tcga_gbm_dea_paths_status.json group gdc_star_tcga_gbm_dea_provenance_outputs) and m3_repo_gdc_star_tcga_gbm_dea_integration_stub.json (m3_repo_gdc_expression_matrix and m2_1_star_pairing stub echo; no m2_deseq2_tcga_* or m2_edger_tcga_* run in this slice)."
+    blockers: [gdc_gtex_open_star_counts_api, star_count_storage, sample_id_harmonization]
+
+  - id: m2_1_cptac_methylation_filters
+    module: M2.1
+    summary: "CPTAC concordance; methylation silencing filter"
+    implementation_status: partial
+    notes: "Optional path inventory under data_root (m2_cptac_methylation_paths_status); m2_cptac_methylation_integration_stub.json documents concordance/silencing gaps (no matrix I/O)."
+    blockers: [cptac_access, matched_assays, concordance_rule_impl]
+
+  - id: m2_2_oncokb_clinvar
+    module: M2.2
+    summary: "OncoKB / ClinVar on mutation summaries"
+    implementation_status: partial
+    notes: "TCGA MAF gene summary + DEA joins (m2_tcga_maf_*); maf_annotation_integration_stub.json records OncoKB/ClinVar prerequisites (no variant-level annotation in-repo). Optional VEP/OncoKB/ClinVar cache staging (m2_2_variant_annotation_paths_status.json groups vep_or_functional_annotation_outputs, oncokb_annotation_staging, clinvar_reference_staging) and m2_2_variant_annotation_integration_stub.json checklist (maf stub echo; no annotation APIs)."
+    blockers: [annotation_licensing, coordinates, variant_annotation_jobs, vep_runtime, reference_file_storage]
+
+  - id: m2_2_depmap_mirror
+    module: M2.2
+    summary: "DepMap CRISPR / omics / model-table mirrors under data_root"
+    implementation_status: partial
+    notes: "In-repo joins: join_dea_depmap_crispr.py, join_dea_depmap_somatic.py (depmap_shared.latest_depmap_dir). Optional mirror staging (m2_2_depmap_mirror_paths_status.json groups depmap_public_release_tree, depmap_crispr_and_dependency, depmap_omics_and_models) and m2_2_depmap_mirror_integration_stub.json checklist (MAF annotation stub echo; depmap_crispr/somatic join provenance flags; no DepMap HTTP). Optional in-repo DepMap join provenance JSON staging with MAF/MutSig and STRING export (m3_repo_bulk_join_provenance_paths_status.json group bulk_join_provenance_repo_outputs) and m3_repo_bulk_join_provenance_integration_stub.json (echoes this stub among others)."
+    blockers: [depmap_public_release, disk_quota, release_version_drift]
+
+  - id: m2_2_tcga_maf_mutsig_mirror
+    module: M2.2
+    summary: "TCGA MAF bulk + MutSig gene-level mirrors under data_root/mutations"
+    implementation_status: partial
+    notes: "In-repo: tcga_maf_gene_cohort_summary.py + join_dea_tcga_maf.py (tcga_mutation_layer.yaml maf_glob); join_dea_mutsig.py (mutsig_merge.yaml mutsig_gene_tsv). Optional mirror staging (m2_2_maf_mutsig_mirror_paths_status.json groups tcga_maf_bulk_mirror, mutsig_gene_level_mirror) and m2_2_maf_mutsig_mirror_integration_stub.json checklist (MAF annotation stub echo; tcga_maf_layer / mutsig join provenance flags when on disk; no GDC or MutSig2CV in-repo). Optional in-repo MAF/MutSig join + STRING export provenance bundle (m3_repo_bulk_join_provenance_paths_status.json) and m3_repo_bulk_join_provenance_integration_stub.json (echoes this stub among others)."
+    blockers: [gdc_or_maf_access, controlled_maf_policy, mutsig_table_format, disk_quota]
+
+  - id: m2_2_outline_driver_mirror
+    module: M2.2
+    summary: "Extended GBM or pan-cancer driver symbol panels under data_root/drivers"
+    implementation_status: partial
+    notes: "Default driver flag list: references/gbm_known_drivers_outline.yaml; join_dea_outline_driver_flags.py (module2_integration.yaml outline_driver_flags). Optional mirror staging (m2_2_outline_driver_mirror_paths_status.json groups user_driver_panel_staging, census_or_catalog_mirror) and m2_2_outline_driver_mirror_integration_stub.json checklist (MAF annotation stub echo; resolved symbols_yaml path; sample dea_gbm_vs_gtex_brain_outline_drivers.tsv flag; no catalog download)."
+    blockers: [curation_time, catalog_licensing, symbol_id_mapping]
+
+  - id: m2_3_movics
+    module: M2.3
+    summary: "MOVICS-style consensus clustering"
+    implementation_status: partial
+    notes: "Verhaak + stratified DEA substitute molecular partitions; optional multi-omics path inventory (m2_movics_paths_status); m2_movics_integration_stub.json records MOVICS/consensus gaps. Optional in-repo stratified bulk DEA provenance and integration flags (m3_repo_stratified_bulk_dea_paths_status.json) and m3_repo_stratified_bulk_dea_integration_stub.json (TOIL TPM hub and global Welch/OLS stub echo). Optional in-repo cohort design and Verhaak subtype scores/summary and mean TPM-by-subtype (m3_repo_cohort_verhaak_subtype_paths_status.json) and m3_repo_cohort_verhaak_subtype_integration_stub.json (TOIL TPM hub and bundled references stub echo)."
+    blockers: [r_movics, multi_omics_matrix, movics_snakemake_rules]
+
+  - id: m2_3_immune_tme_mirror
+    module: M2.3
+    summary: "Optional immune gene-signature and TME or deconvolution reference mirrors"
+    implementation_status: partial
+    notes: "Staging path inventory under data_root/immune_oncology (m2_3_immune_tme_mirror_paths_status.json groups gene_signature_sets, tme_deconv_reference, external_tme_outputs); m2_3_immune_tme_mirror_integration_stub.json echoes MOVICS stub and flags optional tcga_gbm_verhaak_subtype_summary.json (no TIDE/ESTIMATE/CIBERSORTx execution in-repo)."
+    blockers: [curation_time, licensing, external_deconv_tools]
+
+  - id: m3_scrna_spatial_full
+    module: M3
+    summary: "Scanpy/Seurat + Harmony; cell-state DE; deconvolution"
+    implementation_status: partial
+    notes: "Public GEO/SRA/Dryad + optional Scanpy/Seurat/Visium path inventories (m3_public_inputs_status, m3_sc_workflow_paths_status); scrna_spatial_integration_stub.json merges them for planning (no single-cell execution). Optional M3 export manifest slice for the module3_sc_workflow + scrna_spatial quartet under results/module3 (m3_repo_scrna_spatial_paths_status.json / integration_stub echoing scrna_spatial_integration_stub, m3_deconvolution_integration_stub, and m3_cellranger_output_integration_stub). Deconvolution / pseudobulk cell-state DE staging (m3_deconvolution_paths_status.json groups single_cell_reference_atlas, spatial_transcriptomics_inputs, deconvolution_method_outputs, pseudobulk_cell_state_de) and m3_deconvolution_integration_stub.json checklist (no Cell2location/RCTD/Harmony in-repo). Optional user-run Cell Ranger / Space Ranger processed matrix staging (m3_cellranger_output_paths_status.json groups cellranger_count_matrices, cellranger_aggr_or_multi, scanpy_seurat_converted_objects) and m3_cellranger_output_integration_stub.json checklist (scRNA stub echo; no cellranger count in-repo). Optional Dryad spatial multi-omics + SRA GSE57872 grouped mirrors (m3_dryad_sra_paths_status.json groups dryad_spatial_gbm_bundle, sra_gse57872_derived) and m3_dryad_sra_integration_stub.json checklist (scRNA/spatial stub echo; no Dryad/SRA fetch). Optional GEO study-folder + nf-core/cmapPy pipeline clone mirrors (m3_geo_pipelines_mirror_paths_status.json groups geo_epigenetic_mirror, geo_external_validation_mirror, geo_scrna_seq_mirror, geo_spatial_mirror, geo_bulk_microarray_mirror, pipelines_git_clones_mirror) and m3_geo_pipelines_mirror_integration_stub.json (scRNA/spatial stub echo; no GEO download or nextflow). Optional TCGA-GBM case tree + recount3 G029 + LINCS clue subset roots (m3_tcga_recount_lincs_mirror_paths_status.json groups tcga_gbm_uuid_case_layout, recount3_harmonized_g029_cache, lincs_clue_api_subset_root) and m3_tcga_recount_lincs_mirror_integration_stub.json (m1_reference_gdc_integration_stub echo). Optional clone-shipped references/ for Verhaak and outline drivers (m3_repo_bundled_references_paths_status.json group repo_bundled_outline_references) and m3_repo_bundled_references_integration_stub.json (m2_movics_integration_stub echo). Optional in-repo GDC STAR matrices and companions under results/module2 (m3_repo_gdc_expression_matrix_paths_status.json) and m3_repo_gdc_expression_matrix_integration_stub.json (m1_reference_gdc_integration_stub echo). Optional in-repo TOIL TPM hub parquet and sample TSV (m3_repo_toil_bulk_expression_paths_status.json) and m3_repo_toil_bulk_expression_integration_stub.json (m2_1_toil_xena_hub_integration_stub echo). Optional in-repo recount3 bulk DEA outputs (m3_repo_recount3_bulk_dea_paths_status.json) and m3_repo_recount3_bulk_dea_integration_stub.json (m2_1_recount3_mirror_integration_stub echo). Optional in-repo TOIL Welch and OLS bulk DEA TSVs and provenance (m3_repo_bulk_welch_ols_dea_paths_status.json) and m3_repo_bulk_welch_ols_dea_integration_stub.json (m3_repo_toil_bulk_expression_integration_stub echo). Optional in-repo TOIL vs recount3 cross-assay correlation staging (m3_repo_toil_vs_recount3_correlation_paths_status.json) and m3_repo_toil_vs_recount3_correlation_integration_stub.json (Welch/OLS and recount3 bulk-DEA stub echo). Optional in-repo stratified bulk DEA provenance and integration flags (m3_repo_stratified_bulk_dea_paths_status.json) and m3_repo_stratified_bulk_dea_integration_stub.json (TOIL TPM hub and global Welch/OLS stub echo). Optional in-repo cohort design and Verhaak subtype bundle (m3_repo_cohort_verhaak_subtype_paths_status.json) and m3_repo_cohort_verhaak_subtype_integration_stub.json (TOIL TPM hub and bundled references stub echo). Optional in-repo bulk join and STRING export provenance (m3_repo_bulk_join_provenance_paths_status.json) and m3_repo_bulk_join_provenance_integration_stub.json (global DEA, DepMap mirror, MAF/MutSig mirror stub echo). Optional in-repo GDC STAR PyDESeq2/edgeR provenance (m3_repo_gdc_star_tcga_gbm_dea_paths_status.json) and m3_repo_gdc_star_tcga_gbm_dea_integration_stub.json (GDC matrix and STAR pairing stub echo)."
+    blockers: [cell_ranger_or_matrices, dual_env, scrna_pipeline_rules, spatial_reference_atlas, spot_level_metadata]
+
+  - id: m3_repo_scrna_spatial
+    module: M3
+    summary: "Built results/module3 module3_sc_workflow + scrna_spatial outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks module3_sc_workflow_paths_status.json, module3_sc_workflow_paths_status.flag, scrna_spatial_integration_stub.json and .flag under results/module3 (m3_repo_scrna_spatial_paths_status.json group module3_scrna_spatial_repo_outline_outputs); integration stub echoes scrna_spatial_integration_stub, m3_deconvolution_integration_stub, and m3_cellranger_output_integration_stub (no Scanpy/Seurat execution in this slice)."
+    blockers: [m3_sc_workflow_outline_yaml, m3_scrna_spatial_stub_run, m3_deconvolution_stub_slice, m3_cellranger_stub_slice]
+
+  - id: m3_repo_public_inputs
+    module: M3
+    summary: "In-repo module3_public_inputs_status JSON/flag under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_public_inputs_paths_status.json inventories module3_public_inputs_status.json and .flag; integration stub echoes module3_public_inputs_status.json and scrna_spatial_integration_stub.json (distinct from data_root public_path_checks in module3_inputs.yaml)."
+    blockers: [m3_public_inputs_status_run, m3_scrna_spatial_stub_run]
+
+  - id: m3_repo_sc_workflow
+    module: M3
+    summary: "In-repo module3_sc_workflow_paths_status JSON/flag only under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_sc_workflow_paths_status.json inventories module3_sc_workflow_paths_status.json and .flag; integration stub echoes module3_sc_workflow_paths_status.json and scrna_spatial_integration_stub.json (narrower than m3_repo_scrna_spatial quartet, which also tracks scrna_spatial_integration_stub paths)."
+    blockers: [m3_sc_workflow_paths_status_run, m3_scrna_spatial_stub_run]
+
+  - id: m3_repo_deconvolution
+    module: M3
+    summary: "In-repo m3_deconvolution quartet under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_deconvolution_paths_status.json inventories m3_deconvolution_paths_status / integration_stub JSON and flags; integration stub echoes m3_deconvolution_integration_stub and m3_repo_scrna_spatial_integration_stub (distinct from data_root path checks in m3_deconvolution_outline_inputs.yaml)."
+    blockers: [m3_deconvolution_stub_slice, m3_repo_scrna_spatial_stub_slice]
+
+  - id: m3_repo_cellranger_output
+    module: M3
+    summary: "In-repo m3_cellranger_output quartet under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_cellranger_output_paths_status.json inventories m3_cellranger_output_paths_status / integration_stub JSON and flags; integration stub echoes m3_cellranger_output_integration_stub and m3_repo_scrna_spatial_integration_stub."
+    blockers: [m3_cellranger_output_stub_slice, m3_repo_scrna_spatial_stub_slice]
+
+  - id: m3_repo_dryad_sra
+    module: M3
+    summary: "In-repo m3_dryad_sra mirror quartet under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_dryad_sra_paths_status.json inventories m3_dryad_sra_paths_status / integration_stub JSON and flags; integration stub echoes m3_dryad_sra_integration_stub and m3_repo_scrna_spatial_integration_stub (distinct from data_root Dryad/SRA path checks in m3_dryad_sra_outline_inputs.yaml)."
+    blockers: [m3_dryad_sra_stub_slice, m3_repo_scrna_spatial_stub_slice]
+
+  - id: m3_repo_geo_pipelines_mirror
+    module: M3
+    summary: "In-repo m3_geo_pipelines_mirror quartet under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_geo_pipelines_mirror_paths_status.json inventories m3_geo_pipelines_mirror_paths_status / integration_stub JSON and flags; integration stub echoes m3_geo_pipelines_mirror_integration_stub and m3_repo_scrna_spatial_integration_stub."
+    blockers: [m3_geo_pipelines_mirror_stub_slice, m3_repo_scrna_spatial_stub_slice]
+
+  - id: m3_repo_tcga_recount_lincs_mirror
+    module: M3
+    summary: "In-repo m3_tcga_recount_lincs_mirror quartet under results/module3 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "m3_repo_tcga_recount_lincs_mirror_paths_status.json inventories m3_tcga_recount_lincs_mirror_paths_status / integration_stub JSON and flags; integration stub echoes m3_tcga_recount_lincs_mirror_integration_stub and m1_reference_gdc_integration_stub (aligns with TCGA mirror stub inputs)."
+    blockers: [m3_tcga_recount_lincs_mirror_stub_slice, m1_reference_gdc_stub_slice]
+
+  - id: m3_geo_pipelines_mirror
+    module: M3
+    summary: "GEO study roots and pipelines git mirrors under data_root"
+    implementation_status: partial
+    notes: "Grouped presence checks aligned with data_sources.yaml geo: and pipelines: (m3_geo_pipelines_mirror_paths_status.json); integration stub echoes scrna_spatial_integration_stub and tiers readiness from staged GEO/pipeline paths (no download_external_datasets or nf-core execution in this slice)."
+    blockers: [disk_space, licensing, manual_curation]
+
+  - id: m3_tcga_recount_lincs_mirror
+    module: M3
+    summary: "TCGA-GBM case layout, recount3 harmonized cache, and LINCS CLUE subset root under data_root"
+    implementation_status: partial
+    notes: "Single-path groups for data_sources.yaml tcga_gbm.path, recount3.harmonized_g029, and lincs.clue_api_subset (m3_tcga_recount_lincs_mirror_paths_status.json); integration stub echoes m1_reference_gdc_integration_stub for cross-module planning (see m1_reference_gdc and m2_1_recount3 mirror for deeper staging detail). Distinct optional slice for in-repo results/module5 Entrez signatures and connectivity JSONs: m3_repo_module5_lincs_connectivity_paths_status.json and integration_stub."
+    blockers: [gdc_access, recount3_disk, lincs_licensing]
+
+  - id: m3_repo_bundled_references
+    module: M3
+    summary: "Clone-shipped references/ for Verhaak subtyping and outline driver flags"
+    implementation_status: partial
+    notes: "Path checks use {repo_root}/references/* (m3_repo_bundled_references_paths_status.json group repo_bundled_outline_references); integration stub echoes m2_movics_integration_stub and flags default GMT, centroid template, and gbm_known_drivers_outline.yaml (distinct from m1_reference_gdc data_root GENCODE/HGNC trees)."
+    blockers: [msigdb_license_for_redistribution, repo_clone_integrity]
+
+  - id: m3_repo_gdc_expression_matrix
+    module: M3
+    summary: "Built GDC STAR TPM and counts matrices under results/module2"
+    implementation_status: partial
+    notes: "Aligns with data_sources.yaml gdc.repo_tpm_matrix and repo_unstranded_counts_matrix (m3_repo_gdc_expression_matrix_paths_status.json groups gdc_repo_expression_matrices, gdc_repo_matrix_companion for sample meta and gdc_counts_matrix_qc.json); integration stub echoes m1_reference_gdc_integration_stub (raw TSV staging vs in-repo parquet build). Optional in-repo GDC STAR PyDESeq2/edgeR provenance bundle (m3_repo_gdc_star_tcga_gbm_dea_paths_status.json group gdc_star_tcga_gbm_dea_provenance_outputs) and m3_repo_gdc_star_tcga_gbm_dea_integration_stub.json (echoes this stub and m2_1_star_pairing_integration_stub)."
+    blockers: [gdc_star_tsv_ingestion, disk_for_parquet, validate_gdc_counts_matrix_run]
+
+  - id: m3_repo_toil_bulk_expression
+    module: M3
+    summary: "Built TOIL TPM parquet and sample table for bulk DEA under results/module3"
+    implementation_status: partial
+    notes: "Matches module2_integration.yaml and dea_tumor_normal.yaml expression_parquet and sample_table paths (m3_repo_toil_bulk_expression_paths_status.json group toil_gbm_vs_brain_hub_outputs); integration stub echoes m2_1_toil_xena_hub_integration_stub (data_root Xena .gz staging vs in-repo TPM table)."
+    blockers: [xena_hub_download, tpm_build_script_run, sample_id_alignment]
+
+  - id: m3_repo_recount3_bulk_dea
+    module: M3
+    summary: "Built recount3 PyDESeq2 and edgeR DEA outputs under results/module3/deseq2_recount3_tcga_gbm_vs_gtex_brain"
+    implementation_status: partial
+    notes: "Aligns with config/deseq2_recount3_tcga_gtex.yaml output_dir and module2_integration extra_dea_pairs inputs (m3_repo_recount3_bulk_dea_paths_status.json group recount3_gbm_vs_gtex_brain_dea_outputs); integration stub echoes m2_1_recount3_mirror_integration_stub (data_root recount3 cache vs in-repo DEA TSV and parquet)."
+    blockers: [recount3_matrix_build, r_edger_runtime, pydeseq2_runtime, disk_for_parquet]
+
+  - id: m3_repo_bulk_welch_ols_dea
+    module: M3
+    summary: "Built TOIL TPM Welch and OLS region-covariate DEA tables under results/module3"
+    implementation_status: partial
+    notes: "Matches module2_integration.yaml depmap_crispr, depmap_somatic, mutsig_merge, and outline_driver_flags dea_welch_tsv and dea_ols_tsv paths (m3_repo_bulk_welch_ols_dea_paths_status.json group toil_bulk_welch_ols_dea_outputs); integration stub echoes m3_repo_toil_bulk_expression_integration_stub (TPM hub vs DEA outputs)."
+    blockers: [toil_tpm_table, welch_dea_runtime, ols_covariate_metadata, disk_for_tsv]
+
+  - id: m3_repo_toil_vs_recount3_correlation
+    module: M3
+    summary: "Built TOIL vs recount3 cross-assay bulk effect correlation JSON under results/module3"
+    implementation_status: partial
+    notes: "Tracks toil_welch_vs_recount3_bulk_effect_correlation.json and deseq2_vs_edger_concordance.json (m3_repo_toil_vs_recount3_correlation_paths_status.json group toil_vs_recount3_cross_assay_outputs; compare_toil_bulk_vs_recount3_effects.py / m2_toil_welch_vs_recount3_bulk_effect_correlation); integration stub echoes m3_repo_bulk_welch_ols_dea_integration_stub and m3_repo_recount3_bulk_dea_integration_stub (no scipy job in this slice)."
+    blockers: [toil_and_recount3_dea_tsvs, scipy_runtime, matched_ensg_gene_ids]
+
+  - id: m3_repo_stratified_bulk_dea
+    module: M3
+    summary: "Built stratified Welch/OLS DEA, integration layer, and outline-driver flags under results/module3"
+    implementation_status: partial
+    notes: "Aligns with config/stratified_dea.yaml and module2_integration stratified_dea_integration / outline_driver_flags glob_targets (m3_repo_stratified_bulk_dea_paths_status.json group stratified_bulk_dea_repo_outputs); integration stub echoes m3_repo_toil_bulk_expression_integration_stub and m3_repo_bulk_welch_ols_dea_integration_stub (no m2_stratified_* jobs in this slice)."
+    blockers: [verhaak_subtype_scores, toil_tpm_table, min_tumor_samples_per_subtype, depmap_maf_mutsig_lookups]
+
+  - id: m3_repo_cohort_verhaak_subtype
+    module: M3
+    summary: "Built cohort QC JSON, Verhaak subtype scores/summary, and mean TPM-by-subtype under results/module3"
+    implementation_status: partial
+    notes: "Matches module2_integration subtype_scoring and subtype_mean_expression paths (m3_repo_cohort_verhaak_subtype_paths_status.json group cohort_verhaak_subtype_repo_outputs); integration stub echoes m3_repo_toil_bulk_expression_integration_stub and m3_repo_bundled_references_integration_stub (no expression_cohort_summary or m2_verhaak_subtypes in this slice)."
+    blockers: [toil_tpm_table, msigdb_gmt_bundle, hgnc_for_scoring, min_samples_per_subtype_mean_expr]
+
+  - id: m3_repo_bulk_join_provenance
+    module: M3
+    summary: "Built DepMap, TCGA MAF, MutSig join and STRING export provenance JSONs under results/module3"
+    implementation_status: partial
+    notes: "Tracks depmap_crispr/somatic, tcga_maf_layer/join, mutsig_join, and dea_string_export provenance (m3_repo_bulk_join_provenance_paths_status.json group bulk_join_provenance_repo_outputs); integration stub echoes m3_repo_bulk_welch_ols_dea_integration_stub, m2_2_depmap_mirror_integration_stub, and m2_2_maf_mutsig_mirror_integration_stub (no m2_depmap_* or m2_dea_string_export in this slice)."
+    blockers: [dea_tsvs, depmap_tables, maf_and_mutsig_inputs, string_api_or_gene_lists]
+
+  - id: m3_repo_gdc_star_tcga_gbm_dea
+    module: M3
+    summary: "Built GDC STAR PyDESeq2 and edgeR provenance JSONs for within-TCGA-GBM contrasts under results/module3"
+    implementation_status: partial
+    notes: "Aligns with config/deseq2_tcga_gbm.yaml outputs under deseq2_tcga_gbm/ and edger_tcga_gbm/ (m3_repo_gdc_star_tcga_gbm_dea_paths_status.json group gdc_star_tcga_gbm_dea_provenance_outputs); integration stub echoes m3_repo_gdc_expression_matrix_integration_stub and m2_1_star_pairing_integration_stub (no m2_deseq2_tcga_* or m2_edger_tcga_* in this slice)."
+    blockers: [gdc_star_counts_parquet, pydeseq2_runtime, r_edger_runtime, small_solid_normal_n]
+
+  - id: m3_repo_module5_lincs_connectivity
+    module: M3
+    summary: "Built Module 5 LINCS Entrez signatures, cmap scan, connectivity readiness, signature pack, and sRGES stub under results/module5 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks export_module5_lincs_* and related JSON/TSV paths (m3_repo_module5_lincs_connectivity_paths_status.json group module5_lincs_repo_connectivity_outputs); integration stub echoes m3_repo_bulk_welch_ols_dea_integration_stub, m3_repo_recount3_bulk_dea_integration_stub, m3_repo_stratified_bulk_dea_integration_stub, and m5_l1000_data_integration_stub (no m5_lincs_disease_signature or cmap jobs in this slice)."
+    blockers: [bulk_dea_tsvs, hgnc_entrez_map, cmap_py_optional, l1000_data_staging]
+
+  - id: m3_repo_module5_l1000_data
+    module: M3
+    summary: "Built results/module5 m5_l1000_data outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m5_l1000_data_paths_status.json, m5_l1000_data_integration_stub.json and .flag under results/module5 (m3_repo_module5_l1000_data_paths_status.json group module5_l1000_data_repo_outline_outputs); integration stub echoes m5_l1000_data_integration_stub and m3_repo_module5_lincs_connectivity_integration_stub (no GCTX read in this slice)."
+    blockers: [m5_l1000_data_outline_yaml, m5_l1000_data_stub_run, m3_repo_module5_lincs_connectivity]
+
+  - id: m3_repo_module5_modality
+    module: M3
+    summary: "Built results/module5 m5_modality outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m5_modality_paths_status.json, m5_modality_integration_stub.json and .flag under results/module5 (m3_repo_module5_modality_paths_status.json group module5_modality_repo_outline_outputs); integration stub echoes m5_modality_integration_stub and m3_repo_module5_lincs_connectivity_integration_stub (no pharmacology execution in this slice)."
+    blockers: [m5_modality_outline_yaml, m5_modality_stub_run, m3_repo_module5_lincs_connectivity]
+
+  - id: m3_repo_module5_srges_output
+    module: M3
+    summary: "Built results/module5 m5_srges_output outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m5_srges_output_paths_status.json, m5_srges_output_integration_stub.json and .flag under results/module5 (m3_repo_module5_srges_output_paths_status.json group module5_srges_output_repo_outline_outputs); integration stub echoes m5_srges_output_integration_stub and m3_repo_module5_lincs_connectivity_integration_stub (no sRGES scoring in this slice)."
+    blockers: [m5_srges_output_outline_yaml, m5_srges_output_stub_run, m3_repo_module5_lincs_connectivity]
+
+  - id: m3_repo_module5_lincs_connectivity_mirror
+    module: M3
+    summary: "Built results/module5 m5_lincs_connectivity_mirror outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m5_lincs_connectivity_mirror_paths_status.json, m5_lincs_connectivity_mirror_integration_stub.json and .flag under results/module5 (m3_repo_module5_lincs_connectivity_mirror_paths_status.json group module5_lincs_connectivity_mirror_repo_outline_outputs); integration stub echoes m5_lincs_connectivity_mirror_integration_stub, m3_repo_module5_l1000_data_integration_stub, and m3_repo_module5_lincs_connectivity_integration_stub (no cmapPy or CLUE HTTP in this slice)."
+    blockers: [m5_lincs_connectivity_mirror_outline_yaml, m5_lincs_connectivity_mirror_stub_run, m3_repo_module5_lincs_connectivity, m3_repo_module5_l1000_data]
+
+  - id: m3_repo_module4_hub_gsea
+    module: M3
+    summary: "Built Module 4 WGCNA hub exports, GSEA prerank bundle, and stratified STRING provenance under results/module4 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks wgcna_hub_*, gsea/*.rnk, gsea_prerank_export_provenance.json, stratified_string_export_provenance.json (m3_repo_module4_hub_gsea_paths_status.json group module4_wgcna_gsea_stratified_string_repo_outputs); integration stub echoes m3_repo_toil_bulk_expression_integration_stub, m3_repo_bulk_welch_ols_dea_integration_stub, m3_repo_recount3_bulk_dea_integration_stub, m3_repo_stratified_bulk_dea_integration_stub, and m4_gsea_mirror_integration_stub (no m4_wgcna_* or export_dea_gsea_prerank_rnk in this slice)."
+    blockers: [toil_tpm_parquet, dea_tsvs_for_prerank, stratified_dea_integration, string_list_exports, disk_for_parquet]
+
+  - id: m3_repo_module4_network
+    module: M3
+    summary: "Built results/module4 m4_network outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m4_network_paths_status.json, m4_network_integration_stub.json and .flag under results/module4 (m3_repo_module4_network_paths_status.json group module4_network_repo_outline_outputs); integration stub echoes m4_network_integration_stub, m3_repo_module4_hub_gsea_integration_stub, and m4_gsea_mirror_integration_stub (no WGCNA/SCENIC/SLAYER execution in this slice)."
+    blockers: [m4_network_outline_yaml, m4_network_stub_run, hub_gsea_m3_slice, m4_gsea_mirror_stub]
+
+  - id: m3_repo_module4_string_cache
+    module: M3
+    summary: "Built results/module4 m4_string_cache outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m4_string_cache_paths_status.json, m4_string_cache_integration_stub.json and .flag under results/module4 (m3_repo_module4_string_cache_paths_status.json group module4_string_cache_repo_outline_outputs); integration stub echoes m4_string_cache_integration_stub, m4_network_integration_stub, and m3_repo_module4_network_integration_stub (no STRING HTTP in this slice)."
+    blockers: [m4_string_cache_outline_yaml, m4_string_cache_stub_run, m4_network_stub, m3_repo_module4_network_slice]
+
+  - id: m3_repo_module4_pathway_database_mirror
+    module: M3
+    summary: "Built results/module4 m4_pathway_database_mirror outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m4_pathway_database_mirror_paths_status.json, m4_pathway_database_mirror_integration_stub.json and .flag under results/module4 (m3_repo_module4_pathway_database_mirror_paths_status.json group module4_pathway_database_mirror_repo_outline_outputs); integration stub echoes m4_pathway_database_mirror_integration_stub, m4_gsea_mirror_integration_stub, and m3_repo_module4_hub_gsea_integration_stub (no pathway API in this slice)."
+    blockers: [m4_pathway_mirror_outline_yaml, m4_pathway_mirror_stub_run, m4_gsea_mirror_stub, hub_gsea_m3_slice]
+
+  - id: m3_repo_module4_gsea_mirror
+    module: M3
+    summary: "Built results/module4 m4_gsea_mirror outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m4_gsea_mirror_paths_status.json, m4_gsea_mirror_integration_stub.json and .flag under results/module4 (m3_repo_module4_gsea_mirror_paths_status.json group module4_gsea_mirror_repo_outline_outputs); integration stub echoes m4_gsea_mirror_integration_stub, m3_repo_module4_hub_gsea_integration_stub, and m3_repo_module4_pathway_database_mirror_integration_stub (this M3 slice does not run enrichment jobs). Optional supplementary fgsea/clusterProfiler on open WikiPathways + PathwayCommons GMTs lives under separate Snakemake rules (GLIOMA_TARGET_INCLUDE_SUPPLEMENTARY_WIRING)."
+    blockers: [m4_gsea_mirror_outline_yaml, m4_gsea_mirror_stub_run, hub_gsea_m3_slice, pathway_database_m3_slice]
+
+  - id: m3_repo_module7_gts_stub
+    module: M3
+    summary: "Built Module 7 GTS candidate stub TSVs, provenance, stratified stubs, and gts_validation_integration_stub under results/module7 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks gts_candidate_table_*_stub.tsv, gts_candidate_stratified/*, gts_validation_integration_stub.json (m3_repo_module7_gts_stub_paths_status.json group module7_gts_candidate_stub_repo_outputs); integration stub echoes m3_repo_bulk_welch_ols_dea_integration_stub, m3_repo_recount3_bulk_dea_integration_stub, m3_repo_stratified_bulk_dea_integration_stub, and gts_validation_integration_stub (no m7_gts_candidate_stub export run in this slice)."
+    blockers: [depmap_crispr_joins, dea_tsvs, stratified_dea_integration, module7_inputs_yaml]
+
+  - id: m3_repo_module7_validation
+    module: M3
+    summary: "Built results/module7 m7_validation outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m7_validation_paths_status.json, m7_validation_integration_stub.json and .flag under results/module7 (m3_repo_module7_validation_paths_status.json group module7_validation_repo_outline_outputs); integration stub echoes m7_validation_integration_stub and m3_repo_module7_gts_stub_integration_stub (no AUC/survival/benchmark execution in this slice)."
+    blockers: [m7_validation_outline_yaml, m7_validation_stub_run, m3_repo_module7_gts_stub]
+
+  - id: m3_repo_module7_gts_external_score_mirror
+    module: M3
+    summary: "Built results/module7 m7_gts_external_score_mirror outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m7_gts_external_score_mirror_paths_status.json, m7_gts_external_score_mirror_integration_stub.json and .flag under results/module7 (m3_repo_module7_gts_external_score_mirror_paths_status.json group module7_gts_external_score_mirror_repo_outline_outputs); integration stub echoes m7_gts_external_score_mirror_integration_stub, m3_repo_module7_gts_stub_integration_stub, and m3_repo_module7_validation_integration_stub (no external score computation in this slice)."
+    blockers: [m7_gts_external_score_mirror_outline_yaml, m7_gts_external_score_mirror_stub_run, m3_repo_module7_gts_stub, m3_repo_module7_validation]
+
+  - id: m3_repo_module6_structure_bridge
+    module: M3
+    summary: "Built Module 6 structure druggability bridge TSVs, provenance, stratified bridge, and structure_admet_integration_stub under results/module6 (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks structure_druggability_bridge_*.tsv, stratified bridge TSVs, structure_admet_integration_stub.json (m3_repo_module6_structure_bridge_paths_status.json group module6_structure_druggability_bridge_repo_outputs); integration stub echoes m3_repo_bulk_welch_ols_dea_integration_stub, m3_repo_recount3_bulk_dea_integration_stub, m3_repo_stratified_bulk_dea_integration_stub, and structure_admet_integration_stub (no export_module6_structure_druggability_bridge run in this slice)."
+    blockers: [gts_stub_outline_drivers_tsv, hgnc_complete_set, module6_inputs_yaml, stratified_gts_stub]
+
+  - id: m3_repo_module6_structure_tooling
+    module: M3
+    summary: "Built results/module6 module6_structure_tooling + structure_admet outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks module6_structure_tooling_paths_status.json, module6_structure_tooling_paths_status.flag, structure_admet_integration_stub.json and .flag under results/module6 (m3_repo_module6_structure_tooling_paths_status.json group module6_structure_tooling_and_admet_repo_outline_outputs); integration stub echoes structure_admet_integration_stub and m3_repo_module6_structure_bridge_integration_stub (no pocket scoring in this slice)."
+    blockers: [module6_inputs_yaml, m6_structure_tooling_stub_run, m6_structure_admet_stub_run, m3_repo_module6_structure_bridge]
+
+  - id: m3_repo_module6_docking_output
+    module: M3
+    summary: "Built results/module6 m6_docking_output outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m6_docking_output_paths_status.json, m6_docking_output_integration_stub.json and .flag under results/module6 (m3_repo_module6_docking_output_paths_status.json group module6_docking_output_repo_outline_outputs); integration stub echoes m6_docking_output_integration_stub, m3_repo_module6_structure_bridge_integration_stub, and structure_admet_integration_stub (no docking execution in this slice)."
+    blockers: [m6_docking_outline_yaml, m6_docking_stub_run, structure_bridge_m3_slice, structure_admet_stub]
+
+  - id: m3_repo_module6_toxicity
+    module: M3
+    summary: "Built results/module6 m6_toxicity outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m6_toxicity_paths_status.json, m6_toxicity_integration_stub.json and .flag under results/module6 (m3_repo_module6_toxicity_paths_status.json group module6_toxicity_repo_outline_outputs); integration stub echoes m6_toxicity_integration_stub, m3_repo_module6_docking_output_integration_stub, and structure_admet_integration_stub (no toxicity assays in this slice)."
+    blockers: [m6_toxicity_outline_yaml, m6_toxicity_stub_run, docking_output_m3_slice, structure_admet_stub]
+
+  - id: m3_repo_module6_compound_library_mirror
+    module: M3
+    summary: "Built results/module6 m6_compound_library_mirror outline JSON/flags (M3 manifest slice)"
+    implementation_status: partial
+    notes: "Tracks m6_compound_library_mirror_paths_status.json, m6_compound_library_mirror_integration_stub.json and .flag under results/module6 (m3_repo_module6_compound_library_mirror_paths_status.json group module6_compound_library_mirror_repo_outline_outputs); integration stub echoes m6_compound_library_mirror_integration_stub, m3_repo_module6_docking_output_integration_stub, and structure_admet_integration_stub (no ligand prep in this slice)."
+    blockers: [m6_compound_library_outline_yaml, m6_compound_library_stub_run, docking_output_m3_slice, structure_admet_stub]
+
+  - id: m4_wgcna_scenic_slayer
+    module: M4
+    summary: "In-repo WGCNA, SCENIC+, BioGRID metrics, SLAYER pairs"
+    implementation_status: partial
+    notes: "TOIL TPM × tumor hub matrices exported for external R WGCNA — integrated (M2.1 Welch/OLS ∪ recount3 DepMap consensus) and recount3-only parquet + aligned trait TSVs (export_wgcna_hub_subset.py, Snakemake m4_wgcna_*). Optional staging path inventory (m4_network_paths_status.json groups external_wgcna_workspace, scenic_plus_audit, biogrid_interaction_cache, slayer_style_pairs) and m4_network_integration_stub.json checklist. Optional KEGG and Reactome mirrors (m4_pathway_database_mirror_paths_status.json) with m4_pathway_database_mirror_integration_stub.json. Optional M3 manifest bundle for on-repo hub + GSEA + stratified STRING paths (m3_repo_module4_hub_gsea_paths_status.json / integration_stub echoing TPM and DEA repo stubs). Optional M3 manifest slice for m4_network outline JSON/flags under results/module4 (m3_repo_module4_network_paths_status.json / integration_stub echoing m4_network, hub/GSEA M3 slice, and m4_gsea_mirror). Full in-repo WGCNA/SCENIC+/SLAYER still not implemented."
+    blockers: [r_wgcna_runtime, pyscenic, research_code, large_ppi_downloads]
+
+  - id: m5_srges_tmz_cart
+    module: M5
+    summary: "sRGES, TMZ, CAR-T computational arms"
+    implementation_status: partial
+    notes: "Entrez disease signatures + connectivity readiness (m5_lincs_*); srges_integration_stub.json documents L1000/sRGES gap (no compound ranks). Optional user-run score export staging (m5_srges_output_paths_status.json groups srges_rank_and_score_exports, compound_prior_metadata, pathway_projection_followup) and m5_srges_output_integration_stub.json checklist. Optional M3 manifest slice for m5_srges_output outline JSON/flags under results/module5 (m3_repo_module5_srges_output_paths_status.json / integration_stub echoing m5_srges_output_integration_stub and m3_repo_module5_lincs_connectivity_integration_stub). TMZ/CAR-T optional staging path inventory (m5_modality_paths_status.json groups tmz_sensitization, cart_surface_funnel) and m5_modality_integration_stub.json checklist (no pharmacology or antigen ranking). Optional M3 manifest slice for m5_modality outline JSON/flags under results/module5 (m3_repo_module5_modality_paths_status.json / integration_stub echoing m5_modality_integration_stub and m3_repo_module5_lincs_connectivity_integration_stub)."
+    blockers: [l1000_scale_data, pathway_models, srges_scoring_code, clinical_trial_data, cart_antigen_curation, external_scoring_workspace]
+
+  - id: m6_structures_pockets_tox
+    module: M6
+    summary: "Batch structures, pockets, toxicity, GNINA/Glide routine"
+    implementation_status: partial
+    notes: "GTS→UniProt/AlphaFold bridge + optional P2Rank/fpocket/GNINA path inventory; structure_admet_integration_stub.json documents pocket/ADMET/docking gaps (no in-repo scoring). Optional M3 manifest bundle for on-repo bridge TSV tree (m3_repo_module6_structure_bridge_paths_status.json / integration_stub echoing bulk DEA repo stubs and structure_admet_integration_stub). Optional M3 manifest slice for module6_structure_tooling_paths_status + structure_admet JSON/flags under results/module6 (m3_repo_module6_structure_tooling_paths_status.json / integration_stub echoing structure_admet_integration_stub and m3_repo_module6_structure_bridge_integration_stub). Optional docking run output staging (m6_docking_output_paths_status.json groups gnina_pose_and_score_exports, glide_pose_archives, batch_virtual_screen_outputs) and m6_docking_output_integration_stub.json checklist (structure_admet echo; no docking execution). Optional M3 manifest slice for m6_docking_output outline JSON/flags under results/module6 (m3_repo_module6_docking_output_paths_status.json / integration_stub echoing m6_docking_output, M6 bridge M3 slice, and structure_admet). CNS/off-tumor/organ toxicity optional staging (m6_toxicity_paths_status.json groups cns_penetration_safety, off_tumor_expression_reference, organ_toxicity_panels, computational_admet_exports) and m6_toxicity_integration_stub.json checklist (no toxicity assays). Optional M3 manifest slice for m6_toxicity outline JSON/flags under results/module6 (m3_repo_module6_toxicity_paths_status.json / integration_stub echoing m6_toxicity, docking-output M3 slice, and structure_admet)."
+    blockers: [gpu_cluster, glide_license, admet_panel_automation, curated_safety_panels, off_tumor_expression_data, docking_output_storage]
+
+  - id: m6_compound_library_mirror
+    module: M6
+    summary: "ChEMBL, PubChem, or docking-ready ligand libraries under data_root/compounds"
+    implementation_status: partial
+    notes: "Input-side small-molecule staging distinct from m6_docking_output_* (pose archives). Optional mirror staging (m6_compound_library_mirror_paths_status.json groups chembl_pubchem_staging, docking_ready_ligand_sets) and m6_compound_library_mirror_integration_stub.json checklist (structure_admet_integration_stub echo; no ligand preparation or batch download in-repo). Optional M3 manifest slice for m6_compound_library_mirror outline JSON/flags under results/module6 (m3_repo_module6_compound_library_mirror_paths_status.json / integration_stub echoing m6_compound_library_mirror, docking-output M3 slice, and structure_admet)."
+    blockers: [compound_download_bandwidth, sdf_storage, license_terms, prep_toolchain]
+
+  - id: m7_full_gts_validation
+    module: M7
+    summary: "Full GTS score, modality arms, validation automation"
+    implementation_status: partial
+    notes: "Evidence-tier GTS stub tables (global + stratified); gts_validation_integration_stub.json lists composite score, modality arms, and benchmark gaps. Optional external validation staging (m7_validation_paths_status.json groups external_expression_holdout, external_outcome_labels, benchmark_reference_topn, reproducibility_manifests) and m7_validation_integration_stub.json checklist (no AUC/survival/benchmark execution). Optional M3 manifest bundle for on-repo stub paths (m3_repo_module7_gts_stub_paths_status.json / integration_stub echoing bulk DEA repo stubs and gts_validation_integration_stub). Optional M3 manifest slice for m7_validation outline JSON/flags under results/module7 (m3_repo_module7_validation_paths_status.json / integration_stub echoing m7_validation_integration_stub and m3_repo_module7_gts_stub_integration_stub)."
+    blockers: [weighting, prospective_design, benchmark_harness, external_cohort_access, labeled_outcomes]
+
+  - id: m7_gts_external_score_mirror
+    module: M7
+    summary: "User-staged external GTS-like composite scores and modality rank exports under data_root/gts_external"
+    implementation_status: partial
+    notes: "Distinct from m7_validation_* (holdout cohorts and benchmark lists). Optional mirror staging (m7_gts_external_score_mirror_paths_status.json groups external_composite_or_tier_scores, modality_priority_exports) and m7_gts_external_score_mirror_integration_stub.json checklist (gts_validation_integration_stub echo; m7_validation_integration_stub and gts_candidate_stub_provenance when on disk; no score computation). Optional M3 manifest slice for m7_gts_external_score_mirror outline JSON/flags under results/module7 (m3_repo_module7_gts_external_score_mirror_paths_status.json / integration_stub echoing m7_gts_external_score_mirror_integration_stub, m3_repo_module7_gts_stub_integration_stub, and m3_repo_module7_validation_integration_stub)."
+    blockers: [external_tool_outputs, id_mapping, provenance_alignment]
+
+  - id: string_api_automation
+    module: M4
+    summary: "STRING PPI beyond manual web upload of gene lists"
+    implementation_status: partial
+    notes: "fetch_string_network_api.py + m4_string_api_network (Welch M21, OLS M21, recount3 DepMap-consensus symbol lists; network_max_genes caps query size). Optional offline cache / edge export staging (m4_string_cache_paths_status.json groups string_api_response_cache, string_edge_list_exports, string_protein_alias_map, string_version_or_metadata) and m4_string_cache_integration_stub.json checklist (no STRING HTTP from staging scan). Optional M3 manifest slice for m4_string_cache outline JSON/flags under results/module4 (m3_repo_module4_string_cache_paths_status.json / integration_stub echoing m4_string_cache, m4_network, and m3_repo_module4_network)."
+    blockers: [string_api_rate_limits, species_id_mapping, large_response_storage]
+
+  - id: m4_gsea_msigdb_mirror
+    module: M4
+    summary: "Offline MSigDB GMT and external GSEA or fgsea output mirrors under data_root/gsea"
+    implementation_status: partial
+    notes: "In-repo prerank .rnk: export_dea_gsea_prerank_rnk.py (gsea_prerank_export in module2_integration.yaml; results/module4/gsea/). Optional mirror staging (m4_gsea_mirror_paths_status.json groups msigdb_gene_set_mirror, external_prerank_and_enrichment) and m4_gsea_mirror_integration_stub.json checklist (m4_string_cache_integration_stub echo; gsea_prerank aggregate provenance path; no MSigDB mirror or GSEA Desktop in-repo). Optional Bioconductor fgsea multilevel + clusterProfiler::enricher on downloaded WikiPathways (Entrez-mapped prerank) + PathwayCommons HGNC GMT — build_m4_supplementary_enrichment_plan.py, build_m4_clusterprofiler_enrichment_plan.py, install_r_supplementary_enrichment.R, m4_run_fgsea_supplementary_pathways / m4_run_clusterprofiler_supplementary_pathways (separate from MSigDB m4_gsea_mirror_* staging). Optional cross-module M3 path pack for WGCNA hub + full prerank tree (m3_repo_module4_hub_gsea_paths_status.json / integration_stub). Optional M3 manifest slice for m4_gsea_mirror outline JSON/flags under results/module4 (m3_repo_module4_gsea_mirror_paths_status.json / integration_stub echoing m4_gsea_mirror, hub/GSEA M3 slice, and pathway-database M3 slice)."
+    blockers: [msigdb_licensing, gmt_storage, enrichment_runtime, gsea_java_desktop_optional]
+
+  - id: m4_pathway_database_mirror
+    module: M4
+    summary: "KEGG and Reactome pathway resource mirrors under data_root/pathways"
+    implementation_status: partial
+    notes: "Optional grouped path inventory (m4_pathway_database_mirror_paths_status.json groups kegg_pathway_mirror, reactome_pathway_mirror) and m4_pathway_database_mirror_integration_stub.json checklist (m4_gsea_mirror_integration_stub echo; complements MSigDB/GSEA staging; no KEGG REST or Reactome API in-repo). Optional M3 manifest slice for m4_pathway_database_mirror outline JSON/flags under results/module4 (m3_repo_module4_pathway_database_mirror_paths_status.json / integration_stub echoing m4 pathway mirror, m4_gsea_mirror, and m3_repo_module4_hub_gsea)."
+    blockers: [kegg_license_terms, reactome_data_use, disk_for_pathway_dumps]
+
+  - id: lincs_cmap_queries
+    module: M5
+    summary: "Automated cmapPy / CLUE connectivity queries"
+    implementation_status: partial
+    notes: "m5_cmap_tooling_scan + m5_lincs_connectivity_readiness + signature pack; no automated query batch against L1000. Optional L1000 data staging path inventory (m5_l1000_data_paths_status.json groups l1000_gctx_mirror, clue_api_cache, cmap_reference_files, connectivity_batch_exports) and m5_l1000_data_integration_stub.json checklist (no GCTX read or cmapPy batch in-repo). m5_srges_output_* complements saved batch rank tables and pathway follow-ups under data_root/lincs. Optional cross-module M3 manifest bundle for on-repo M5 signature paths (m3_repo_module5_lincs_connectivity_paths_status.json / integration_stub echoing bulk DEA repo stubs and m5_l1000_data stub)."
+    blockers: [clue_api, gctx_or_api, batch_connectivity_jobs, l1000_data_download_bandwidth]
+
+  - id: m5_lincs_connectivity_mirror
+    module: M5
+    summary: "User-staged cmap or CLUE connectivity query results under data_root/lincs"
+    implementation_status: partial
+    notes: "Distinct from m5_l1000_data_* (GCTX or CLUE cache files) and m5_srges_output_* (sRGES rank TSV staging). Optional mirror staging (m5_lincs_connectivity_mirror_paths_status.json groups cmap_query_response_mirror, connectivity_matrix_staging) and m5_lincs_connectivity_mirror_integration_stub.json checklist (m5_l1000_data_integration_stub echo; lincs_connectivity_readiness.json when on disk; no cmapPy or CLUE HTTP in-repo). Optional M3 manifest slice for m5_lincs_connectivity_mirror outline JSON/flags under results/module5 (m3_repo_module5_lincs_connectivity_mirror_paths_status.json / integration_stub echoing m5_lincs_connectivity_mirror_integration_stub, m3_repo_module5_l1000_data_integration_stub, and m3_repo_module5_lincs_connectivity_integration_stub)."
+    blockers: [clue_or_cmap_runtime, export_volume, batch_job_auth]
+
+  - id: vendor_cellranger_gnina
+    module: tooling
+    summary: "Cell Ranger / Space Ranger / GNINA required everywhere"
+    implementation_status: optional
+    notes: "config/third_party_tooling.yaml + ensure_optional_third_party_functional / verify_optional_third_party_tooling; optional data_root + repo conda staging inventory (vendor_tooling_paths_status.json groups cell_ranger_vendor_tree, space_ranger_vendor_tree, gnina_data_root_markers, repo_conda_gnina_bootstrap) and vendor_tooling_integration_stub.json checklist. Optional M3 manifest slice (m3_repo_tooling_vendor_paths_status.json / m3_repo_tooling_vendor_integration_stub echoing vendor_tooling, scrna_spatial, and m3_cellranger_output stubs)."
+    blockers: [vendor_downloads, gpu_for_gnina_runtime, licensed_10x_terms]

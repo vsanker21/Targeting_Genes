@@ -1,0 +1,62 @@
+# Outline M3: GEO study roots and shallow-cloned nf-core / cmapPy trees (config/data_sources.yaml geo + pipelines).
+
+m3_geo_pipelines_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_geo_pipelines_mirror_paths_status.json"
+  done_flag: "results/module3/m3_geo_pipelines_mirror_paths_status.flag"
+  groups:
+    - id: geo_epigenetic_mirror
+      summary: "GEO epigenetic series roots under data_root/geo/epigenetic"
+      path_checks:
+        - name: "GSE100351"
+          path_template: "{data_root}/geo/epigenetic/GSE100351"
+        - name: "GSE139136"
+          path_template: "{data_root}/geo/epigenetic/GSE139136"
+    - id: geo_external_validation_mirror
+      summary: "GEO external validation series root"
+      path_checks:
+        - name: "GSE154795"
+          path_template: "{data_root}/geo/external_validation/GSE154795"
+    - id: geo_scrna_seq_mirror
+      summary: "GEO scRNA-seq series roots (includes GSE57872 cohort path)"
+      path_checks:
+        - name: "GSE131928"
+          path_template: "{data_root}/geo/scrna_seq/GSE131928"
+        - name: "GSE141946"
+          path_template: "{data_root}/geo/scrna_seq/GSE141946"
+        - name: "GSE57872"
+          path_template: "{data_root}/geo/scrna_seq/GSE57872"
+    - id: geo_spatial_mirror
+      summary: "GEO spatial transcriptomics series root"
+      path_checks:
+        - name: "GSE287631"
+          path_template: "{data_root}/geo/spatial/GSE287631"
+    - id: geo_bulk_microarray_mirror
+      summary: "GEO bulk microarray series roots (outline; download_external_datasets)"
+      path_checks:
+        - name: "GSE4290"
+          path_template: "{data_root}/geo/bulk_microarray/GSE4290"
+        - name: "GSE7696"
+          path_template: "{data_root}/geo/bulk_microarray/GSE7696"
+        - name: "GSE50161"
+          path_template: "{data_root}/geo/bulk_microarray/GSE50161"
+        - name: "GSE68848"
+          path_template: "{data_root}/geo/bulk_microarray/GSE68848"
+    - id: pipelines_git_clones_mirror
+      summary: "Shallow git mirrors under data_root/pipelines (nf-core, cmapPy)"
+      path_checks:
+        - name: "pipelines root"
+          path_template: "{data_root}/pipelines"
+        - name: "nf-core/rnaseq"
+          path_template: "{data_root}/pipelines/nf-core-rnaseq"
+        - name: "nf-core/scrnaseq"
+          path_template: "{data_root}/pipelines/nf-core-scrnaseq"
+        - name: "nf-core/fetchngs"
+          path_template: "{data_root}/pipelines/nf-core-fetchngs"
+        - name: "cmapPy"
+          path_template: "{data_root}/pipelines/cmapPy"
+
+m3_geo_pipelines_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_geo_pipelines_mirror_integration_stub.json"
+  done_flag: "results/module3/m3_geo_pipelines_mirror_integration_stub.flag"

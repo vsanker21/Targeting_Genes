@@ -1,0 +1,239 @@
+# workflow_dispatch: micromamba env checks + optional Snakemake M3 deconv smoke/train.
+#
+# Snakemake smoke (default ON): Bioconda r-spacexr=2.2.1 (noarch), GLIOMA_TARGET_RCTD_TEST_MODE=1,
+#   m3_deconvolution_cell2location_run (light env) + m3_deconvolution_rctd_run.
+# Optional training: run_cell2location_training_snakemake + config/m3_deconvolution_cell2location_inputs_ci_train.yaml
+#
+# Local: micromamba create -y -n m3_c2l -f workflow/envs/m3_cell2location.yaml
+name: M3 deconv external conda envs
+
+on:
+  workflow_dispatch:
+    inputs:
+      cell2location_full_install:
+        description: "Full micromamba create for m3_cell2location (slow; large download)"
+        required: false
+        default: false
+        type: boolean
+      run_snakemake_m3_deconv_smoke:
+        description: "Snakemake --use-conda minimal RCTD + Cell2location validate (Bioconda spacexr)"
+        required: false
+        default: true
+        type: boolean
+      run_cell2location_training_snakemake:
+        description: "Snakemake Cell2location train (1 epoch + tiny posterior; torch; slow)"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  # Bioconda + conda-forge: keep flexible channel priority (Bioconda recommendation with conda-forge).
+  CONDA_CHANNEL_PRIORITY: flexible
+
+jobs:
+  rctd-and-cell2location-solve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: "2.0.5-0"
+          init-shell: bash
+          post-cleanup: all
+
+      - name: Cache micromamba package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/micromamba/pkgs
+          key: mamba-pkgs-${{ runner.os }}-${{ hashFiles('workflow/envs/m3_rctd.yaml', 'workflow/envs/m3_rctd_spacexr_bioconda.yaml', 'workflow/envs/m3_cell2location.yaml', 'workflow/envs/m3_cell2location_light.yaml') }}
+          restore-keys: |
+            mamba-pkgs-${{ runner.os }}-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Parse and sanity-check env YAML
+        run: |
+          pip install pyyaml
+          python << 'PY'
+          import yaml
+          from pathlib import Path
+          for rel in (
+              "workflow/envs/m3_rctd.yaml",
+              "workflow/envs/m3_rctd_spacexr_bioconda.yaml",
+              "workflow/envs/m3_cell2location.yaml",
+              "workflow/envs/m3_cell2location_light.yaml",
+          ):
+              p = Path(rel)
+              d = yaml.safe_load(p.read_text(encoding="utf-8"))
+              assert isinstance(d, dict), rel
+              assert d.get("name"), f"{rel}: missing name"
+              assert d.get("dependencies"), f"{rel}: missing dependencies"
+          print("ok")
+          PY
+
+      - name: Create m3_rctd (full solve + install)
+        run: micromamba create -y -p "${RUNNER_TEMP}/m3_rctd_ci" -f workflow/envs/m3_rctd.yaml
+
+      - name: Smoke R (jsonlite + remotes)
+        run: |
+          micromamba run -p "${RUNNER_TEMP}/m3_rctd_ci" Rscript -e \
+            "stopifnot(requireNamespace('jsonlite', quietly=TRUE)); stopifnot(requireNamespace('remotes', quietly=TRUE)); cat('R_ok\n')"
+
+      - name: Create m3_rctd_spacexr_bioconda (full solve; gates ubuntu-latest spacexr)
+        run: micromamba create -y -p "${RUNNER_TEMP}/m3_rctd_spx_ci" -f workflow/envs/m3_rctd_spacexr_bioconda.yaml
+
+      - name: Verify spacexr loads (Bioconda build)
+        run: |
+          micromamba run -p "${RUNNER_TEMP}/m3_rctd_spx_ci" Rscript -e "\
+            stopifnot(requireNamespace('spacexr', quietly=TRUE));\
+            cat('spacexr_ok', as.character(packageVersion('spacexr')), '\n')"
+
+      - name: Solve m3_cell2location (dry-run)
+        if: ${{ !inputs.cell2location_full_install }}
+        run: micromamba create --dry-run -y -p "${RUNNER_TEMP}/m3_cell2location_ci" -f workflow/envs/m3_cell2location.yaml
+
+  m3-cell2location-full:
+    if: ${{ inputs.cell2location_full_install }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    env:
+      CONDA_CHANNEL_PRIORITY: flexible
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: "2.0.5-0"
+          init-shell: bash
+          post-cleanup: all
+
+      - name: Cache micromamba package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/micromamba/pkgs
+          key: mamba-pkgs-${{ runner.os }}-${{ hashFiles('workflow/envs/m3_cell2location.yaml') }}
+          restore-keys: |
+            mamba-pkgs-${{ runner.os }}-
+
+      - name: Create m3_cell2location (full install)
+        run: micromamba create -y -p "${RUNNER_TEMP}/m3_cell2location_ci" -f workflow/envs/m3_cell2location.yaml
+
+      - name: Smoke Python stack (cell2location + scvi + scanpy)
+        run: |
+          micromamba run -p "${RUNNER_TEMP}/m3_cell2location_ci" python -c "\
+            import anndata; import scanpy; import scvi; import cell2location; \
+            print('c2l_ok', getattr(cell2location, '__version__', '?'))"
+
+  snakemake-m3-deconv-smoke:
+    needs: rctd-and-cell2location-solve
+    if: ${{ inputs.run_snakemake_m3_deconv_smoke }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    env:
+      CONDA_CHANNEL_PRIORITY: flexible
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: "2.0.5-0"
+          init-shell: bash
+          post-cleanup: all
+
+      - name: Cache micromamba package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/micromamba/pkgs
+          key: mamba-pkgs-${{ runner.os }}-${{ hashFiles('workflow/envs/m3_rctd_spacexr_bioconda.yaml', 'workflow/envs/m3_cell2location_light.yaml') }}
+          restore-keys: |
+            mamba-pkgs-${{ runner.os }}-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Snakemake + staging deps
+        run: pip install "snakemake>=8.0" pyyaml anndata numpy
+
+      - name: Stage data, then Snakemake (Cell2location validate + RCTD)
+        run: |
+          set -euxo pipefail
+          export GLIOMA_TARGET_DATA_ROOT="${RUNNER_TEMP}/m3_deconv_smoke_data"
+          export GLIOMA_TARGET_M3_C2L_CONDA_ENV=light
+          export GLIOMA_TARGET_M3_RCTD_BUNDLE_SPACEXR=1
+          export GLIOMA_TARGET_RCTD_TEST_MODE=1
+          export GLIOMA_TARGET_RCTD_FALLBACK_TEST_MODE=1
+          mkdir -p "${GLIOMA_TARGET_DATA_ROOT}"
+          python scripts/m3_ci_stage_minimal_h5ad.py --data-root "${GLIOMA_TARGET_DATA_ROOT}"
+          micromamba create -y -p "${RUNNER_TEMP}/m3_rctd_presmoke" -f workflow/envs/m3_rctd_spacexr_bioconda.yaml
+          micromamba run -p "${RUNNER_TEMP}/m3_rctd_presmoke" Rscript -e "stopifnot(requireNamespace('spacexr', quietly=TRUE))"
+          micromamba run -p "${RUNNER_TEMP}/m3_rctd_presmoke" Rscript scripts/m3_ci_stage_minimal_rctd_rds.R "${GLIOMA_TARGET_DATA_ROOT}"
+          snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_cell2location_run
+          snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_rctd_run
+          test -f results/module3/m3_deconvolution_cell2location/cell2location_run.flag
+          test -f results/module3/m3_deconvolution_rctd/rctd_run.flag
+
+  snakemake-m3-cell2location-train:
+    needs: rctd-and-cell2location-solve
+    if: ${{ inputs.run_cell2location_training_snakemake }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    env:
+      CONDA_CHANNEL_PRIORITY: flexible
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+      TORCH_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: "2.0.5-0"
+          init-shell: bash
+          post-cleanup: all
+
+      - name: Cache micromamba package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/micromamba/pkgs
+          key: mamba-pkgs-${{ runner.os }}-${{ hashFiles('workflow/envs/m3_cell2location.yaml') }}
+          restore-keys: |
+            mamba-pkgs-${{ runner.os }}-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Snakemake + staging deps
+        run: pip install "snakemake>=8.0" pyyaml anndata numpy
+
+      - name: Full Cell2location training (minimal epochs, CPU thread cap)
+        run: |
+          set -euxo pipefail
+          export GLIOMA_TARGET_DATA_ROOT="${RUNNER_TEMP}/m3_deconv_train_data"
+          export GLIOMA_TARGET_M3_CELL2LOCATION_CONFIG="${GITHUB_WORKSPACE}/config/m3_deconvolution_cell2location_inputs_ci_train.yaml"
+          unset GLIOMA_TARGET_M3_C2L_CONDA_ENV || true
+          mkdir -p "${GLIOMA_TARGET_DATA_ROOT}"
+          python scripts/m3_ci_stage_minimal_h5ad.py --data-root "${GLIOMA_TARGET_DATA_ROOT}"
+          snakemake --use-conda -c1 --show-failed-logs m3_deconvolution_cell2location_run
+          test -f results/module3/m3_deconvolution_cell2location/cell2location_run.flag
+          test -f results/module3/m3_deconvolution_cell2location/ci_train_spatial_cell2location.h5ad
+          test -f results/module3/m3_deconvolution_cell2location/ci_train_spot_cell_abundance_means.tsv

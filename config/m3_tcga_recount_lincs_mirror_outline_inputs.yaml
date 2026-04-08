@@ -1,0 +1,28 @@
+# Outline M3: TCGA-GBM case tree, recount3 harmonized cache, LINCS CLUE subset root (config/data_sources.yaml).
+# Complements m1_reference_gdc (references + GDC STAR dir) without duplicating those path_checks.
+
+m3_tcga_recount_lincs_mirror_path_checks:
+  enabled: true
+  output_json: "results/module3/m3_tcga_recount_lincs_mirror_paths_status.json"
+  done_flag: "results/module3/m3_tcga_recount_lincs_mirror_paths_status.flag"
+  groups:
+    - id: tcga_gbm_uuid_case_layout
+      summary: "TCGA-GBM UUID case folders (GDC-style layout under data_root/tcga)"
+      path_checks:
+        - name: "TCGA-GBM cohort root"
+          path_template: "{data_root}/tcga/TCGA-GBM"
+    - id: recount3_harmonized_g029_cache
+      summary: "recount3 harmonized G029 download or cache (TCGA GBM + GTEx brain)"
+      path_checks:
+        - name: "recount3 harmonized_g029 directory"
+          path_template: "{data_root}/recount3/harmonized_g029"
+    - id: lincs_clue_api_subset_root
+      summary: "LINCS CLUE API subset dump (links to M5 connectivity prep)"
+      path_checks:
+        - name: "LINCS clue_api_subset directory"
+          path_template: "{data_root}/lincs/clue_api_subset"
+
+m3_tcga_recount_lincs_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module3/m3_tcga_recount_lincs_mirror_integration_stub.json"
+  done_flag: "results/module3/m3_tcga_recount_lincs_mirror_integration_stub.flag"

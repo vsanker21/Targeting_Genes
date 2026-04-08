@@ -1,0 +1,27 @@
+# Outline M4 optional MSigDB GMT and GSEA or fgsea staging under GLIOMA_TARGET_DATA_ROOT.
+# See module2_integration.yaml gsea_prerank_export and results/module4/gsea/ in-repo exports.
+
+m4_gsea_mirror_path_checks:
+  enabled: true
+  output_json: "results/module4/m4_gsea_mirror_paths_status.json"
+  done_flag: "results/module4/m4_gsea_mirror_paths_status.flag"
+  groups:
+    - id: msigdb_gene_set_mirror
+      summary: "MSigDB or other GMT libraries for offline enrichment"
+      path_checks:
+        - name: "MSigDB GMT mirror root"
+          path_template: "{data_root}/gsea/msigdb_gmt_mirror"
+        - name: "Hallmark or curated subset staging"
+          path_template: "{data_root}/gsea/msigdb_curated_subsets"
+    - id: external_prerank_and_enrichment
+      summary: "User prerank rnk files and fgsea or GSEA output dirs"
+      path_checks:
+        - name: "User prerank rnk staging"
+          path_template: "{data_root}/gsea/user_prerank_rnk_staging"
+        - name: "fgsea or GSEA output staging"
+          path_template: "{data_root}/gsea/fgsea_or_gsea_output_staging"
+
+m4_gsea_mirror_integration_stub:
+  enabled: true
+  output_json: "results/module4/m4_gsea_mirror_integration_stub.json"
+  done_flag: "results/module4/m4_gsea_mirror_integration_stub.flag"
