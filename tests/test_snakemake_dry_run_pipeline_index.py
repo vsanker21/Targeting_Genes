@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from snakemake_ci_data_stubs import touch_toil_gtex_placeholder_inputs
+from snakemake_ci_data_stubs import prepare_data_root_for_pipeline_dry_run, touch_data_layout_ok_flag
 from snakemake_subprocess_env import snakemake_subprocess_env
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -33,37 +33,44 @@ def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     """DAG must schedule every inventory manifest + index output (single dry-run, YAML-driven targets)."""
     dr = tmp_path / "pipeline_dry_run_data"
     dr.mkdir()
-    touch_toil_gtex_placeholder_inputs(dr)
-    env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr)})
-    targets = _pipeline_index_dry_run_targets()
-    r = subprocess.run(
-        ["snakemake", "--dry-run", *targets],
-        cwd=_ROOT,
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=180,
-        check=False,
-    )
-    assert r.returncode == 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
-    out = r.stdout
-    # When every target is already present, dry-run prints "Nothing to be done" and
-    # does not list per-rule job lines — still a valid successful DAG resolution.
-    if "Nothing to be done" in out and "all requested files are present" in out:
-        return
-    # Snakemake 9+ dry-run lists only jobs that need to run (stale subgraph), not every
-    # requested goal's rule — e.g. after ARCHS4 HDF5 touch, only m4_export_manifest +
-    # pipeline_results_index may appear, not m3_export_manifest.
-    manifest_rules = (
-        "m3_export_manifest",
-        "m4_export_manifest",
-        "m5_export_manifest",
-        "m6_export_manifest",
-        "m7_export_manifest",
-    )
-    if "pipeline_results_index" in out or any(r in out for r in manifest_rules):
-        return
-    assert False, (
-        "expected pipeline_results_index or at least one m*_export_manifest in dry-run plan; "
-        f"stdout:\n{out[:6000]}"
-    )
+    prepare_data_root_for_pipeline_dry_run(dr)
+    layout = _ROOT / "results" / "data_layout_ok.flag"
+    created_layout = not layout.is_file()
+    try:
+        touch_data_layout_ok_flag(_ROOT)
+        env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr)})
+        targets = _pipeline_index_dry_run_targets()
+        r = subprocess.run(
+            ["snakemake", "--dry-run", *targets],
+            cwd=_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        assert r.returncode == 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+        out = r.stdout
+        # When every target is already present, dry-run prints "Nothing to be done" and
+        # does not list per-rule job lines — still a valid successful DAG resolution.
+        if "Nothing to be done" in out and "all requested files are present" in out:
+            return
+        # Snakemake 9+ dry-run lists only jobs that need to run (stale subgraph), not every
+        # requested goal's rule — e.g. after ARCHS4 HDF5 touch, only m4_export_manifest +
+        # pipeline_results_index may appear, not m3_export_manifest.
+        manifest_rules = (
+            "m3_export_manifest",
+            "m4_export_manifest",
+            "m5_export_manifest",
+            "m6_export_manifest",
+            "m7_export_manifest",
+        )
+        if "pipeline_results_index" in out or any(rule in out for rule in manifest_rules):
+            return
+        assert False, (
+            "expected pipeline_results_index or at least one m*_export_manifest in dry-run plan; "
+            f"stdout:\n{out[:6000]}"
+        )
+    finally:
+        if created_layout and layout.is_file():
+            layout.unlink()

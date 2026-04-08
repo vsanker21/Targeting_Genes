@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import argparse
 import importlib.util
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,6 +18,29 @@ def _load_smoke_module(repo: Path):
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
+
+
+def test_supplementary_snakemake_argv_dry_run_github_safe() -> None:
+    """Regressions: wrong argv order or --forcerun + --dry-run breaks Snakemake on ubuntu-latest (rule all)."""
+    repo = Path(__file__).resolve().parents[1]
+    m = _load_smoke_module(repo)
+    args = argparse.Namespace(dry_run=True, incremental=False, snakemake_extra=[])
+    cmd = m.supplementary_snakemake_argv(args)
+    assert "--forcerun" not in cmd, "dry-run must not use --forcerun (widens DAG on CI)"
+    dry_idx = cmd.index("--dry-run")
+    for g in m.SUPPLEMENTARY_SNAKEMAKE_GOALS:
+        assert g in cmd
+        assert cmd.index(g) < dry_idx, "positional targets must precede --dry-run for Snakemake CLI"
+    ar_idx = cmd.index("--allowed-rules")
+    assert dry_idx < ar_idx
+
+
+def test_supplementary_snakemake_argv_non_dry_includes_forcerun_when_not_incremental() -> None:
+    repo = Path(__file__).resolve().parents[1]
+    m = _load_smoke_module(repo)
+    args = argparse.Namespace(dry_run=False, incremental=False, snakemake_extra=[])
+    cmd = m.supplementary_snakemake_argv(args)
+    assert "--forcerun" in cmd
 
 
 def test_supplementary_smoke_dry_run_exits_zero() -> None:

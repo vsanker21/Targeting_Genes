@@ -25,5 +25,7 @@ jobs:
 
       # requirements.txt includes snakemake; @pytest.mark.snakemake dry-run tests run here.
       # Use `pytest -m "not snakemake"` locally for a quicker loop without the DAG dry-run.
+      # Supplementary smoke argv shape (goals before --dry-run, no --forcerun on dry-run) is asserted in
+      # tests/test_supplementary_enrichment_smoke_dry_run.py::test_supplementary_snakemake_argv_dry_run_github_safe
       - name: Pytest
         run: python -m pytest -q --tb=line

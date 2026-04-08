@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from snakemake_ci_data_stubs import touch_toil_gtex_placeholder_inputs
+from snakemake_ci_data_stubs import prepare_data_root_for_pipeline_dry_run, touch_data_layout_ok_flag
 from snakemake_subprocess_env import snakemake_subprocess_env
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -30,14 +30,21 @@ def test_snakemake_dry_run_pipeline_index_with_glioma_target_data_root(tmp_path:
     """DAG should still resolve when GLIOMA_TARGET_DATA_ROOT points at a stub tree (TOIL inputs for dry-run)."""
     data_root = tmp_path / "empty_data"
     data_root.mkdir()
-    touch_toil_gtex_placeholder_inputs(data_root)
-    env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(data_root)})
-    r = subprocess.run(
-        ["snakemake", "--dry-run", *_pipeline_index_targets()],
-        cwd=str(_ROOT),
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=180,
-    )
-    assert r.returncode == 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+    prepare_data_root_for_pipeline_dry_run(data_root)
+    layout = _ROOT / "results" / "data_layout_ok.flag"
+    created_layout = not layout.is_file()
+    try:
+        touch_data_layout_ok_flag(_ROOT)
+        env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(data_root)})
+        r = subprocess.run(
+            ["snakemake", "--dry-run", *_pipeline_index_targets()],
+            cwd=str(_ROOT),
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        assert r.returncode == 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+    finally:
+        if created_layout and layout.is_file():
+            layout.unlink()

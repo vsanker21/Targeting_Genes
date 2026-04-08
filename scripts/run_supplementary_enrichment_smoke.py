@@ -22,7 +22,8 @@ Usage:
   python scripts/run_supplementary_enrichment_smoke.py --copy-demo-results   # CI / no real DEA yet
   python scripts/run_supplementary_enrichment_smoke.py                      # real DEA + prerank already in results/
 
-Requires: snakemake on PATH, R + successful install_r_supplementary_dependencies.py (or let Snakemake run install rule).
+Requires: snakemake (``snakemake`` on PATH, or the same Python can run ``python -m snakemake``), R +
+successful install_r_supplementary_dependencies.py (or let Snakemake run install rule).
 
 Env:
   GLIOMA_TARGET_DATA_ROOT — if set, must point at a layout with pathways + hgnc; default is repo demo data_root.
@@ -47,6 +48,20 @@ _SNAPSHOT = _DEMO / "repo_results"
 
 # Demo DEA has ~40 rows; real TOIL DEA has ~16k. Treat >= this many lines as "real" (early exit on count).
 _REAL_DEA_MIN_LINES = 200
+
+# Snakemake goals + allowed rules (shared with tests so CI argv shape cannot drift).
+SUPPLEMENTARY_SNAKEMAKE_GOALS = (
+    "results/module4/gsea/fgsea_supplementary_pathways_results.tsv",
+    "results/module4/gsea/clusterprofiler_supplementary_enricher.tsv",
+)
+SUPPLEMENTARY_ALLOWED_RULES = (
+    "pathwaycommons_hgnc_gmt_plain",
+    "m4_supplementary_open_enrichment_plan",
+    "m4_clusterprofiler_supplementary_plan",
+    "install_r_supplementary_enrichment",
+    "m4_run_fgsea_supplementary_pathways",
+    "m4_run_clusterprofiler_supplementary_pathways",
+)
 
 
 def _line_count(path: Path, cap: int = _REAL_DEA_MIN_LINES + 50) -> int:
@@ -74,6 +89,39 @@ def _dea_looks_real(path: Path) -> bool:
     if not path.is_file():
         return False
     return _line_count(path) >= _REAL_DEA_MIN_LINES
+
+
+def _snakemake_cmd_prefix() -> list[str]:
+    """Use the console script when on PATH; otherwise ``python -m snakemake`` (reliable on Windows)."""
+    if shutil.which("snakemake"):
+        return ["snakemake"]
+    return [sys.executable, "-m", "snakemake"]
+
+
+def supplementary_snakemake_argv(args: argparse.Namespace) -> list[str]:
+    """
+    Build the snakemake argument list (after CLI parsing).
+
+    Dry-run: explicit goal paths come first, then ``--dry-run``, then ``--allowed-rules``.
+    Omit ``--forcerun`` when ``--dry-run`` — otherwise Snakemake on Linux can widen to ``rule all``
+    (GitHub Actions regression; see tests).
+    """
+    extra: list[str] = []
+    if args.dry_run:
+        extra.append("--dry-run")
+    extra.extend(args.snakemake_extra)
+    cmd = [
+        *_snakemake_cmd_prefix(),
+        "-c",
+        "1",
+        *SUPPLEMENTARY_SNAKEMAKE_GOALS,
+        *extra,
+        "--allowed-rules",
+        *SUPPLEMENTARY_ALLOWED_RULES,
+    ]
+    if not args.incremental and not args.dry_run:
+        cmd.extend(["--forcerun", *SUPPLEMENTARY_ALLOWED_RULES])
+    return cmd
 
 
 def _copy_tree(src: Path, dst: Path) -> None:
@@ -126,10 +174,6 @@ def main() -> int:
         help="Additional snakemake CLI args (e.g. --forceall).",
     )
     args = ap.parse_args()
-    extra: list[str] = []
-    if args.dry_run:
-        extra.append("--dry-run")
-    extra.extend(args.snakemake_extra)
 
     if not _DEMO_DR.is_dir():
         print(f"Missing {_DEMO_DR}", file=sys.stderr)
@@ -173,23 +217,7 @@ def main() -> int:
             )
             return 1
 
-    allowed = [
-        "pathwaycommons_hgnc_gmt_plain",
-        "m4_supplementary_open_enrichment_plan",
-        "m4_clusterprofiler_supplementary_plan",
-        "install_r_supplementary_enrichment",
-        "m4_run_fgsea_supplementary_pathways",
-        "m4_run_clusterprofiler_supplementary_pathways",
-    ]
-    # Explicit goals: without positional targets Snakemake defaults to rule all (hundreds of inputs).
-    supplementary_goals = [
-        "results/module4/gsea/fgsea_supplementary_pathways_results.tsv",
-        "results/module4/gsea/clusterprofiler_supplementary_enricher.tsv",
-    ]
-    cmd = ["snakemake", "-c", "1", *extra, "--allowed-rules", *allowed]
-    if not args.incremental:
-        cmd.extend(["--forcerun", *allowed])
-    cmd.extend(supplementary_goals)
+    cmd = supplementary_snakemake_argv(args)
     print("GLIOMA_TARGET_DATA_ROOT=", data_root, flush=True)
     print("Running:", " ".join(cmd), flush=True)
     return subprocess.call(cmd, cwd=str(_REPO), env=snakemake_subprocess_env())
