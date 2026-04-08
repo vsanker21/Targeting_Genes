@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from snakemake_ci_data_stubs import touch_toil_gtex_placeholder_inputs
 from snakemake_subprocess_env import snakemake_subprocess_env
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -28,9 +29,12 @@ def _pipeline_index_dry_run_targets() -> list[str]:
 
 @pytest.mark.snakemake
 @pytest.mark.skipif(not shutil.which("snakemake"), reason="snakemake not on PATH")
-def test_snakemake_dry_run_pipeline_results_index() -> None:
+def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     """DAG must schedule every inventory manifest + index output (single dry-run, YAML-driven targets)."""
-    env = snakemake_subprocess_env()
+    dr = tmp_path / "pipeline_dry_run_data"
+    dr.mkdir()
+    touch_toil_gtex_placeholder_inputs(dr)
+    env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr)})
     targets = _pipeline_index_dry_run_targets()
     r = subprocess.run(
         ["snakemake", "--dry-run", *targets],

@@ -181,9 +181,15 @@ def main() -> int:
         "m4_run_fgsea_supplementary_pathways",
         "m4_run_clusterprofiler_supplementary_pathways",
     ]
+    # Explicit goals: without positional targets Snakemake defaults to rule all (hundreds of inputs).
+    supplementary_goals = [
+        "results/module4/gsea/fgsea_supplementary_pathways_results.tsv",
+        "results/module4/gsea/clusterprofiler_supplementary_enricher.tsv",
+    ]
     cmd = ["snakemake", "-c", "1", *extra, "--allowed-rules", *allowed]
     if not args.incremental:
         cmd.extend(["--forcerun", *allowed])
+    cmd.extend(supplementary_goals)
     print("GLIOMA_TARGET_DATA_ROOT=", data_root, flush=True)
     print("Running:", " ".join(cmd), flush=True)
     return subprocess.call(cmd, cwd=str(_REPO), env=snakemake_subprocess_env())
