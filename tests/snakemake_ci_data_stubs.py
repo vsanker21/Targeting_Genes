@@ -98,6 +98,23 @@ _PIPELINE_DRY_RUN_REPO_REL_FILES = (
     "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Mesenchymal_string_m21_depmap_crispr_median_lte_minus0p5.txt",
     "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Neural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
     "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Proneural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    # m3_export_manifest named inputs (provenance JSON + stratified GSEA prerank lists)
+    "module3/dea_gbm_vs_gtex_brain_provenance.json",
+    "module3/dea_gbm_vs_gtex_brain_ols_region_covariate_provenance.json",
+    "module3/depmap_crispr_join_provenance.json",
+    "module3/depmap_somatic_join_provenance.json",
+    "module3/mutsig_join_provenance.json",
+    "module3/stratified_dea/stratified_dea_provenance.json",
+    "module3/stratified_ols_dea/stratified_ols_dea_provenance.json",
+    "module3/stratified_dea_integration_provenance.json",
+    "module4/gsea/stratified/welch_integrated/dea_welch_subtype_Classical_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/welch_integrated/dea_welch_subtype_Mesenchymal_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/welch_integrated/dea_welch_subtype_Neural_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/welch_integrated/dea_welch_subtype_Proneural_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Classical_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Mesenchymal_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Neural_signed_neg_log10_p.rnk",
+    "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Proneural_signed_neg_log10_p.rnk",
 )
 
 
@@ -135,6 +152,8 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
     written: list[Path] = []
     tsv_stub = "gene\tlog2FoldChange\tpvalue\tpadj\nx\t0.0\t0.5\t0.9\n"
     txt_gene_stub = "STUBGENE\n"
+    json_stub = "{}\n"
+    gsea_rnk_stub = "STUBGENE\t1.0\n"
     force = _ci_like_env()
     for rel in _PIPELINE_DRY_RUN_REPO_REL_FILES:
         p = results.joinpath(*rel.split("/"))
@@ -149,6 +168,10 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
             p.write_text("ci_stub\n", encoding="utf-8")
         elif p.suffix == ".txt":
             p.write_text(txt_gene_stub, encoding="utf-8")
+        elif p.suffix == ".json":
+            p.write_text(json_stub, encoding="utf-8")
+        elif p.suffix == ".rnk":
+            p.write_text(gsea_rnk_stub, encoding="utf-8")
         else:
             p.write_text(tsv_stub, encoding="utf-8")
         written.append(p)
