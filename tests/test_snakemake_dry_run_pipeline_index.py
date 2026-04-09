@@ -9,6 +9,7 @@ import pytest
 import yaml
 
 from snakemake_ci_data_stubs import (
+    assert_pipeline_dry_run_repo_placeholders,
     prepare_data_root_for_pipeline_dry_run,
     touch_data_layout_ok_flag,
     touch_pipeline_dry_run_repo_placeholders,
@@ -46,6 +47,7 @@ def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     try:
         touch_data_layout_ok_flag(_ROOT)
         created_repo = touch_pipeline_dry_run_repo_placeholders(_ROOT)
+        assert_pipeline_dry_run_repo_placeholders(_ROOT)
         env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr.resolve())})
         targets = _pipeline_index_dry_run_targets()
         r = subprocess.run(

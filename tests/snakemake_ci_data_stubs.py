@@ -56,19 +56,52 @@ def touch_hgnc_placeholder(data_root: Path) -> None:
     p.write_text("symbol\nSTUBGENE\n", encoding="utf-8")
 
 
-# Relative to repo results/ — inputs for m2_dea_string_export + m2_verhaak_subtypes on the manifest DAG.
+# Relative to repo results/ — DEA + recount3 edges through m2_outline_driver_flags (manifest DAG dry-run).
 _PIPELINE_DRY_RUN_REPO_REL_FILES = (
     "module3/dea_gbm_vs_gtex_brain.tsv",
     "module3/dea_gbm_vs_gtex_brain_ols_region_covariate.tsv",
     "module3/dea_gbm_vs_gtex_brain_depmap_crispr.tsv",
     "module3/dea_gbm_vs_gtex_brain_ols_depmap_crispr.tsv",
+    "module3/dea_gbm_vs_gtex_brain_depmap_somatic.tsv",
+    "module3/dea_gbm_vs_gtex_brain_ols_depmap_somatic.tsv",
+    "module3/dea_gbm_vs_gtex_brain_tcga_maf.tsv",
+    "module3/dea_gbm_vs_gtex_brain_ols_tcga_maf.tsv",
+    "module3/dea_gbm_vs_gtex_brain_mutsig.tsv",
+    "module3/dea_gbm_vs_gtex_brain_ols_mutsig.tsv",
     "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_results.tsv",
     "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_qlf_results.tsv",
     "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_crispr.tsv",
     "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_crispr.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_depmap_somatic.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_depmap_somatic.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_tcga_maf.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_tcga_maf.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/deseq2_mutsig.tsv",
+    "module3/deseq2_recount3_tcga_gbm_vs_gtex_brain/edger_mutsig.tsv",
+    "module3/stratified_dea_integration.flag",
     "module3/toil_gbm_vs_brain_tpm.parquet",
     "module3/toil_gbm_vs_brain_samples.tsv",
 )
+
+
+def assert_pipeline_dry_run_repo_placeholders(repo_root: Path) -> None:
+    """
+    After touch_pipeline_dry_run_repo_placeholders: verify every stub path exists (non-empty file).
+
+    Fails fast with a clear pytest error if stubs were skipped or the working tree differs from CI.
+    """
+    results = (repo_root / "results").resolve()
+    missing: list[str] = []
+    empty: list[str] = []
+    for rel in _PIPELINE_DRY_RUN_REPO_REL_FILES:
+        p = results.joinpath(*rel.split("/"))
+        if not p.is_file():
+            missing.append(rel)
+            continue
+        if p.stat().st_size <= 0:
+            empty.append(rel)
+    assert not missing, f"missing pipeline dry-run stub files under {results}: {missing}"
+    assert not empty, f"empty pipeline dry-run stub files under {results}: {empty}"
 
 
 def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
@@ -94,6 +127,8 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
         p.parent.mkdir(parents=True, exist_ok=True)
         if p.suffix == ".parquet":
             p.write_bytes(b"\0")  # non-empty; some stacks treat 0-byte oddly
+        elif p.suffix == ".flag":
+            p.write_text("ci_stub\n", encoding="utf-8")
         else:
             p.write_text(tsv_stub, encoding="utf-8")
         written.append(p)
