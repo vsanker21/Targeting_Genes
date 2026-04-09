@@ -81,6 +81,23 @@ _PIPELINE_DRY_RUN_REPO_REL_FILES = (
     "module3/stratified_dea_integration.flag",
     "module3/toil_gbm_vs_brain_tpm.parquet",
     "module3/toil_gbm_vs_brain_samples.tsv",
+    # m4_recount3_depmap_string_consensus → m4_wgcna_hub_expr_subset (config/module2_integration.yaml wgcna_hub_subset.symbol_list_paths)
+    "module3/dea_recount3_pydeseq2_string_depmap_crispr_median_lte_minus0p5.txt",
+    "module3/dea_recount3_edger_string_depmap_crispr_median_lte_minus0p5.txt",
+    "module3/dea_recount3_depmap_crispr_consensus_string.txt",
+    "module3/dea_welch_string_m21_high_confidence.txt",
+    "module3/dea_ols_string_m21_high_confidence.txt",
+    # m7_gts_candidate_stub: global + stratified STRING/DepMap lists (no upstream Snakefile producers on default DAG)
+    "module3/dea_welch_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module3/dea_ols_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/welch_integrated_m21_depmap/dea_welch_subtype_Classical_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/welch_integrated_m21_depmap/dea_welch_subtype_Mesenchymal_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/welch_integrated_m21_depmap/dea_welch_subtype_Neural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/welch_integrated_m21_depmap/dea_welch_subtype_Proneural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Classical_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Mesenchymal_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Neural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
+    "module4/stratified_string/ols_integrated_m21_depmap/dea_ols_subtype_Proneural_string_m21_depmap_crispr_median_lte_minus0p5.txt",
 )
 
 
@@ -117,6 +134,7 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
     results = (repo_root / "results").resolve()
     written: list[Path] = []
     tsv_stub = "gene\tlog2FoldChange\tpvalue\tpadj\nx\t0.0\t0.5\t0.9\n"
+    txt_gene_stub = "STUBGENE\n"
     force = _ci_like_env()
     for rel in _PIPELINE_DRY_RUN_REPO_REL_FILES:
         p = results.joinpath(*rel.split("/"))
@@ -129,6 +147,8 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
             p.write_bytes(b"\0")  # non-empty; some stacks treat 0-byte oddly
         elif p.suffix == ".flag":
             p.write_text("ci_stub\n", encoding="utf-8")
+        elif p.suffix == ".txt":
+            p.write_text(txt_gene_stub, encoding="utf-8")
         else:
             p.write_text(tsv_stub, encoding="utf-8")
         written.append(p)
