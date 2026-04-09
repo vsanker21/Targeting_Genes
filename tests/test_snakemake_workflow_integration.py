@@ -36,6 +36,9 @@ def test_snakemake_dry_run_pipeline_index_with_glioma_target_data_root(tmp_path:
     data_root = tmp_path / "empty_data"
     data_root.mkdir()
     prepare_data_root_for_pipeline_dry_run(data_root)
+    for name in ("tcga_matrix.h5", "gtex_matrix.h5"):
+        h5 = data_root / "references" / "archs4_recount" / name
+        assert h5.is_file() and h5.stat().st_size > 0, f"missing ARCHS4 recount stub: {h5}"
     layout = _ROOT / "results" / "data_layout_ok.flag"
     created_layout = not layout.is_file()
     created_repo: list[Path] = []

@@ -56,6 +56,24 @@ def touch_hgnc_placeholder(data_root: Path) -> None:
     p.write_text("symbol\nSTUBGENE\n", encoding="utf-8")
 
 
+_ARCHS4_RECOUNT_H5 = (
+    "references/archs4_recount/tcga_matrix.h5",
+    "references/archs4_recount/gtex_matrix.h5",
+)
+
+
+def touch_archs4_recount_h5_placeholders(data_root: Path) -> None:
+    """Non-empty HDF5-shaped stubs for rule archs4_outline_driver_expression_context (DAG dry-run)."""
+    root = data_root.resolve()
+    force = _ci_like_env()
+    for rel in _ARCHS4_RECOUNT_H5:
+        p = root.joinpath(*rel.split("/"))
+        if p.is_file() and not force:
+            continue
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"\0")
+
+
 # Relative to repo results/ — DEA + recount3 edges through m2_outline_driver_flags (manifest DAG dry-run).
 _PIPELINE_DRY_RUN_REPO_REL_FILES = (
     "module3/dea_gbm_vs_gtex_brain.tsv",
@@ -179,10 +197,11 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
 
 
 def prepare_data_root_for_pipeline_dry_run(data_root: Path) -> None:
-    """TOIL + GDC + HGNC under DATA_ROOT — common edges for manifest/index dry-runs."""
+    """TOIL + GDC + HGNC + ARCHS4 recount HDF5 under DATA_ROOT — common edges for manifest/index dry-runs."""
     touch_toil_gtex_placeholder_inputs(data_root)
     touch_gdc_open_star_manifest_placeholder(data_root)
     touch_hgnc_placeholder(data_root)
+    touch_archs4_recount_h5_placeholders(data_root)
 
 
 def touch_data_layout_ok_flag(repo_root: Path) -> None:
