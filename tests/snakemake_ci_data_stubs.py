@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gzip
 import os
 from pathlib import Path
 
@@ -72,6 +73,17 @@ def touch_archs4_recount_h5_placeholders(data_root: Path) -> None:
             continue
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(b"\0")
+
+
+def touch_pathwaycommons_gmt_gz_placeholder(data_root: Path) -> None:
+    """Valid gzip stub for rule pathwaycommons_hgnc_gmt_plain (input under DATA_ROOT)."""
+    root = data_root.resolve()
+    p = root / "references" / "pathways" / "PathwayCommons12.All.hgnc.gmt.gz"
+    if p.is_file() and not _ci_like_env():
+        return
+    p.parent.mkdir(parents=True, exist_ok=True)
+    plain = "STUB_PATHWAY\tSTUBGENE\n"
+    p.write_bytes(gzip.compress(plain.encode("utf-8")))
 
 
 # Relative to repo results/ — DEA + recount3 edges through m2_outline_driver_flags (manifest DAG dry-run).
@@ -197,11 +209,12 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
 
 
 def prepare_data_root_for_pipeline_dry_run(data_root: Path) -> None:
-    """TOIL + GDC + HGNC + ARCHS4 recount HDF5 under DATA_ROOT — common edges for manifest/index dry-runs."""
+    """TOIL + GDC + HGNC + ARCHS4 + PathwayCommons GMT under DATA_ROOT — manifest/index dry-run edges."""
     touch_toil_gtex_placeholder_inputs(data_root)
     touch_gdc_open_star_manifest_placeholder(data_root)
     touch_hgnc_placeholder(data_root)
     touch_archs4_recount_h5_placeholders(data_root)
+    touch_pathwaycommons_gmt_gz_placeholder(data_root)
 
 
 def touch_data_layout_ok_flag(repo_root: Path) -> None:
