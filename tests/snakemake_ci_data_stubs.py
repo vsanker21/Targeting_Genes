@@ -1,4 +1,8 @@
-"""Minimal files under a temp GLIOMA_TARGET_DATA_ROOT so Snakemake --dry-run can resolve common edges on CI."""
+"""Minimal files under a temp GLIOMA_TARGET_DATA_ROOT so Snakemake --dry-run can resolve common edges on CI.
+
+GitHub runs whatever is **pushed** to the branch; local-only edits here will not fix CI until committed
+and pushed (``main`` for default workflow).
+"""
 
 from __future__ import annotations
 
@@ -75,15 +79,26 @@ def touch_archs4_recount_h5_placeholders(data_root: Path) -> None:
         p.write_bytes(b"\0")
 
 
-def touch_pathwaycommons_gmt_gz_placeholder(data_root: Path) -> None:
-    """Valid gzip stub for rule pathwaycommons_hgnc_gmt_plain (input under DATA_ROOT)."""
+def touch_reference_pathway_files_for_pipeline_dry_run(data_root: Path) -> None:
+    """
+    All DATA_ROOT references/pathways inputs used on the default manifest DAG (Snakefile).
+
+    Covers pathwaycommons_hgnc_gmt_plain, m4_supplementary_open_enrichment_plan,
+    m4_clusterprofiler_supplementary_plan, and downstream fgsea/clusterProfiler rules.
+    """
     root = data_root.resolve()
-    p = root / "references" / "pathways" / "PathwayCommons12.All.hgnc.gmt.gz"
-    if p.is_file() and not _ci_like_env():
-        return
-    p.parent.mkdir(parents=True, exist_ok=True)
-    plain = "STUB_PATHWAY\tSTUBGENE\n"
-    p.write_bytes(gzip.compress(plain.encode("utf-8")))
+    force = _ci_like_env()
+    pathways = root / "references" / "pathways"
+    pathways.mkdir(parents=True, exist_ok=True)
+
+    pc_gz = pathways / "PathwayCommons12.All.hgnc.gmt.gz"
+    if not pc_gz.is_file() or force:
+        plain_pc = "STUB_PATHWAY\tSTUBGENE\n"
+        pc_gz.write_bytes(gzip.compress(plain_pc.encode("utf-8")))
+
+    wiki_gmt = pathways / "wikipathways-Homo_sapiens.gmt"
+    if not wiki_gmt.is_file() or force:
+        wiki_gmt.write_text("WP_STUB_PATHWAY\tSTUBGENE\n", encoding="utf-8")
 
 
 # Relative to repo results/ — DEA + recount3 edges through m2_outline_driver_flags (manifest DAG dry-run).
@@ -145,6 +160,8 @@ _PIPELINE_DRY_RUN_REPO_REL_FILES = (
     "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Mesenchymal_signed_neg_log10_p.rnk",
     "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Neural_signed_neg_log10_p.rnk",
     "module4/gsea/stratified/ols_integrated/dea_ols_subtype_Proneural_signed_neg_log10_p.rnk",
+    # m4_clusterprofiler_supplementary_plan + m4_run_fgsea_supplementary_pathways
+    "module4/gsea/dea_welch_signed_neg_log10_p.rnk",
 )
 
 
@@ -209,12 +226,12 @@ def touch_pipeline_dry_run_repo_placeholders(repo_root: Path) -> list[Path]:
 
 
 def prepare_data_root_for_pipeline_dry_run(data_root: Path) -> None:
-    """TOIL + GDC + HGNC + ARCHS4 + PathwayCommons GMT under DATA_ROOT — manifest/index dry-run edges."""
+    """TOIL + GDC + HGNC + ARCHS4 + pathway GMTs under DATA_ROOT — manifest/index dry-run edges."""
     touch_toil_gtex_placeholder_inputs(data_root)
     touch_gdc_open_star_manifest_placeholder(data_root)
     touch_hgnc_placeholder(data_root)
     touch_archs4_recount_h5_placeholders(data_root)
-    touch_pathwaycommons_gmt_gz_placeholder(data_root)
+    touch_reference_pathway_files_for_pipeline_dry_run(data_root)
 
 
 def touch_data_layout_ok_flag(repo_root: Path) -> None:

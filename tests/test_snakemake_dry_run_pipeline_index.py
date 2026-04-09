@@ -44,8 +44,11 @@ def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     for name in ("tcga_matrix.h5", "gtex_matrix.h5"):
         h5 = dr / "references" / "archs4_recount" / name
         assert h5.is_file() and h5.stat().st_size > 0, f"missing ARCHS4 recount stub: {h5}"
-    pc_gz = dr / "references" / "pathways" / "PathwayCommons12.All.hgnc.gmt.gz"
+    pathways = dr / "references" / "pathways"
+    pc_gz = pathways / "PathwayCommons12.All.hgnc.gmt.gz"
     assert pc_gz.is_file() and pc_gz.stat().st_size > 0, f"missing PathwayCommons GMT.gz stub: {pc_gz}"
+    wiki_gmt = pathways / "wikipathways-Homo_sapiens.gmt"
+    assert wiki_gmt.is_file() and wiki_gmt.stat().st_size > 0, f"missing WikiPathways GMT stub: {wiki_gmt}"
     layout = _ROOT / "results" / "data_layout_ok.flag"
     created_layout = not layout.is_file()
     created_repo: list[Path] = []
