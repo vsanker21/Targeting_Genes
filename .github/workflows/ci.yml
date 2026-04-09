@@ -1,4 +1,13 @@
-# Default CI: unit tests + integration (strict index subprocess, Snakemake dry-run when snakemake on PATH).
+# Default CI: validation suite (pytest), not a full Snakemake production run.
+#
+# What runs here:
+#   • pytest — unit tests, integration, Snakemake --dry-run DAG checks (no real TCGA/GTEx data_root).
+# What does NOT run here:
+#   • snakemake all / full pipeline with GLIOMA_TARGET_DATA_ROOT — run locally or on HPC with your data.
+# More Snakemake on GitHub (optional, path-triggered or manual):
+#   • optional-slices-ci.yml, m3-deconv-external-tools.yml, optional-stack.yml, etc.
+#
+# Results on GitHub: this job writes $GITHUB_STEP_SUMMARY (run summary page) and uploads artifact pytest-ci-results.
 name: CI
 
 on:
@@ -10,6 +19,8 @@ on:
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -23,9 +34,77 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
+      - name: Diagnostics (compare to local failures)
+        run: |
+          echo "python=$(python -V)"
+          echo "CI=${CI-} GITHUB_ACTIONS=${GITHUB_ACTIONS-}"
+          command -v snakemake && snakemake --version || echo "no snakemake on PATH"
+          python -m snakemake --version
+          python -m pytest --version
+
+      - name: What this workflow validates (job summary)
+        run: |
+          {
+            echo "## CI validation (not full Snakemake pipeline)"
+            echo ""
+            echo "This job runs **pytest** only: fast checks including Snakemake **\`--dry-run\`** on a stub \`GLIOMA_TARGET_DATA_ROOT\`."
+            echo ""
+            echo "A **full pipeline** (\`snakemake all\` with your real data layout) is expected **outside** GitHub Actions."
+            echo ""
+            echo "### Where to see results"
+            echo ""
+            echo "1. **This page** — section below after tests finish (exit code + log tail)."
+            echo "2. **Artifacts** (right panel or bottom of run) — download \`pytest-ci-results\` for JUnit XML + full log."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # requirements.txt includes snakemake; @pytest.mark.snakemake dry-run tests run here.
       # Use `pytest -m "not snakemake"` locally for a quicker loop without the DAG dry-run.
       # Supplementary smoke argv shape (goals before --dry-run, no --forcerun on dry-run) is asserted in
       # tests/test_supplementary_enrichment_smoke_dry_run.py::test_supplementary_snakemake_argv_dry_run_github_safe
       - name: Pytest
-        run: python -m pytest -q --tb=line
+        id: pytest
+        run: |
+          mkdir -p ci-artifacts
+          set -o pipefail
+          python -m pytest -q --tb=line \
+            --junitxml=ci-artifacts/pytest-results.xml \
+            -o junit_family=xunit2 \
+            2>&1 | tee ci-artifacts/pytest-log.txt
+          rc=${PIPESTATUS[0]}
+          echo "exit_code=$rc" > ci-artifacts/pytest-exit.txt
+          exit "$rc"
+
+      - name: Pytest outcome on summary (no download required)
+        if: always()
+        run: |
+          {
+            echo "## Pytest outcome"
+            echo ""
+            if [ -f ci-artifacts/pytest-exit.txt ]; then
+              echo "**Exit:** \`$(tr -d '\n' < ci-artifacts/pytest-exit.txt)\`"
+            else
+              echo "**Exit:** (no exit file — check log)"
+            fi
+            echo ""
+            if [ -f ci-artifacts/pytest-log.txt ]; then
+              echo "### Last 50 lines of console output"
+              echo ""
+              echo '```text'
+              tail -n 50 ci-artifacts/pytest-log.txt
+              echo '```'
+            fi
+            echo ""
+            echo "For the full log and \`pytest-results.xml\` (JUnit), open **Artifacts** → **pytest-ci-results**."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload CI test results (JUnit + log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-ci-results
+          path: |
+            ci-artifacts/pytest-results.xml
+            ci-artifacts/pytest-log.txt
+            ci-artifacts/pytest-exit.txt
+          if-no-files-found: warn

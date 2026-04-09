@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
 import yaml
 
-from snakemake_ci_data_stubs import prepare_data_root_for_pipeline_dry_run, touch_data_layout_ok_flag
+from snakemake_ci_data_stubs import (
+    prepare_data_root_for_pipeline_dry_run,
+    touch_data_layout_ok_flag,
+    touch_pipeline_dry_run_repo_placeholders,
+)
+from snakemake_pytest_cli import snakemake_argv0, snakemake_cli_ready
 from snakemake_subprocess_env import snakemake_subprocess_env
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -28,20 +32,24 @@ def _pipeline_index_dry_run_targets() -> list[str]:
 
 
 @pytest.mark.snakemake
-@pytest.mark.skipif(not shutil.which("snakemake"), reason="snakemake not on PATH")
+@pytest.mark.skipif(not snakemake_cli_ready(), reason="snakemake not available (PATH or python -m snakemake)")
 def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     """DAG must schedule every inventory manifest + index output (single dry-run, YAML-driven targets)."""
-    dr = tmp_path / "pipeline_dry_run_data"
-    dr.mkdir()
+    dr = (tmp_path / "pipeline_dry_run_data").resolve()
+    dr.mkdir(parents=True, exist_ok=True)
     prepare_data_root_for_pipeline_dry_run(dr)
+    hgnc_stub = dr / "references" / "hgnc_complete_set.txt"
+    assert hgnc_stub.is_file() and hgnc_stub.stat().st_size > 0, f"missing HGNC stub: {hgnc_stub}"
     layout = _ROOT / "results" / "data_layout_ok.flag"
     created_layout = not layout.is_file()
+    created_repo: list[Path] = []
     try:
         touch_data_layout_ok_flag(_ROOT)
-        env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr)})
+        created_repo = touch_pipeline_dry_run_repo_placeholders(_ROOT)
+        env = snakemake_subprocess_env(extra={"GLIOMA_TARGET_DATA_ROOT": str(dr.resolve())})
         targets = _pipeline_index_dry_run_targets()
         r = subprocess.run(
-            ["snakemake", "--dry-run", *targets],
+            [*snakemake_argv0(), "--dry-run", *targets],
             cwd=_ROOT,
             env=env,
             capture_output=True,
@@ -74,3 +82,6 @@ def test_snakemake_dry_run_pipeline_results_index(tmp_path: Path) -> None:
     finally:
         if created_layout and layout.is_file():
             layout.unlink()
+        for p in created_repo:
+            if p.is_file():
+                p.unlink()

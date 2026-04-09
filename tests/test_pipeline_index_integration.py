@@ -68,11 +68,29 @@ def test_write_pipeline_results_index_strict_subprocess_minimal_inventory_repo(t
 
 @pytest.mark.integration
 def test_write_pipeline_results_index_strict_subprocess_real_repo_skips_without_manifests() -> None:
-    """When results exist locally, ensure the same CLI the workflow uses passes strict."""
+    """With a real repo: --strict passes only when all required index paths exist; otherwise skip (partial results)."""
     sample = _ROOT / "results/module3/module3_export_manifest.json"
     if not sample.is_file():
         pytest.skip(
             "No results/module3/module3_export_manifest.json; build pipeline outputs or rely on the minimal-repo test"
+        )
+    probe = subprocess.run(
+        [sys.executable, str(_SCRIPT)],
+        cwd=str(_ROOT),
+        capture_output=True,
+        text=True,
+    )
+    assert probe.returncode == 0, f"stderr:\n{probe.stderr}\nstdout:\n{probe.stdout}"
+    inv = yaml.safe_load((_ROOT / "config" / "pipeline_inventory.yaml").read_text(encoding="utf-8"))
+    pri = inv.get("pipeline_results_index") or {}
+    out_rel = str(pri.get("output_json", "results/pipeline_results_index.json")).strip()
+    out_path = _ROOT / out_rel.replace("/", os.sep)
+    assert out_path.is_file(), f"missing index output after probe: {out_path}"
+    doc = json.loads(out_path.read_text(encoding="utf-8"))
+    n_miss_req = int(doc.get("summary", {}).get("n_missing_required", 0) or 0)
+    if n_miss_req > 0:
+        pytest.skip(
+            f"Partial results (n_missing_required={n_miss_req}); full pipeline artifacts needed for --strict"
         )
     r = subprocess.run(
         [sys.executable, str(_SCRIPT), "--strict"],
