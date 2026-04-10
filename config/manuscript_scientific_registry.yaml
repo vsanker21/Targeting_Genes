@@ -1,0 +1,233 @@
+# Version-controlled scientific intent for a flagship manuscript (Cell / Nature / Science–oriented).
+#
+# Use this file to enforce accuracy and skeptic-proofing:
+#   (1) One flagship claim, stated before holdout analysis
+#   (2) Public replication cohorts and negative controls (not extra pipeline features)
+#   (3) Explicit literature gaps (what is already known vs what you add)
+#   (4) One field-moving story for main figures
+#
+# Discipline: define primary endpoints on discovery data first; freeze or tag a git commit before
+# evaluating pre-specified holdout cohorts. Do not rewrite the claim to match holdout results.
+#
+# Staging roots align with config/m2_movics_inputs.yaml and config/m7_validation_outline_inputs.yaml.
+
+manuscript_scientific_registry:
+  document_status: preregistered
+  # draft | preregistered | manuscript_submitted
+  preregistration_git_tag_suggested: "manuscript-preregistration-2026-04-09"
+  last_review_note: "2026-04-10: PubMed-identified PRISMA count synced; flowchart rendered + SVG/PDF under docs/figures/manuscript; holdout manifests/permutations/Welch DE written under data_root validation/*; venue_scope_decision locked to methods_or_resources_venue; run scripts/freeze_manuscript_preregistration.py after commit."
+
+  flagship_claim:
+    axis: computational_method
+    # Primary title story: biology | computational_method | integrated_resource
+    one_sentence: >
+      We test whether a pre-specified integration of glioblastoma-versus-normal differential
+      expression from recount3-aligned integer counts and from GDC STAR–aligned counts reduces
+      platform- and batch-associated spurious differential genes—independent bulk holdouts
+      (CGGA GBM and two GEO series listed below), with all DE thresholds and gene-set filters
+      tuned only on TCGA-centric discovery data—compared with each assay analyzed alone under
+      the same statistical family and FDR policy.
+    why_non_obvious_vs_literature: >
+      Most bulk GBM papers validate signatures in CGGA/GEO using a single expression pipeline;
+      multi-study re-analysis rarely pre-registers cross-assay disagreement as the primary
+      endpoint or uses permutation/decoy controls tied to platform rather than post-hoc storytelling.
+
+  falsifiers_and_negative_controls:
+    - name: label_permutation_decoy_rate
+      description: DE genes significant under real labels but not under within-cohort label permutation
+      expected_if_claim_true: "Integrated pipeline shows lower decoy rate than single-assay on holdouts."
+      expected_if_artifact_or_wrong: "No consistent reduction; recount3-only or STAR-only wins."
+
+    - name: purity_and_myeloid_partialing
+      description: Add estimated purity / immune scores as covariates or stratification in bulk meta
+      expected_if_claim_true: "Cross-assay concordance signal persists for malignant programs."
+      expected_if_artifact_or_wrong: "Effect collapses—signal was confounded by stromal/immune content."
+
+    - name: classical_pathway_positive_controls
+      description: Frozen small gene set tied to EGFR-amplified classical biology (literature-derived)
+      expected_if_claim_true: "Non-inferior or better recovery vs single-assay on discovery; not lost on holdouts."
+      expected_if_artifact_or_wrong: "Integration destroys expected biology—integration is harming signal."
+
+  # Closest competitors: what exists vs what this manuscript must add (update PMIDs if you narrow topic).
+  closest_competitor_papers:
+    - short_name: Verhaak_TCGA_bulk_subtypes
+      they_already_showed: >
+        Four robust bulk expression subtypes of GBM with driver associations (EGFR, NF1, PDGFRA, IDH1).
+      we_add: >
+        We do not re-claim new subtypes; we test whether cross-assay DE integration improves
+        reproducibility of subtype-aligned programs across independent bulk platforms.
+      pmid: "20129251"
+      doi: "10.1016/j.ccr.2009.12.020"
+
+    - short_name: Neftel_sc_states_plasticity
+      they_already_showed: >
+        Four malignant cell states (NPC/OPC/AC/MES-like), plasticity, and genetic drivers at single-cell resolution.
+      we_add: >
+        We add bulk-level, pre-registered cross-assay DE reconciliation as a complement to sc state atlases,
+        with falsifiers aimed at stromal confounding—not a replacement for scRNA resolution.
+      pmid: "31327527"
+      doi: "10.1016/j.cell.2019.06.024"
+
+    - short_name: Greenwald_spatial_layers_hypoxia
+      they_already_showed: >
+        Multi-layer spatial architecture of GBM with hypoxia as a tissue-scale organizer (integrative spatial omics).
+      we_add: >
+        We stay at bulk deconvolution of assay effects; spatial claims would require orthogonal spatial data
+        and are out of scope unless explicitly added later with separate preregistration.
+      pmid: "38653236"
+      doi: "10.1016/j.cell.2024.03.029"
+
+    - short_name: MacLeod_Angers_GSC_fitness_CancerRes_2024
+      citation: "MacLeod G, et al. Cancer Res. 2024;84(23):3967-3983."
+      they_already_showed: >
+        CRISPR fitness maps state-specific vulnerabilities (developmental vs injury-response GSCs) and druggable axes.
+      we_add: >
+        Optional secondary alignment: test whether cross-assay–stable DE genes enrich published state-specific
+        fitness genes—not a substitute for new perturbation data for a CNS mechanism claim.
+      pmid: "39186687"
+      doi: "10.1158/0008-5472.CAN-23-4024"
+
+    - short_name: CGGA_resource_multicohort_routine
+      they_already_showed: >
+        CGGA as a standard independent Chinese glioma multi-omic resource; many studies validate TCGA signatures in CGGA.
+      we_add: >
+        We use CGGA strictly as a locked holdout for a method claim (decoy/permutation and cross-assay stability),
+        not as a third round of ad hoc signature tuning without a frozen discovery protocol.
+      pmid: "33662628"
+      doi: "10.1016/j.gpb.2020.10.005"
+
+  literature_anchors:
+    - theme: bulk_subtypes
+      exemplar_identifiers: ["PMID:20129251", "DOI:10.1016/j.ccr.2009.12.020"]
+      what_is_already_shown: "Expression-based GBM subtypes and copy-number/driver context."
+      what_remains_open: "Cross-platform stability of DE programs, not another subtype naming scheme."
+
+    - theme: single_cell_states
+      exemplar_identifiers: ["PMID:31327527"]
+      what_is_already_shown: "Malignant cell states and plasticity at single-cell resolution."
+      what_remains_open: "How bulk multi-assay pipelines approximate or diverge from state mixtures."
+
+  formal_literature_search_before_submission:
+    status: diagram_frozen
+    prisma_config: "config/prisma_literature_search.yaml"
+    workflow_doc: "docs/PRISMA_LITERATURE_WORKFLOW.md"
+    prisma_flowchart_script: "scripts/render_prisma_flow_mermaid.py"
+    recommendation: >
+      Fill screening_log in prisma_literature_search.yaml; render results/manuscript/prisma_flowchart.mmd;
+      export SVG/PDF from mermaid.live. Set prisma status to diagram_frozen when the figure matches the log.
+      Related-work Mermaid: docs/figures/RELATED_WORK_LANDSCAPE.md
+
+  # Choose exactly one strategic path; record before writing Discussion framing.
+  venue_scope_decision:
+    recorded_choice: methods_or_resources_venue
+    # mechanism_flagship_cns | methods_or_resources_venue
+    recorded_rationale_one_sentence: >
+      The locked flagship claim is a pre-registered computational cross-assay DE and permutation-decoy endpoint on public bulk cohorts without a new orthogonal perturbation or spatial arm in this freeze.
+    options:
+      mechanism_flagship_cns:
+        summary: >
+          Add one orthogonal arm (perturbation, spatial, proteomic, or prospective clinical material)
+          tied to the cross-assay-stable program; narrow the claim toward testable biology.
+        venue_fit: "Cell / Nature / Science biology track (higher risk, longer timeline)"
+      methods_or_resources_venue:
+        summary: >
+          Keep the pre-registered cross-assay DE + permutation decoy primary endpoint as the core novelty;
+          emphasize reproducibility and false-discovery control across public bulk cohorts.
+        venue_fit: "Nature Methods, Nature Communications, Genome Biology, Genome Medicine–class outlets"
+
+  public_replication_and_holdout_cohorts:
+    # Independent bulk expression / public omics for computational replication (not a substitute for
+    # experimental validation at CNS tier for most biological mechanism papers).
+    - cohort_id: tcga_gbm_gtex_recount3_universe
+      role: primary_discovery_alignment
+      modality: bulk_counts_or_tpm
+      pipeline_touchpoints:
+        - "Snakemake recount3 / STAR-harmonized DEA rules (see config/deseq2_recount3_tcga_gtex.yaml)"
+      replication_note: "Discovery only: all threshold tuning for the primary endpoint stops here."
+
+    - cohort_id: cgga_bulk
+      role: locked_holdout_replication
+      modality: microarray_or_rnaseq
+      staging_path_hint: "{data_root}/cohorts/cgga_expression"
+      confound_focus: "Platform, batch, ID harmonization, tumor purity"
+      preregistration_note: "GBM-eligible samples only; inclusion SQL/log frozen in same commit as tag."
+
+    - cohort_id: geo_series_bulk_gbm_holdout_A
+      role: locked_holdout_replication
+      modality: rnaseq_or_microarray
+      staging_path_hint: "{data_root}/cohorts/geo_bulk_gbm"
+      series_id_freeze: "GSE4290"
+      preregistration_note: "Default registry ID (Rembrandt-era bulk GBM); programmatic mirror under geo/bulk_microarray/GSE4290 + cohorts/geo_bulk_gbm/geo_download_index.json. Change only via commit before holdout unlock."
+
+    - cohort_id: geo_series_bulk_gbm_holdout_B
+      role: locked_holdout_replication
+      modality: rnaseq_or_microarray
+      staging_path_hint: "{data_root}/cohorts/geo_bulk_gbm"
+      series_id_freeze: "GSE7696"
+      preregistration_note: "Default registry ID (paired bulk GBM set in geo_bulk_series); same staging contract as holdout A."
+
+    - cohort_id: rembrandt_or_legacy_bulk
+      role: sensitivity_legacy_platform
+      modality: microarray
+      staging_path_hint: "{data_root}/cohorts/rembrandt_or_legacy"
+
+    - cohort_id: depmap_public
+      role: dependency_mechanism_context
+      modality: crispr_and_expression
+      staging_path_hint: "{data_root}/depmap"
+      replication_note: "Supports mechanism; does not replace tumor cohort replication."
+
+    - cohort_id: scrublet_spatial_scrna_optional
+      role: cellular_resolution_support
+      modality: scRNA_or_spatial_public
+      staging_path_hint: "{data_root}/cohorts/external_bulk_harmonized"
+      replication_note: "Use only if the flagship claim requires cell-level resolution."
+
+  m7_validation_staging:
+    # Presence-only inventory under data_root; see scripts/module7_validation_paths_status.py
+    outline_config: "config/m7_validation_outline_inputs.yaml"
+    programmatic_report: "scripts/run_public_validation_report.py"
+    programmatic_report_output: "results/module7/public_validation_run_report.json"
+    harmonize_holdout_staging: "scripts/harmonize_holdout_cohort_staging.py"
+    harmonize_snakemake_rule: "m7_harmonize_holdout_staging"
+    holdout_decoy_metrics: "scripts/m7_holdout_decoy_metrics.py"
+    holdout_decoy_snakemake_rule: "m7_holdout_decoy_metrics"
+    recommended_roots:
+      - "{data_root}/validation/external_cohort_expression"
+      - "{data_root}/validation/external_cohort_sample_meta"
+      - "{data_root}/validation/external_outcomes_labels"
+      - "{data_root}/validation/benchmark_topn_reference"
+
+  preregistered_analysis_contract:
+    primary_endpoint: >
+      On locked holdouts (CGGA GBM subset + two pre-registered GEO series), the integrated
+      cross-assay DE procedure yields a lower platform-decoy differential rate (genes FDR-significant
+      under real labels but not under within-cohort label permutation at the same pipeline settings)
+      than recount3-only and than GDC STAR–only pipelines, with FDR and filtering rules fixed from
+      TCGA-centric discovery only.
+    secondary_endpoints:
+      - "Spearman correlation of ranked effect sizes (integrated vs single-assay) on holdouts."
+      - "Recovery of a frozen positive-control gene list (classical-associated; list version in git)."
+      - "Optional: enrichment of cross-assay stable genes against MacLeod et al. (PMID 39186687) state-fitness gene sets."
+    multiple_testing_plan: >
+      FDR within each cohort/analysis arm; document all tested contrasts; no post-hoc narrowing of
+      the primary endpoint after holdout results.
+    batch_confounding_mitigation: >
+      Record platform, batch covariates, and optional purity/immune scores; pre-specify whether
+      they enter as covariates vs sensitivity-only analyses before holdout unlock.
+    holdout_rule: >
+      No tuning of thresholds, gene sets, or inclusion rules using CGGA or GEO holdout labels.
+      Default frozen GEO accessions are GSE4290 and GSE7696; if you designate different holdouts,
+      update series_id_freeze and config/required_downloads.yaml geo_bulk_series together in a dated
+      commit before extracting holdout results.
+
+  cns_readiness_truth_in_advertising:
+    public_cohorts_strengthen: "Multi-cohort replication reduces false discovery and batch skepticism."
+    public_cohorts_rarely_suffice_for_cns_mechanism: >
+      Cell/Nature/Science biology papers usually expect orthogonal experimental evidence
+      (perturbation, functional assay, or independent clinical material) in addition to public data.
+    single_narrative_for_main_figures: >
+      Fig1: Design + discovery/holdout split and assay contrast. Fig2: Discovery cross-assay concordance
+      and decoy controls on TCGA. Fig3: Holdout CGGA/GEO replication of primary endpoint. Fig4: Confound
+      sensitivity (purity/immune). Fig5 (optional): Fitness-set enrichment. Methods/Extended: Snakemake,
+      recount3 vs STAR preprocessing parity, full gene lists.

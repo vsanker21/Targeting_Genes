@@ -1,0 +1,66 @@
+# PRISMA-oriented literature workflow (manuscript_scientific_registry formal_literature_search_before_submission).
+# This file is the working protocol; update screening_log as you progress. Do not edit to match results.
+
+prisma_literature_search:
+  protocol_version: "2026-04-09"
+  # protocol_drafted | screening_in_progress | screening_complete | diagram_frozen
+  status: diagram_frozen
+  registry_alignment: "config/manuscript_scientific_registry.yaml"
+  # After filling screening_log counts, run: python scripts/render_prisma_flow_mermaid.py
+  # Layout-only preview: python scripts/render_prisma_flow_mermaid.py --demo
+  flowchart_mermaid_output: "results/manuscript/prisma_flowchart.mmd"
+  flowchart_svg_export: "docs/figures/manuscript/prisma_flowchart.svg"
+  flowchart_pdf_export: "docs/figures/manuscript/prisma_flowchart.pdf"
+  related_work_figure_spec: "docs/figures/RELATED_WORK_LANDSCAPE.md"
+
+  objective_one_liner: >
+    Map published bulk GBM expression validation practice vs pre-registered cross-assay DE integration claims.
+
+  information_sources:
+    - name: "PubMed / MEDLINE"
+      base_url: "https://pubmed.ncbi.nlm.nih.gov/"
+    - name: "Web of Science or Scopus"
+      note: "Pick one bibliographic DB for deduplication; record which."
+    - name: "Preprints"
+      optional: true
+      note: "bioRxiv/medRxiv keyword alerts if relevant to methods claim."
+
+  # Paste final search strings when frozen (date-stamped).
+  search_strings:
+    pubmed_block_1: "(glioblastoma OR \"diffuse glioma\" OR GBM) AND (expression OR transcriptom* OR RNA-seq OR microarray) AND (\"differential expression\" OR differentially expressed OR DESeq OR edgeR OR limma OR integration OR \"cross-platform\" OR batch OR recount OR harmoniz*)"
+    pubmed_block_2: ""
+    other_databases: []
+
+  eligibility_criteria:
+    population: "Human diffuse glioma / GBM bulk expression cohorts or meta-analyses"
+    intervention_or_exposure: "Cross-platform or multi-assay differential expression / integration"
+    comparator: "Single-assay or single-platform pipelines"
+    outcomes: "Replication metrics, concordance, or validation design (not limited to p-values)"
+    study_designs_included: ["observational_cohort", "secondary_data_analysis", "methods_paper_with_real_data"]
+    study_designs_excluded: ["single_cell_only_without_bulk", "non_human", "review_without_primary_reanalysis"]
+
+  screening_log:
+    records_identified_total: 3607
+    duplicates_removed: null
+    records_screened_title_abstract: null
+    records_excluded_title_abstract: null
+    full_text_assessed: null
+    full_text_excluded_with_reasons: []
+    # list of {study_id, reason_code, free_text}
+    studies_qualitative_synthesis: null
+    studies_quantitative_analysis: null
+
+  # records_identified_total is machine-verified (PubMed esearch) for pubmed_block_1; other tallies require human screening.
+  screening_log_notes: >
+    Duplicates removed, title/abstract, and full-text counts are not auto-filled from PubMed.
+    Update those fields only after the corresponding screening steps; keep this note when identified count is API-derived.
+
+  deduplication_tool: ""
+  screening_tool: ""
+  data_extraction_template: "docs/PRISMA_LITERATURE_WORKFLOW.md"
+  pubmed_identified_count_retrieved_utc: "2026-04-10T07:47:29Z"
+  pubmed_identified_count_tool: "scripts/sync_prisma_pubmed_identified_count.py (NCBI esearch.fcgi)"
+
+  suggested_reporting_checklist:
+    - "PRISMA 2020 checklist (Page et al., BMJ 2021)"
+    - "State database names, dates, and any language restrictions"
